@@ -16,6 +16,9 @@ mod/lightsworn/.godot/
 mod/lightsworn/.mono/
 *.uid
 
+# ===== 编译参考程序集（游戏/RitsuLib 二进制，版权文件不进仓库；用 tools\collect_refs.ps1 采集） =====
+mod/lightsworn/refs/
+
 # ===== C# 构建产物 =====
 mod/lightsworn/bin/
 mod/lightsworn/obj/

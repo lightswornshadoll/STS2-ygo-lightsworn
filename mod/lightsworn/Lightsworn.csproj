@@ -9,27 +9,29 @@
     <PathMap>$(AppOutputBase)=.\</PathMap>
     <GodotDisabledSourceGenerators>GodotPluginsInitializer</GodotDisabledSourceGenerators>
 
-    <!-- 杀戮尖塔2安装目录 -->
+    <!-- 杀戮尖塔2安装目录（仅用于部署 mod 文件，编译参考程序集不从这里读） -->
     <Sts2Dir>D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2</Sts2Dir>
-    <Sts2DataDir>$(Sts2Dir)\data_sts2_windows_x86_64</Sts2DataDir>
     <ModsPath>$(Sts2Dir)\mods\</ModsPath>
     <GodotExe>$(MSBuildProjectDirectory)\..\..\research\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe</GodotExe>
 
-    <!-- RitsuLib（workshop 3747602295，多版本兼容包；编译目标=0.111.0）
-         运行期由 RitsuLib loader 按游戏版本自动选 compat 变体，同一份 dll 兼容 0.107.1/0.111.0 -->
-    <RitsuLibDir>D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747602295</RitsuLibDir>
+    <!-- 编译参考程序集：固定副本（不随 Steam 分支切换变化）
+         语料来源=游戏 0.111.0(beta) 的 sts2.dll/0Harmony.dll + RitsuLib 全量（workshop 3747602295）
+         采集脚本=tools\collect_refs.ps1（切到 0.111 分支时运行一次即可，之后永久固定）。
+         注意：游戏分支切到 0.107.1 后 sts2.dll 只有5参签名，编译 6参 override 会 CS0115 —— 所以必须走 refs。 -->
+    <Sts2RefDir>$(MSBuildProjectDirectory)\refs\</Sts2RefDir>
+    <RitsuLibDir>$(Sts2RefDir)RitsuLib</RitsuLibDir>
     <RitsuLibReferenceTarget>0.111.0</RitsuLibReferenceTarget>
   </PropertyGroup>
 
-  <Import Project="$(RitsuLibDir)\RitsuLib.References.props" />
+  <Import Project="$(RitsuLibDir)\RitsuLib.References.props" Condition="Exists('$(RitsuLibDir)\RitsuLib.References.props')" />
 
   <ItemGroup>
     <Reference Include="sts2">
-      <HintPath>$(Sts2DataDir)\sts2.dll</HintPath>
+      <HintPath>$(Sts2RefDir)data\sts2.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>$(Sts2DataDir)\0Harmony.dll</HintPath>
+      <HintPath>$(Sts2RefDir)data\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
