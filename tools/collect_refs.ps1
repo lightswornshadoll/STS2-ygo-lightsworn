@@ -1,4 +1,4 @@
-# 采集编译参考程序集（refs）
+﻿# 采集编译参考程序集（refs）
 # 用途：把「游戏 0.111.0 的 sts2.dll/0Harmony.dll + RitsuLib 全量」复制到 mod\lightsworn\refs\
 #       之后编译永远读 refs，与 Steam 当前分支无关 —— 不用再为编译切 beta 分支
 #
