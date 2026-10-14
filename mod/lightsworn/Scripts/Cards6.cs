@@ -305,7 +305,7 @@ public sealed class QadshaddollKeios : ShaddollCard
     // 有另外一张手牌影依卡、且拿非利本回合未生成时才能打出
     protected override bool IsPlayable => base.IsPlayable &&
         PileType.Hand.GetPile(Owner).Cards.Any(c => !ReferenceEquals(c, this) && LsUtil.IsShaddoll(c)) &&
-        (Owner.Creature.CombatState is not { } cbt || !LsUtil.IsFusionGenerated(cbt, ModelDb.Card<ElShaddollConstruct>()));
+        (Owner.Creature.CombatState is not { } cbt || !LsUtil.IsFusionGenerated(cbt, Owner, ModelDb.Card<ElShaddollConstruct>()));
     protected override bool ShouldGlowGoldInternal => IsPlayable;
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
@@ -319,7 +319,7 @@ public sealed class QadshaddollKeios : ShaddollCard
         ICombatState? combat = Owner.Creature.CombatState;
         if (combat == null) return;
         CardModel concept = ModelDb.Card<ElShaddollConstruct>();
-        if (!LsUtil.CanFuseInto(combat, [this, pick], concept)) return;   // 未锁定+条件满足
+        if (!LsUtil.CanFuseInto(combat, Owner, [this, pick], concept)) return;   // 未锁定+条件满足
         await CardCmd.Discard(choiceContext, new List<CardModel> { pick });   // 素材弃置（被弃置时效果照常触发）
         await LsUtil.GenerateShaddollByConcept(choiceContext, this, concept, IsUpgraded);
     }

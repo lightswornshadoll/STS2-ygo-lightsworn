@@ -115,6 +115,9 @@ public class LightswornSigil : ModRelicTemplate
 
     public override Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
     {
+        // 联机：AfterPlayerTurnStartEarly 对每个玩家的回合开始各触发一轮（含队友）——
+        // 只在自己的回合开始弃光（不过滤会把队友的卡组当自己的弃）
+        if (player != Owner) return Task.CompletedTask;
         if (_usedThisCombat) return Task.CompletedTask;
         return OnFirstTurn(choiceContext, player);
     }
@@ -358,10 +361,22 @@ public class LightswornCharacter : ModCharacterTemplate<LightswornCardPool, Ligh
     public override string? CustomIconTexturePath => AssetDir + "icon.png";
     public override string? CustomIconOutlineTexturePath => AssetDir + "icon_outline.png";
 
+    // ---------- 左上角（顶栏）角色头像 = Character.Icon 场景（NTopBarPortrait.AddChild(player.Character.Icon)） ----------
+    // ⚠ v0.5.1 修复：RitsuLib 的 ModCharacterTemplate.ResolvedAssetProfile 会把**未覆盖的资源槽从占位角色
+    // （PlaceholderCharacterId=ironclad）继承**——不设置本项时头像场景继承铁甲的 ui/character_icons/ironclad_icon
+    // → 对局里左上角头像显示铁甲。mod 版=同结构的纯 TextureRect 场景（saint_icon.tscn，无游戏脚本，可正常导 pck）。
+    public override string? CustomIconPath => "res://lightsworn/visuals/saint_icon.tscn";
+
+    // ---------- 能量球：走 RitsuLib 的"场景路径"正规入口（saint_energy_counter.tscn） ----------
+    // ⚠ v0.5.1 修复：同一继承问题——不设置本项时 RitsuLib 的 NEnergyCounter.Create 前缀（HarmonyPriority 800）
+    // 会用"继承自铁甲的能量球场景"建球并 return false 中止补丁链；mod 自建的 Create 前缀（默认优先级）永远跑不到
+    // → 显示铁甲的红色八角球。改用场景后由 RitsuLib 的 RitsuNEnergyCounterNodeFactory 转换建球
+    // （缺 %EnergyVfxBack/%EnergyVfxFront/Label/%StarAnchor 等槽位时自动补齐），自建 build 代码删除。
+    public override string? CustomEnergyCounterPath => "res://lightsworn/visuals/saint_energy_counter.tscn";
+
     // ---------- 地图标记 ----------
     public override string? CustomMapMarkerPath => AssetDir + "map_marker.png";
 
-    // ---------- 能量球：LightswornEnergyCounterPatch 运行时构建（Layer1=圣女能量球，2-5透明占位；
-    // 数字描边深棕、爆发金色——同 v0.4.x 的 BaseLib legacy CustomEnergyCounter 观感）。
-    // 此处不再给 CustomEnergyCounterPath（null=不用游戏场景路径，交给自建补丁）。 ----------
+    // ---------- 能量球：saint_energy_counter.tscn（见上方 CustomEnergyCounterPath 注释）；
+    // 数字描边深棕=LightswornEnergyCounterOutlinePatch（OutlineColor getter 补丁，保留）。 ----------
 }

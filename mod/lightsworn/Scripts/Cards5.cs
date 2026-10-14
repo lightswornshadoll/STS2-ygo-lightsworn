@@ -430,7 +430,7 @@ public sealed class PrimevalEcho : LsCard
         // 订正：拿回的是融合生成的珠泪攻击Token时，视同"本回合已生成"——本回合不能再融合出对应的融合卡
         // （登记融合生成锁；珠泪融合引擎与融合图鉴同步生效）
         if (copy is TearFusionToken && Owner.Creature.CombatState is { } cbt)
-            LsUtil.LockFusionGeneratedThisTurn(cbt, copy);
+            LsUtil.LockFusionGeneratedThisTurn(cbt, Owner, copy);
     }
 }
 

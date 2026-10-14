@@ -108,6 +108,8 @@ public class SanctuaryPower : ModPowerTemplate
 
     public override async Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
     {
+        // 联机：该钩子对每个玩家的回合开始各触发一轮（含队友），只在自己回合开始生效（StampedePower 同款）
+        if (player != Owner.Player) return;
         if (Amount <= 0) return;
         List<CardModel> lsInHand = PileType.Hand.GetPile(player).Cards.Where(LsUtil.IsLs).ToList();
         if (lsInHand.Count == 0) return;
@@ -143,6 +145,8 @@ public class JanicePower : ModPowerTemplate
 
     public override Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
     {
+        // 联机：队友回合开始的广播会打到这里——只在自己的回合开始重置标记
+        if (player != Owner.Player) return Task.CompletedTask;
         _milledThisTurn = false;
         return Task.CompletedTask;
     }
@@ -205,6 +209,8 @@ public class LightBouncePower : ModPowerTemplate
 
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
+        // 联机：AfterCardPlayed 是全场广播（队友打牌也会通知）——只认自己打出的「光道」牌
+        if (cardPlay.Player != Owner.Player) return;
         if (Amount <= 0) return;
         if (!cardPlay.Card.Tags.Contains(Ls.Lightsworn)) return;
         await CreatureCmd.GainBlock(Owner, Amount, ValueProp.Unpowered, null);
@@ -268,6 +274,7 @@ public class PrimevalScreamPower : ModPowerTemplate
     // AfterPlayerTurnStartEarly 在抽牌之后触发（手牌已就绪），神域同款
     public override async Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
     {
+        if (player != Owner.Player) return;   // 联机：只在自己的回合开始弃光
         if (Amount <= 0) return;
         await LsUtil.Mill(choiceContext, player, Amount);
     }
@@ -285,6 +292,7 @@ public class ShaddollSchismPower : ModPowerTemplate
 
     public override async Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
     {
+        if (player != Owner.Player) return;   // 联机：只在自己的回合开始影融
         if (Amount <= 0) return;
         await OnTurnStartFusion(choiceContext, player);
     }
@@ -314,6 +322,7 @@ public class PurushaddollAeonPower : ModPowerTemplate
     // AfterPlayerTurnStartEarly 在抽牌之后触发（手牌已就绪），神域/伪典同款
     public override async Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
     {
+        if (player != Owner.Player) return;   // 联机：只在自己的回合开始回收
         if (Amount <= 0) return;
         List<CardModel> candidates = PileType.Exhaust.GetPile(player).Cards.Where(LsUtil.IsShaddoll).ToList();
         if (candidates.Count == 0 || !LsUtil.HandHasSpace(player)) return;
@@ -350,6 +359,8 @@ public class HonestPower : ModPowerTemplate
 
     public override Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
+        // 联机：只认自己打出的攻击牌（队友攻击是全场广播，不过滤会白白消耗层数）
+        if (cardPlay.Player != Owner.Player) return Task.CompletedTask;
         if (cardPlay.Card.Type == CardType.Attack) return PowerCmd.Decrement(this);
         return Task.CompletedTask;
     }
@@ -419,6 +430,8 @@ public class ShaddollHoundPower : ModPowerTemplate
 
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
+        // 联机：只认自己打出的影依攻击卡（队友打牌是全场广播，不过滤会消耗我的层数并重复触发）
+        if (cardPlay.Player != Owner.Player) return;
         if (Amount <= 0) return;
         // 问题5：影依判定走标签（卡名无影依的 ShaddollCard 子类不再算影依卡）
         if (!LsUtil.IsShaddoll(cardPlay.Card) || cardPlay.Card.Type != CardType.Attack) return;
@@ -468,6 +481,7 @@ public class ShaddollZefracorePower : ModPowerTemplate
     // AfterPlayerTurnStartEarly 在抽牌之后触发（手牌已就绪），流世/弦声同款
     public override async Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
     {
+        if (player != Owner.Player) return;   // 联机：只在自己的回合开始随机生成
         if (Amount <= 0) return;
         await LsUtil.GenerateRandomToHand(choiceContext, player,
             [ModelDb.Card<HelshaddollHollow>(), ModelDb.Card<TohushaddollGrysta>(), ModelDb.Card<ElShaddollGrysta>()]);
@@ -486,6 +500,7 @@ public class ShaddollZefranagaPower : ModPowerTemplate
 
     public override async Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
     {
+        if (player != Owner.Player) return;   // 联机：只在自己的回合开始随机生成
         if (Amount <= 0) return;
         await LsUtil.GenerateRandomToHand(choiceContext, player,
             [ModelDb.Card<QadshaddollKeios>(), ModelDb.Card<ReshShaddollIncarnation>(), ModelDb.Card<ShaddollSchism>()]);

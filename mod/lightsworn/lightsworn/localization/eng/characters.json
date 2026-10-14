@@ -1,0 +1,17 @@
+{
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.title": "光道圣女 密勒瓦",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.description": "以光之名，堆葬黑暗。弃牌堆即墓地，消耗堆即除外——把牌堆顶送入墓地喂养光道之力，或以黄昏之名为其献祭。",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.titleObject": "光道圣女 密勒瓦",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.pronounSubject": "她",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.pronounObject": "她",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.pronounPossessive": "她的",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.possessiveAdjective": "她的",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.bestiaryQuote": "以光之名，安息吧。",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.eventDeathPrevention": "光还未熄灭……我的同伴们还需要我。",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.goldMonologue": "[sine]这些金币，可以为光道的圣殿添些烛火。[/sine]",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.cardsModifierTitle": "光道圣女卡牌",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.cardsModifierDescription": "光道圣女的卡牌现在会出现在奖励和商店中。",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.aromaPrinciple": "[sine][gold]以光之名，堆葬黑暗。[/gold][/sine]",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.banter.alive.endTurnPing": "光与你同在。",
+  "LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER.banter.dead.endTurnPing": "……"
+}

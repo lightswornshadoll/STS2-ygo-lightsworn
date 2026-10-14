@@ -285,7 +285,7 @@ public static class LsUtil
         ResetFusionKeys(combat);
 
         List<(CardModel Concept, Func<List<CardModel>, bool> Cond)> options = FusionOptions();
-        if (options.All(o => IsFusionLocked(combat, o.Concept)))
+        if (options.All(o => IsFusionLocked(combat, player, o.Concept)))
         {
             TearLog($"cast trigger={trigger.Id.Entry} → abort：全部融合卡本回合已生成（生成锁）");
             return;
@@ -307,7 +307,7 @@ public static class LsUtil
         HashSet<CardModel> useful = new();
         foreach (var o in options)
         {
-            if (IsFusionLocked(combat, o.Concept)) continue;
+            if (IsFusionLocked(combat, player, o.Concept)) continue;
             foreach (List<CardModel> combo in Combinations(others, 1))
                 if (o.Cond([trigger, .. combo])) useful.UnionWith(combo);
             if (others.Count >= 2)
@@ -326,11 +326,11 @@ public static class LsUtil
         // 严格判定前置（问题2）：选出的组合无可用融合=不弃置不消耗，什么都没发生
         // （素材池扩到影依牌后误选概率大增，v0.4.15"白洗回"的自然代价不再可接受）
         List<CardModel> available = options
-            .Where(o => o.Cond(material) && !IsFusionLocked(combat, o.Concept))
+            .Where(o => o.Cond(material) && !IsFusionLocked(combat, player, o.Concept))
             .Select(o => o.Concept).ToList();
         if (available.Count == 0)
         {
-            TearLog($"abort：组合无可用融合（素材未动）｜{OptionLine(combat, options, material)}");
+            TearLog($"abort：组合无可用融合（素材未动）｜{OptionLine(combat, player, options, material)}");
             return;
         }
         // v0.4.37：融合卡选择与手牌空间判定前移到素材移动之前——取消选择/手牌满时不再白吃素材
@@ -353,7 +353,7 @@ public static class LsUtil
             token.UpgradeInternal();
             token.FinalizeUpgradeInternal();
         }
-        RegisterFusionGenerated(combat, token);
+        RegisterFusionGenerated(combat, player, token);
         await CardPileCmd.AddGeneratedCardToCombat(token, PileType.Hand, player);
         TearLog($"生成 {token.Id.Entry} upgraded={trigger.IsUpgraded} → 已入手牌");
 
@@ -472,20 +472,21 @@ public static class LsUtil
 
     // 素材组合是否满足指定神影依的融合条件且未被生成锁拦下（影依的原核规则生效）。
     // 供圣影依 商神杖灵（问题32）等"指定融合目标"的效果使用。含 ResetFusionKeys，可随时调用。
-    public static bool CanFuseInto(ICombatState combat, List<CardModel> material, CardModel concept)
+    // v0.5.1：生成锁按玩家判定——传入发动方（卡主）。
+    public static bool CanFuseInto(ICombatState combat, Player player, List<CardModel> material, CardModel concept)
     {
         ResetFusionKeys(combat);
         var opt = WithCoreRule(ShaddollFusionOptions(false))
             .FirstOrDefault(o => o.Concept.Id == concept.Id);
         if (opt.Concept == null || !opt.Cond(material)) return false;
-        return !IsFusionLocked(combat, opt.Concept);
+        return !IsFusionLocked(combat, player, opt.Concept);
     }
 
     // 指定神影依是否已被生成锁拦下（本回合已生成/文迪戈本场已生成）——供 IsPlayable 预判
-    public static bool IsFusionGenerated(ICombatState combat, CardModel concept)
+    public static bool IsFusionGenerated(ICombatState combat, Player player, CardModel concept)
     {
         ResetFusionKeys(combat);
-        return IsFusionLocked(combat, concept);
+        return IsFusionLocked(combat, player, concept);
     }
 
     // 回合开始时"从列表中随机生成1张加入手牌并获得「消耗」"（绊影依/救影依能力，本批反馈）。
@@ -502,17 +503,18 @@ public static class LsUtil
         if (card == null) return;
         card.AddKeyword(CardKeyword.Exhaust);
         if (card is ShaddollToken)
-            LockFusionGeneratedThisTurn(combat, card);
+            LockFusionGeneratedThisTurn(combat, player, card);
         await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Hand, player);
         FusionLog($"随机生成 {card.Id.Entry}（{concept.Id.Entry}）→ 已入手牌");
     }
 
     // 把一张（已存在的）融合Token登记为"本回合已生成"——供残响（PrimevalEcho）使用：
     // 从消耗堆拿回的珠泪融合Token视同本回合已融合，本回合不能再融合出对应的融合卡（图鉴同步置灰）。
-    public static void LockFusionGeneratedThisTurn(ICombatState combat, CardModel card)
+    // v0.5.1：显式传发动方玩家（生成锁按玩家隔离）。
+    public static void LockFusionGeneratedThisTurn(ICombatState combat, Player player, CardModel card)
     {
         ResetFusionKeys(combat);
-        RegisterFusionGenerated(combat, card);
+        RegisterFusionGenerated(combat, player, card);
     }
 
     // 融合生成锁（v0.4.24 跨引擎统一；v0.4.29 改为按战斗实例隔离）：每回合每张只能生成1次
@@ -524,18 +526,32 @@ public static class LsUtil
     // 下一场战斗的同回合（朋友实测：上一场最后回合融合的怪，下一场同回合不能再融/图鉴仍置灰）；
     // ②存档里没有战斗状态，"保存并退出→继续"=本场重打（新实例、回到第1回合），静态锁不失效
     // →同一回合只能融另一种、再退再进后全都融不了（朋友实测）。
+    // ⚠ v0.5.1 联机：锁按玩家隔离（Dictionary 以 Player 实例为键，同端同实例）——"每回合每张1次"
+    // 是各玩家自己的融合引擎规则，双光道组队时不能互相抢锁（否则队友融过 Kitkallos，我本回合
+    // 就融不出、图鉴还被队友的锁置灰）。
     private sealed class FusionLockState
     {
         public object? TurnKey;
-        public readonly HashSet<ModelId> TearFusedThisTurn = new();
-        public readonly HashSet<ModelId> ShaddollFusedThisTurn = new();
+        public readonly Dictionary<Player, HashSet<ModelId>> TearFusedThisTurn = new();
+        public readonly Dictionary<Player, HashSet<ModelId>> ShaddollFusedThisTurn = new();
         // 本场战斗只能生成1次：文迪戈（神影依）+ 卡雷多哈特（本批反馈）
-        public readonly HashSet<ModelId> BattleLocked = new();
+        public readonly Dictionary<Player, HashSet<ModelId>> BattleLocked = new();
     }
 
     private static readonly ConditionalWeakTable<ICombatState, FusionLockState> _fusionLocks = new();
 
     private static FusionLockState Locks(ICombatState combat) => _fusionLocks.GetOrCreateValue(combat);
+
+    // 取（或新建）该玩家在本场战斗中的键集合
+    private static HashSet<ModelId> PlayerSet(Dictionary<Player, HashSet<ModelId>> map, Player player)
+    {
+        if (!map.TryGetValue(player, out HashSet<ModelId>? set))
+        {
+            set = new HashSet<ModelId>();
+            map[player] = set;
+        }
+        return set;
+    }
 
     // ===== 诊断日志（v0.4.34：排查"素材满足条件却没出神影依"类问题）=====
     // 以 "[LsShaddoll] FUSION ..." 前缀写入游戏日志（%APPDATA%\SlayTheSpire2\logs\godot.log）。
@@ -550,9 +566,10 @@ public static class LsUtil
     private static string MatDescr(CardModel c)
         => $"{c.Title}[{c.Pile?.Type.ToString() ?? "无堆"}|{(IsShaddoll(c) ? "影依" : "非影依")}|{(c.IsUpgraded ? "强化" : "基础")}]";
 
-    // 日志用全选项判定：entry=cond:T/F/lock:T/F
-    private static string OptionLine(ICombatState combat, List<(CardModel Concept, Func<List<CardModel>, bool> Cond)> options, List<CardModel> material)
-        => string.Join(" ", options.Select(o => $"{o.Concept.Id.Entry}=cond:{(o.Cond(material) ? "T" : "F")}/lock:{(IsFusionLocked(combat, o.Concept) ? "T" : "F")}"));
+    // 日志用全选项判定：entry=cond:T/F/lock:T/F（锁按发动方玩家判定）
+    private static string OptionLine(ICombatState combat, Player player,
+        List<(CardModel Concept, Func<List<CardModel>, bool> Cond)> options, List<CardModel> material)
+        => string.Join(" ", options.Select(o => $"{o.Concept.Id.Entry}=cond:{(o.Cond(material) ? "T" : "F")}/lock:{(IsFusionLocked(combat, player, o.Concept) ? "T" : "F")}"));
 
     // 回合/侧切换时清空该战斗的"本回合已生成"跟踪（文迪戈锁按战斗实例天然隔离，无需手动清）。
     private static void ResetFusionKeys(ICombatState combat)
@@ -569,22 +586,24 @@ public static class LsUtil
         }
     }
 
-    private static void RegisterFusionGenerated(ICombatState combat, CardModel token)
+    private static void RegisterFusionGenerated(ICombatState combat, Player player, CardModel token)
     {
         FusionLockState st = Locks(combat);
-        st.TearFusedThisTurn.Add(token.Id);
-        st.ShaddollFusedThisTurn.Add(token.Id);
+        PlayerSet(st.TearFusedThisTurn, player).Add(token.Id);
+        PlayerSet(st.ShaddollFusedThisTurn, player).Add(token.Id);
         // 本场战斗只能生成1次：文迪戈（原有）+ 卡雷多哈特（本批反馈："和文迪戈一样"）
         if (token is ElShaddollWendigo or KaleidoHeart)
-            st.BattleLocked.Add(token.Id);
-        FusionLog($"lock-add {token.Id.Entry}（本回合 {st.TurnKey}{(token is ElShaddollWendigo or KaleidoHeart ? "，本场战斗锁" : "")}）");
+            PlayerSet(st.BattleLocked, player).Add(token.Id);
+        FusionLog($"lock-add {token.Id.Entry}（玩家 {player.NetId}，本回合 {st.TurnKey}" +
+            $"{(token is ElShaddollWendigo or KaleidoHeart ? "，本场战斗锁" : "")}）");
     }
 
-    private static bool IsFusionLocked(ICombatState combat, CardModel concept)
+    private static bool IsFusionLocked(ICombatState combat, Player player, CardModel concept)
     {
         FusionLockState st = Locks(combat);
-        return st.TearFusedThisTurn.Contains(concept.Id) || st.ShaddollFusedThisTurn.Contains(concept.Id)
-            || st.BattleLocked.Contains(concept.Id);
+        return (st.TearFusedThisTurn.TryGetValue(player, out var tear) && tear.Contains(concept.Id))
+            || (st.ShaddollFusedThisTurn.TryGetValue(player, out var shaddoll) && shaddoll.Contains(concept.Id))
+            || (st.BattleLocked.TryGetValue(player, out var battle) && battle.Contains(concept.Id));
     }
 
     // 组合枚举（素材候选预筛用；手牌≤10、弃牌堆影依有限，开销可忽略）
@@ -605,8 +624,8 @@ public static class LsUtil
     }
 
     // 素材候选预筛：只显示"至少能参与一个可用融合组合"的牌（选择界面只显示候选，杜绝选出必然无融合的组合）
-    private static List<CardModel> ValidMaterialCandidates(ICombatState combat, List<CardModel> pool, int[] sizes,
-        List<(CardModel Concept, Func<List<CardModel>, bool> Cond)> options)
+    private static List<CardModel> ValidMaterialCandidates(ICombatState combat, Player player, List<CardModel> pool,
+        int[] sizes, List<(CardModel Concept, Func<List<CardModel>, bool> Cond)> options)
     {
         HashSet<CardModel> useful = new();
         foreach (int size in sizes)
@@ -614,7 +633,7 @@ public static class LsUtil
             if (pool.Count < size) continue;
             foreach (var o in options)
             {
-                if (IsFusionLocked(combat, o.Concept)) continue;
+                if (IsFusionLocked(combat, player, o.Concept)) continue;
                 foreach (List<CardModel> combo in Combinations(pool, size))
                 {
                     if (o.Cond(combo))
@@ -641,7 +660,7 @@ public static class LsUtil
         }
         if (replayCount > 0)
             token.BaseReplayCount += replayCount;
-        RegisterFusionGenerated(combat, token);
+        RegisterFusionGenerated(combat, player, token);
         await CardPileCmd.AddGeneratedCardToCombat(token, PileType.Hand, player);
         FusionLog($"生成 {token.Id.Entry} upgraded={upgraded} replay={replayCount} → 已入手牌");
         return token;
@@ -690,17 +709,17 @@ public static class LsUtil
             // 排除触发卡自身（虚影依 神子晶的影融在被弃置时发动，触发时自己已在弃牌堆）
             List<CardModel> pool = DiscardPile(player).Cards
                 .Where(c => IsShaddoll(c) && !ReferenceEquals(c, trigger)).ToList();
-            List<CardModel> candidates = ValidMaterialCandidates(combat, pool, new[] { 2 }, options);
+            List<CardModel> candidates = ValidMaterialCandidates(combat, player, pool, new[] { 2 }, options);
             FusionLog($"pool=弃牌堆 poolN={pool.Count} candidates={candidates.Count}");
             if (candidates.Count < 2) { FusionLog("abort：弃牌堆候选不足2张"); return; }
             material = await PickSomeFromList(ctx, player, candidates, "LIGHTSWORN_SHADDOLL_MATERIAL",
                 optional ? 0 : 2, 2);
             FusionLog($"picked n={material.Count}：{string.Join(" ; ", material.Select(MatDescr))}");
-            available = options.Where(o => o.Cond(material) && !IsFusionLocked(combat, o.Concept))
+            available = options.Where(o => o.Cond(material) && !IsFusionLocked(combat, player, o.Concept))
                 .Select(o => o.Concept).ToList();
             if (material.Count != 2 || available.Count == 0)
             {
-                FusionLog($"abort：组合无可用融合（不消耗）｜{OptionLine(combat, options, material)}");
+                FusionLog($"abort：组合无可用融合（不消耗）｜{OptionLine(combat, player, options, material)}");
                 return;   // 选出的组合无可用融合：不消耗，留在弃牌堆
             }
             foreach (CardModel card in material)
@@ -714,17 +733,17 @@ public static class LsUtil
             // 问题1：从卡组选素材限「影依」牌（用户拍板=控制强度；文案与行为对齐）
             if (includeDraw)
                 pool.AddRange(DrawPile(player).Cards.Where(IsShaddoll));
-            List<CardModel> candidates = ValidMaterialCandidates(combat, pool, sizes, options);
+            List<CardModel> candidates = ValidMaterialCandidates(combat, player, pool, sizes, options);
             FusionLog($"pool=手牌{handN}张+卡组影依{pool.Count - handN}张 candidates={candidates.Count}");
             if (candidates.Count < sizes[0]) { FusionLog($"abort：候选不足{sizes[0]}张"); return; }
             material = await PickSomeFromList(ctx, player, candidates, "LIGHTSWORN_SHADDOLL_MATERIAL", sizes[0], sizes[^1]);
             FusionLog($"picked n={material.Count}：{string.Join(" ; ", material.Select(MatDescr))}");
             if (material.Count < sizes[0]) { FusionLog("abort：选牌不足最小张数（素材未动）"); return; }
-            available = options.Where(o => o.Cond(material) && !IsFusionLocked(combat, o.Concept))
+            available = options.Where(o => o.Cond(material) && !IsFusionLocked(combat, player, o.Concept))
                 .Select(o => o.Concept).ToList();
             if (available.Count == 0)
             {
-                FusionLog($"abort：组合无可用融合（素材未弃置、什么都没发生）｜{OptionLine(combat, options, material)}");
+                FusionLog($"abort：组合无可用融合（素材未弃置、什么都没发生）｜{OptionLine(combat, player, options, material)}");
                 return;   // 选出的组合无可用融合：素材从未被弃置，什么都没发生
             }
 
@@ -757,7 +776,7 @@ public static class LsUtil
         ICombatState? combat = source.Owner.Creature.CombatState;
         if (combat == null || !HandHasSpace(source)) return null;
         ResetFusionKeys(combat);
-        if (IsFusionLocked(combat, concept)) return null;
+        if (IsFusionLocked(combat, source.Owner, concept)) return null;
         return await GenerateShaddollToken(combat, source.Owner, concept, upgraded);
     }
 
@@ -775,7 +794,7 @@ public static class LsUtil
         }
         ResetFusionKeys(combat);
         List<CardModel> available = ShaddollFusionOptions(exempt: true)
-            .Select(o => o.Concept).Where(c => !IsFusionLocked(combat, c)).ToList();
+            .Select(o => o.Concept).Where(c => !IsFusionLocked(combat, source.Owner, c)).ToList();
         FusionLog($"cast(选神影依) source={source.Id.Entry} upgraded={upgraded} zeroDamage={zeroDamage} available={available.Count}");
         if (available.Count == 0) { FusionLog("abort：9张神影依全被本回合生成锁挡住"); return null; }
         CardModel? pick = await PickConcept(ctx, source.Owner, available, "LIGHTSWORN_SHADDOLL_FUSION");
@@ -801,13 +820,15 @@ public static class LsUtil
 
     // 图鉴置灰判定：珠泪/影依融合「本回合已生成」（两引擎统一登记，双查）或文迪戈「本场战斗已生成」。
     // 状态按战斗实例隔离（v0.4.29）：回合计数在实例内推进，跨战斗/读档重打自动全新。
-    public static bool IsFusionUsedForCodex(ICombatState combat, CardModel concept)
+    // v0.5.1：按玩家判定——图鉴显示的是"当前查看玩家自己"的本回合生成记录（联机不串）。
+    public static bool IsFusionUsedForCodex(ICombatState combat, Player player, CardModel concept)
     {
         FusionLockState st = Locks(combat);
         object turnKey = $"{combat.RoundNumber}:{combat.CurrentSide}";
         if (Equals(turnKey, st.TurnKey) &&
-            (st.TearFusedThisTurn.Contains(concept.Id) || st.ShaddollFusedThisTurn.Contains(concept.Id))) return true;
-        return st.BattleLocked.Contains(concept.Id);
+            ((st.TearFusedThisTurn.TryGetValue(player, out var tear) && tear.Contains(concept.Id))
+             || (st.ShaddollFusedThisTurn.TryGetValue(player, out var shaddoll) && shaddoll.Contains(concept.Id)))) return true;
+        return st.BattleLocked.TryGetValue(player, out var battle) && battle.Contains(concept.Id);
     }
 
     // ============ 影依弃置触发管线 ============

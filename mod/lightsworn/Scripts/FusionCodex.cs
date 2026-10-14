@@ -93,7 +93,8 @@ internal sealed partial class FusionLockWatcher : Node
         foreach (Node node in Descendants(grid))
         {
             if (node is not NCardHolder holder || holder.CardModel == null) continue;
-            bool locked = combat != null && LsUtil.IsFusionUsedForCodex(combat, holder.CardModel);
+            // 联机：置灰状态按"查看者自己"的融合生成锁判定（队友的锁不置灰我的图鉴）
+            bool locked = combat != null && me != null && LsUtil.IsFusionUsedForCodex(combat, me, holder.CardModel);
             holder.Modulate = locked ? LockedTint : Colors.White;
         }
     }

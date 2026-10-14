@@ -21,8 +21,7 @@ public static class Entry
 
         ModPatcher patcher = RitsuLibFramework.CreatePatcher("lightsworn", "core");
         patcher.RegisterPatch<StartingRelicChoicePatch>();            // 初始遗物二选一
-        patcher.RegisterPatch<LightswornEnergyCounterPatch>();        // 圣女能量球（C# 运行时构建）
-        patcher.RegisterPatch<LightswornEnergyCounterOutlinePatch>(); // 能量球描边色
+        patcher.RegisterPatch<LightswornEnergyCounterOutlinePatch>(); // 能量球描边色（球体本体走 RitsuLib 场景路径，见角色类）
         patcher.RegisterPatch<HonestPowerLegacyPatch>();              // 欧尼斯特：0.107.x 五参 ModifyDamageMultiplicative
 
         if (!RitsuLibFramework.ApplyRequiredPatcher(patcher, static () => { }, "Lightsworn core patches failed"))

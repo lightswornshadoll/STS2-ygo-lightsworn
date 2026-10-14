@@ -32,3 +32,6 @@ mod/lightsworn/obj/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# ===== 联机实测证据截图（本地留档，不进仓库）=====
+tools/mp_evidence/
