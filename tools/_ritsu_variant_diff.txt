@@ -1,0 +1,3781 @@
+====================================================================================================
+FILE: Properties/AssemblyInfo.cs
+--- 
++++ 
+@@ -23,7 +23,7 @@
+ using STS2RitsuLib.Ui.MainMenu;
+ using STS2RitsuLib.Ui.Overlay;
+ using STS2RitsuLib.Utils;
+-[assembly: AssemblyMetadata("Sts2ApiCompat", "0.107.1")]
++[assembly: AssemblyMetadata("Sts2ApiCompat", "0.111.0")]
+ [assembly: AssemblyMetadata("RitsuLibTelemetryBuildChannel", "release")]
+ [assembly: AssemblyMetadata("RitsuLibTelemetryBuildConfiguration", "Release")]
+ [assembly: IgnoresAccessChecksTo("sts2")]
+====================================================================================================
+FILE: STS2RitsuLib.Audio.Patches/NRunMusicControllerGuidMappedStudioEventsPatches.cs
+--- 
++++ 
+@@ -44,14 +44,14 @@
+ ///     <para xml:lang="zh-CN">复现原生的确定性曲目选择和章节音频库加载，并按 GUID 处理已映射曲目。</para>
+ /// </summary>
+ [HarmonyPriority(0)]
+-public static bool Prefix(NRunMusicController __instance, IRunState ____runState, ref string ____currentTrack, Node ____proxy)
++public static bool Prefix(NRunMusicController __instance, IRunState ____runState, ref string ____currentTrack, ref string? ____failedTrack, Node ____proxy)
+ {
+ //IL_0059: Unknown result type (might be due to invalid IL or missing references)
+ //IL_005e: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00e9: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00ee: Unknown result type (might be due to invalid IL or missing references)
++//IL_0106: Unknown result type (might be due to invalid IL or missing references)
++//IL_010b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0113: Unknown result type (might be due to invalid IL or missing references)
++//IL_0118: Unknown result type (might be due to invalid IL or missing references)
+ if (ShouldUseVanilla())
+ {
+ return true;
+@@ -72,8 +72,13 @@
+ bool flag2 = ReleaseOwnedMappedActBank();
+ return num2 && flag2;
+ }
++if (string.Equals(((MusicSelection)(ref valueOrDefault)).Track, ____failedTrack, (StringComparison)4))
++{
++return false;
++}
+ if (!TryEnsureMappedActBank(((MusicSelection)(ref valueOrDefault)).BankPath, ((MusicSelection)(ref valueOrDefault)).Track))
+ {
++____failedTrack = ((MusicSelection)(ref valueOrDefault)).Track;
+ return false;
+ }
+ bool num3 = StopVanillaRunMusic(____proxy);
+@@ -84,8 +89,10 @@
+ }
+ if (!TryStartMappedRunMusic("UpdateMusic", ((MusicSelection)(ref valueOrDefault)).Track))
+ {
+-return false;
+-}
++____failedTrack = ((MusicSelection)(ref valueOrDefault)).Track;
++return false;
++}
++____failedTrack = null;
+ ____currentTrack = ((MusicSelection)(ref valueOrDefault)).Track;
+ TryCall(____proxy, SetGlobalParameterMethod, Variant.op_Implicit("Progress"), Variant.op_Implicit(0));
+ __instance.UpdateAmbience();
+====================================================================================================
+FILE: STS2RitsuLib.CardPiles.Patches/ModCardPileFindOnTablePatch.cs
+--- 
++++ 
+@@ -35,46 +35,56 @@
+ }
+ public static bool Prefix(CardModel card, PileType? overridePile, ref NCard? __result)
+ {
+-//IL_000d: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0025: Unknown result type (might be due to invalid IL or missing references)
++//IL_0020: Unknown result type (might be due to invalid IL or missing references)
++//IL_003b: Unknown result type (might be due to invalid IL or missing references)
++PileType? val = overridePile;
++PileType? obj;
++if (!val.HasValue)
++{
+ CardPile pile = card.Pile;
+-PileType? val = ((pile != null) ? new PileType?(pile.Type) : overridePile);
+-if (!val.HasValue)
++obj = ((pile != null) ? new PileType?(pile.Type) : ((PileType?)null));
++}
++else
++{
++obj = val;
++}
++PileType? val2 = obj;
++if (!val2.HasValue)
+ {
+ return true;
+ }
+-if (!ModCardPileRegistry.TryGetByPileType(val.Value, out ModCardPileDefinition definition))
++if (!ModCardPileRegistry.TryGetByPileType(val2.Value, out ModCardPileDefinition definition))
+ {
+ return true;
+ }
+-object obj;
++object obj2;
+ if (!definition.CardShouldBeVisible)
+ {
+-obj = null;
++obj2 = null;
+ }
+ else
+ {
+-obj = ModCardPileButtonRegistry.TryGetExtraHand(definition)?.GetCard(card);
+-if (obj == null)
++obj2 = ModCardPileButtonRegistry.TryGetExtraHand(definition)?.GetCard(card);
++if (obj2 == null)
+ {
+ NCardPlayQueue instance = NCardPlayQueue.Instance;
+-obj = ((instance != null) ? instance.GetCardNode(card) : null);
+-if (obj == null)
++obj2 = ((instance != null) ? instance.GetCardNode(card) : null);
++if (obj2 == null)
+ {
+ NCombatRoom instance2 = NCombatRoom.Instance;
+ if (instance2 == null)
+ {
+-obj = null;
++obj2 = null;
+ }
+ else
+ {
+ NCombatUi ui = instance2.Ui;
+-obj = ((ui != null) ? ui.GetCardFromPlayContainer(card) : null);
++obj2 = ((ui != null) ? ui.GetCardFromPlayContainer(card) : null);
+ }
+ }
+ }
+ }
+-__result = (NCard?)obj;
++__result = (NCard?)obj2;
+ return false;
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.CardPiles.Patches/ModExtraHandCardEntryPatch.cs
+--- 
++++ 
+@@ -2,12 +2,9 @@
+ using System.Collections.Generic;
+ using System.Linq;
+ using System.Reflection;
+-using System.Reflection.Emit;
+ using HarmonyLib;
+ using MegaCrit.Sts2.Core.Commands;
+ using MegaCrit.Sts2.Core.Entities.Cards;
+-using MegaCrit.Sts2.Core.Hooks;
+-using MegaCrit.Sts2.Core.Models;
+ using MegaCrit.Sts2.Core.Nodes.Cards;
+ using STS2RitsuLib.CardPiles.Nodes;
+ using STS2RitsuLib.Patching.Models;
+@@ -28,51 +25,17 @@
+ {
+ return new ModPatchTarget[1]
+ {
+-new ModPatchTarget(typeof(CardPileCmd), "Add", new System.Type[5]
+-{
+-typeof(System.Collections.Generic.IEnumerable<CardModel>),
+-typeof(CardPile),
+-typeof(CardPilePosition),
+-typeof(AbstractModel),
+-typeof(bool)
+-}, (MethodType)6)
++new ModPatchTarget(typeof(CardPileCmd), "GetTweenForCardsChangingPiles", new System.Type[1] { typeof(System.Collections.Generic.IEnumerable<ValueTuple<NCard, PileType?>>) })
+ };
+ }
+ [HarmonyAfter(new string[] { "BaseLib" })]
+ public static System.Collections.Generic.IEnumerable<CodeInstruction> Transpiler(System.Collections.Generic.IEnumerable<CodeInstruction> instructions)
+ {
+-//IL_01d8: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0238: Unknown result type (might be due to invalid IL or missing references)
+-//IL_023d: Unknown result type (might be due to invalid IL or missing references)
+-//IL_02c0: Unknown result type (might be due to invalid IL or missing references)
+ MethodInfo pileTypeGetter = HarmonyIl.RequireMethod(AccessTools.PropertyGetter(typeof(CardPile), "Type"), "[ExtraHand] route visible extra-hand entries through the vanilla hand branch");
+-MethodInfo operand = HarmonyIl.RequireMethod(AccessTools.Method(typeof(ModExtraHandCardEntryPatch), "GetVisualPileType", (System.Type[])null, (System.Type[])null), "[ExtraHand] route visible extra-hand entries through the vanilla hand branch");
++MethodInfo visualPileTypeGetter = HarmonyIl.RequireMethod(AccessTools.Method(typeof(ModExtraHandCardEntryPatch), "GetVisualPileType", (System.Type[])null, (System.Type[])null), "[ExtraHand] route visible extra-hand entries through the vanilla hand branch");
+ HarmonyIlRewriter harmonyIlRewriter = HarmonyIlRewriter.From(instructions);
+-MethodInfo findOnTableMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(NCard), "FindOnTable", (System.Type[])null, (System.Type[])null), "[ExtraHand] route visible extra-hand entries through the vanilla hand branch");
+-MethodInfo afterCardChangedPilesMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(Hook), "AfterCardChangedPiles", (System.Type[])null, (System.Type[])null), "[ExtraHand] route visible extra-hand entries through the vanilla hand branch");
+-List<CodeInstruction> code = harmonyIlRewriter.Instructions();
+-int[] array = Enumerable.ToArray<int>(Enumerable.Select<ValueTuple<CodeInstruction, int>, int>(Enumerable.Where<ValueTuple<CodeInstruction, int>>(Enumerable.Select<CodeInstruction, ValueTuple<CodeInstruction, int>>((System.Collections.Generic.IEnumerable<CodeInstruction>)code, (Func<CodeInstruction, int, ValueTuple<CodeInstruction, int>>)((CodeInstruction instruction, int index) => new ValueTuple<CodeInstruction, int>(instruction, index))), (Func<ValueTuple<CodeInstruction, int>, bool>)((ValueTuple<CodeInstruction, int> entry) => HarmonyIl.IsCallTo(entry.Item1, findOnTableMethod))), (Func<ValueTuple<CodeInstruction, int>, int>)((ValueTuple<CodeInstruction, int> entry) => entry.Item2)));
+-int[] array2 = Enumerable.ToArray<int>(Enumerable.Select<ValueTuple<CodeInstruction, int>, int>(Enumerable.Where<ValueTuple<CodeInstruction, int>>(Enumerable.Select<CodeInstruction, ValueTuple<CodeInstruction, int>>((System.Collections.Generic.IEnumerable<CodeInstruction>)code, (Func<CodeInstruction, int, ValueTuple<CodeInstruction, int>>)((CodeInstruction instruction, int index) => new ValueTuple<CodeInstruction, int>(instruction, index))), (Func<ValueTuple<CodeInstruction, int>, bool>)((ValueTuple<CodeInstruction, int> entry) => HarmonyIl.IsCallTo(entry.Item1, afterCardChangedPilesMethod))), (Func<ValueTuple<CodeInstruction, int>, int>)((ValueTuple<CodeInstruction, int> entry) => entry.Item2)));
+-if (array.Length != 1 || array2.Length != 1)
+-{
+-throw new InvalidOperationException($"{"[ExtraHand] route visible extra-hand entries through the vanilla hand branch"} expected one visual-start and one hook boundary, but found {array.Length} and {array2.Length}.");
+-}
+-int num = Enumerable.Last<int>(Enumerable.Range(array[0] + 1, array2[0] - array[0] - 1), (Func<int, bool>)((int index) => HarmonyIl.IsCallTo(code[index], pileTypeGetter)));
+-int num2 = 0;
+-for (int num3 = array[0] + 1; num3 < num; num3++)
+-{
+-if (HarmonyIl.IsCallTo(code[num3], pileTypeGetter))
+-{
+-code[num3].opcode = OpCodes.Call;
+-code[num3].operand = operand;
+-num2++;
+-}
+-}
+-if (num2 != 16)
+-{
+-throw new InvalidOperationException($"{"[ExtraHand] route visible extra-hand entries through the vanilla hand branch"} replaced {num2} visual pile-type reads, expected {16}.");
+-}
+-return (System.Collections.Generic.IEnumerable<CodeInstruction>)harmonyIlRewriter.InstructionsChecked("[ExtraHand] route visible extra-hand entries through the vanilla hand branch");
++HarmonyIlRewriteReport item = harmonyIlRewriter.RedirectCalls("[ExtraHand] route visible extra-hand entries through the vanilla hand branch", (MethodInfo called) => (!(called == pileTypeGetter)) ? null : visualPileTypeGetter, (System.Collections.Generic.IReadOnlyList<CodeInstruction> code) => Enumerable.Any<CodeInstruction>((System.Collections.Generic.IEnumerable<CodeInstruction>)code, HarmonyIl.IsCall(visualPileTypeGetter)));
++return (System.Collections.Generic.IEnumerable<CodeInstruction>)harmonyIlRewriter.InstructionsChecked(new _003C_003Ez__ReadOnlySingleElementList<HarmonyIlRewriteReport>(item));
+ }
+ internal static PileType GetVisualPileType(CardPile pile)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.CardPiles.Patches/ModExtraHandHandViewPatch.cs
+--- 
++++ 
+@@ -17,10 +17,12 @@
+ public static bool IsCritical => false;
+ public static ModPatchTarget[] GetTargets()
+ {
++//IL_0032: Unknown result type (might be due to invalid IL or missing references)
+ return new ModPatchTarget[3]
+ {
+-new ModPatchTarget(typeof(CombatManager), "CheckForEmptyHand", new System.Type[2]
++new ModPatchTarget(typeof(CombatManager), "CheckForEmptyHand", new System.Type[3]
+ {
++AccessTools.TypeByName("MegaCrit.Sts2.Core.Combat.CombatTurnState") ?? throw new TypeLoadException("Could not resolve CombatTurnState."),
+ typeof(PlayerChoiceContext),
+ typeof(Player)
+ }, (MethodType)6),
+====================================================================================================
+FILE: STS2RitsuLib.Cards.DynamicVars/ModCardVars.cs
+--- 
++++ 
+@@ -529,12 +529,12 @@
+ }
+ /// <summary>
+ ///     <para xml:lang="en">
+-///         Creates a computed damage variable whose previews pass through <see cref="M:MegaCrit.Sts2.Core.Hooks.Hook.ModifyDamage(MegaCrit.Sts2.Core.Runs.IRunState,MegaCrit.Sts2.Core.Combat.ICombatState,MegaCrit.Sts2.Core.Entities.Creatures.Creature,MegaCrit.Sts2.Core.Entities.Creatures.Creature,System.Decimal,MegaCrit.Sts2.Core.ValueProps.ValueProp,MegaCrit.Sts2.Core.Models.CardModel,MegaCrit.Sts2.Core.Hooks.ModifyDamageHookType,MegaCrit.Sts2.Core.Entities.Cards.CardPreviewMode,System.Collections.Generic.IEnumerable{MegaCrit.Sts2.Core.Models.AbstractModel}@)" /> when
++///         Creates a computed damage variable whose previews pass through <see cref="M:MegaCrit.Sts2.Core.Hooks.Hook.ModifyDamage(MegaCrit.Sts2.Core.Runs.IRunState,MegaCrit.Sts2.Core.Combat.ICombatState,MegaCrit.Sts2.Core.Entities.Creatures.Creature,MegaCrit.Sts2.Core.Entities.Creatures.Creature,System.Decimal,MegaCrit.Sts2.Core.ValueProps.ValueProp,MegaCrit.Sts2.Core.Models.CardModel,MegaCrit.Sts2.Core.Entities.Cards.CardPlay,MegaCrit.Sts2.Core.Hooks.ModifyDamageHookType,MegaCrit.Sts2.Core.Entities.Cards.CardPreviewMode,System.Collections.Generic.IEnumerable{MegaCrit.Sts2.Core.Models.AbstractModel}@)" /> when
+ ///         global hooks are enabled and run and combat context are available.
+ ///     </para>
+ ///     <para xml:lang="zh-CN">
+ ///         创建计算型伤害变量；启用全局钩子且存在一局游戏与战斗上下文时，预览值会经过
+-///         <see cref="M:MegaCrit.Sts2.Core.Hooks.Hook.ModifyDamage(MegaCrit.Sts2.Core.Runs.IRunState,MegaCrit.Sts2.Core.Combat.ICombatState,MegaCrit.Sts2.Core.Entities.Creatures.Creature,MegaCrit.Sts2.Core.Entities.Creatures.Creature,System.Decimal,MegaCrit.Sts2.Core.ValueProps.ValueProp,MegaCrit.Sts2.Core.Models.CardModel,MegaCrit.Sts2.Core.Hooks.ModifyDamageHookType,MegaCrit.Sts2.Core.Entities.Cards.CardPreviewMode,System.Collections.Generic.IEnumerable{MegaCrit.Sts2.Core.Models.AbstractModel}@)" />。
++///         <see cref="M:MegaCrit.Sts2.Core.Hooks.Hook.ModifyDamage(MegaCrit.Sts2.Core.Runs.IRunState,MegaCrit.Sts2.Core.Combat.ICombatState,MegaCrit.Sts2.Core.Entities.Creatures.Creature,MegaCrit.Sts2.Core.Entities.Creatures.Creature,System.Decimal,MegaCrit.Sts2.Core.ValueProps.ValueProp,MegaCrit.Sts2.Core.Models.CardModel,MegaCrit.Sts2.Core.Entities.Cards.CardPlay,MegaCrit.Sts2.Core.Hooks.ModifyDamageHookType,MegaCrit.Sts2.Core.Entities.Cards.CardPreviewMode,System.Collections.Generic.IEnumerable{MegaCrit.Sts2.Core.Models.AbstractModel}@)" />。
+ ///     </para>
+ /// </summary>
+ public static ComputedDynamicVar ComputedDamage(string name, decimal baseValue, Func<CardModel?, Creature?, decimal> currentValueFactory, ValueProp props = (ValueProp)8)
+@@ -754,10 +754,10 @@
+ private static decimal CalculateDamagePreview(CardModel? card, CardPreviewMode previewMode, Creature? target, bool runGlobalHooks, Func<CardModel?, CardPreviewMode, Creature?, bool, decimal> previewBaseValueFactory, Func<CardModel, Creature?> dealerFactory, ValueProp props)
+ {
+ //IL_0003: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0080: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0090: Unknown result type (might be due to invalid IL or missing references)
++//IL_0081: Unknown result type (might be due to invalid IL or missing references)
++//IL_0091: Unknown result type (might be due to invalid IL or missing references)
+ //IL_004f: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0054: Unknown result type (might be due to invalid IL or missing references)
++//IL_0055: Unknown result type (might be due to invalid IL or missing references)
+ decimal num = previewBaseValueFactory.Invoke(card, previewMode, target, runGlobalHooks);
+ if (card == null)
+ {
+@@ -770,7 +770,7 @@
+ {
+ ICombatState val = card.CombatState ?? card.Owner.Creature.CombatState;
+ System.Collections.Generic.IEnumerable<AbstractModel> enumerable = default(System.Collections.Generic.IEnumerable<AbstractModel>);
+-return Math.Max(Hook.ModifyDamage(runState, val, target, dealerFactory.Invoke(card), num, props, card, (ModifyDamageHookType)14, previewMode, ref enumerable), 0m);
++return Math.Max(Hook.ModifyDamage(runState, val, target, dealerFactory.Invoke(card), num, props, card, (CardPlay)null, (ModifyDamageHookType)14, previewMode, ref enumerable), 0m);
+ }
+ }
+ EnchantmentModel enchantment = card.Enchantment;
+@@ -789,7 +789,7 @@
+ //IL_003e: Unknown result type (might be due to invalid IL or missing references)
+ //IL_004d: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00ab: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00af: Unknown result type (might be due to invalid IL or missing references)
++//IL_00b0: Unknown result type (might be due to invalid IL or missing references)
+ CardPreviewMode? previewMode = context.PreviewMode;
+ if (previewMode.HasValue)
+ {
+@@ -817,7 +817,7 @@
+ if (combatState != null)
+ {
+ System.Collections.Generic.IEnumerable<AbstractModel> enumerable = default(System.Collections.Generic.IEnumerable<AbstractModel>);
+-return Math.Max(Hook.ModifyDamage(runState, combatState, context.Target, dealerFactory.Invoke(context), value, props, card, (ModifyDamageHookType)14, valueOrDefault, ref enumerable), 0m);
++return Math.Max(Hook.ModifyDamage(runState, combatState, context.Target, dealerFactory.Invoke(context), value, props, card, (CardPlay)null, (ModifyDamageHookType)14, valueOrDefault, ref enumerable), 0m);
+ }
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Cards.Patches/CardOnPlayHookPatch.cs
+--- 
++++ 
+@@ -21,14 +21,14 @@
+ }
+ public static System.Collections.Generic.IEnumerable<CodeInstruction> Transpiler(System.Collections.Generic.IEnumerable<CodeInstruction> instructions)
+ {
+-MethodInfo fromMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(CardModel), "OnPlay", new System.Type[2]
++MethodInfo onPlayMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(CardModel), "OnPlay", new System.Type[2]
+ {
+ typeof(PlayerChoiceContext),
+ typeof(CardPlay)
+ }, (System.Type[])null), "[CardOnPlayHook] OnPlayWrapper injection");
+ MethodInfo wrapperMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(CardOnPlayHook), "RunCardOnPlayHooks", (System.Type[])null, (System.Type[])null), "[CardOnPlayHook] OnPlayWrapper injection");
+ HarmonyIlRewriter harmonyIlRewriter = HarmonyIlRewriter.From(instructions);
+-HarmonyIlRewriteReport report = HarmonyAsyncIl.RedirectAwaitedCalls(harmonyIlRewriter, "[CardOnPlayHook] OnPlayWrapper injection", fromMethod, wrapperMethod, (System.Collections.Generic.IReadOnlyList<CodeInstruction> code) => Enumerable.Any<CodeInstruction>((System.Collections.Generic.IEnumerable<CodeInstruction>)code, HarmonyIl.IsCall(wrapperMethod)));
++HarmonyIlRewriteReport report = harmonyIlRewriter.RedirectCalls("[CardOnPlayHook] OnPlayWrapper injection", (MethodInfo called) => (!(called == onPlayMethod)) ? null : wrapperMethod, (System.Collections.Generic.IReadOnlyList<CodeInstruction> code) => Enumerable.Any<CodeInstruction>((System.Collections.Generic.IEnumerable<CodeInstruction>)code, HarmonyIl.IsCall(wrapperMethod)));
+ return (System.Collections.Generic.IEnumerable<CodeInstruction>)harmonyIlRewriter.InstructionsChecked(report);
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Combat.AttackHits.Patches/AttackCommandExecuteHitHookPatch.cs
+--- 
++++ 
+@@ -5,6 +5,7 @@
+ using HarmonyLib;
+ using MegaCrit.Sts2.Core.Commands;
+ using MegaCrit.Sts2.Core.Commands.Builders;
++using MegaCrit.Sts2.Core.Entities.Cards;
+ using MegaCrit.Sts2.Core.Entities.Creatures;
+ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+ using MegaCrit.Sts2.Core.Models;
+@@ -35,18 +36,9 @@
+ public static System.Collections.Generic.IEnumerable<CodeInstruction> Transpiler(System.Collections.Generic.IEnumerable<CodeInstruction> instructions, MethodBase __originalMethod)
+ {
+ //IL_0015: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0166: Unknown result type (might be due to invalid IL or missing references)
++//IL_0181: Unknown result type (might be due to invalid IL or missing references)
+ System.Type type = ((MemberInfo)__originalMethod).DeclaringType ?? throw new InvalidOperationException("[AttackHitHook] Redirect per-hit CreatureCmd.Damage call: async state machine type could not be resolved.");
+-MethodInfo fromMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(CreatureCmd), "Damage", new System.Type[6]
+-{
+-typeof(PlayerChoiceContext),
+-typeof(System.Collections.Generic.IEnumerable<Creature>),
+-typeof(decimal),
+-typeof(ValueProp),
+-typeof(Creature),
+-typeof(CardModel)
+-}, (System.Type[])null), "[AttackHitHook] Redirect per-hit CreatureCmd.Damage call");
+-MethodInfo wrapperMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(AttackHitHook), "DamageWithAttackHitHooks", new System.Type[9]
++MethodInfo fromMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(CreatureCmd), "Damage", new System.Type[7]
+ {
+ typeof(PlayerChoiceContext),
+ typeof(System.Collections.Generic.IEnumerable<Creature>),
+@@ -54,6 +46,17 @@
+ typeof(ValueProp),
+ typeof(Creature),
+ typeof(CardModel),
++typeof(CardPlay)
++}, (System.Type[])null), "[AttackHitHook] Redirect per-hit CreatureCmd.Damage call");
++MethodInfo wrapperMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(AttackHitHook), "DamageWithAttackHitHooks", new System.Type[10]
++{
++typeof(PlayerChoiceContext),
++typeof(System.Collections.Generic.IEnumerable<Creature>),
++typeof(decimal),
++typeof(ValueProp),
++typeof(Creature),
++typeof(CardModel),
++typeof(CardPlay),
+ typeof(AttackCommand),
+ typeof(int),
+ typeof(decimal)
+====================================================================================================
+FILE: STS2RitsuLib.Combat.AttackHits/AttackHitContext.cs
+--- 
++++ 
+@@ -4,6 +4,7 @@
+ using System.Runtime.CompilerServices;
+ using MegaCrit.Sts2.Core.Combat;
+ using MegaCrit.Sts2.Core.Commands.Builders;
++using MegaCrit.Sts2.Core.Entities.Cards;
+ using MegaCrit.Sts2.Core.Entities.Creatures;
+ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+ using MegaCrit.Sts2.Core.Models;
+@@ -120,6 +121,18 @@
+ set;
+ }
+ /// <summary>
++///     <para xml:lang="en">Gets or sets the card play passed to the damage command for this hit.</para>
++///     <para xml:lang="zh-CN">获取或设置此次命中传给伤害命令的卡牌打出上下文。</para>
++/// </summary>
++[field: CompilerGenerated]
++public CardPlay? CardPlay
++{
++[CompilerGenerated]
++get;
++[CompilerGenerated]
++set;
++}
++/// <summary>
+ ///     <para xml:lang="en">Gets or sets the targets passed to the damage command for this hit.</para>
+ ///     <para xml:lang="zh-CN">获取或设置此次命中传给伤害命令的目标列表。</para>
+ /// </summary>
+@@ -174,7 +187,7 @@
+ [CompilerGenerated]
+ private set;
+ } = System.Array.Empty<DamageResult>();
+-internal AttackHitContext(ICombatState combatState, PlayerChoiceContext choiceContext, AttackCommand attack, System.Collections.Generic.IReadOnlyList<Creature> targets, int hitIndex, decimal totalHitCount, decimal damage, ValueProp damageProps, Creature? dealer, CardModel? cardSource)
++internal AttackHitContext(ICombatState combatState, PlayerChoiceContext choiceContext, AttackCommand attack, System.Collections.Generic.IReadOnlyList<Creature> targets, int hitIndex, decimal totalHitCount, decimal damage, ValueProp damageProps, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)
+ {
+ //IL_0047: Unknown result type (might be due to invalid IL or missing references)
+ CombatState = combatState;
+@@ -187,6 +200,7 @@
+ DamageProps = damageProps;
+ Dealer = dealer;
+ CardSource = cardSource;
++CardPlay = cardPlay;
+ }
+ internal void SetResults(System.Collections.Generic.IReadOnlyList<DamageResult> results)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Combat.AttackHits/AttackHitHook.cs
+--- 
++++ 
+@@ -10,6 +10,7 @@
+ using MegaCrit.Sts2.Core.Combat;
+ using MegaCrit.Sts2.Core.Commands;
+ using MegaCrit.Sts2.Core.Commands.Builders;
++using MegaCrit.Sts2.Core.Entities.Cards;
+ using MegaCrit.Sts2.Core.Entities.Creatures;
+ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+ using MegaCrit.Sts2.Core.Models;
+@@ -218,25 +219,25 @@
+ //IL_0057: Unknown result type (might be due to invalid IL or missing references)
+ //IL_005c: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0063: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00f5: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00fa: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0102: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0171: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0176: Unknown result type (might be due to invalid IL or missing references)
+-//IL_017d: Unknown result type (might be due to invalid IL or missing references)
++//IL_0100: Unknown result type (might be due to invalid IL or missing references)
++//IL_0105: Unknown result type (might be due to invalid IL or missing references)
++//IL_010d: Unknown result type (might be due to invalid IL or missing references)
++//IL_017c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0181: Unknown result type (might be due to invalid IL or missing references)
++//IL_0188: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0024: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0029: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00a0: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0141: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0146: Unknown result type (might be due to invalid IL or missing references)
++//IL_00cb: Unknown result type (might be due to invalid IL or missing references)
++//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
++//IL_014c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0151: Unknown result type (might be due to invalid IL or missing references)
+ //IL_003d: Unknown result type (might be due to invalid IL or missing references)
+ //IL_003e: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00da: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
+-//IL_015a: Unknown result type (might be due to invalid IL or missing references)
+-//IL_015b: Unknown result type (might be due to invalid IL or missing references)
++//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
++//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
++//IL_0165: Unknown result type (might be due to invalid IL or missing references)
++//IL_0166: Unknown result type (might be due to invalid IL or missing references)
+ int num = _003C_003E1__state;
+ System.Collections.Generic.IEnumerable<DamageResult> result2;
+ try
+@@ -265,7 +266,7 @@
+ val2 = _003C_003Eu__2;
+ _003C_003Eu__2 = default(TaskAwaiter<System.Collections.Generic.IEnumerable<DamageResult>>);
+ num = (_003C_003E1__state = -1);
+-goto IL_0111;
++goto IL_011c;
+ case 2:
+ {
+ val = _003C_003Eu__1;
+@@ -273,7 +274,7 @@
+ num = (_003C_003E1__state = -1);
+ break;
+ }
+-IL_0111:
++IL_011c:
+ result = val2.GetResult();
+ _003Cresults_003E5__2 = Enumerable.ToArray<DamageResult>(result);
+ context.SetResults(_003Cresults_003E5__2);
+@@ -288,7 +289,7 @@
+ break;
+ IL_0072:
+ ((TaskAwaiter)(ref val)).GetResult();
+-val2 = CreatureCmd.Damage(context.ChoiceContext, (System.Collections.Generic.IEnumerable<Creature>)context.Targets, context.Damage, context.DamageProps, context.Dealer, context.CardSource).GetAwaiter();
++val2 = CreatureCmd.Damage(context.ChoiceContext, (System.Collections.Generic.IEnumerable<Creature>)context.Targets, context.Damage, context.DamageProps, context.Dealer, context.CardSource, context.CardPlay).GetAwaiter();
+ if (!val2.IsCompleted)
+ {
+ num = (_003C_003E1__state = 1);
+@@ -296,7 +297,7 @@
+ _003C_003Et__builder.AwaitUnsafeOnCompleted<TaskAwaiter<System.Collections.Generic.IEnumerable<DamageResult>>, _003CDamageAndAfterAttackHit_003Ed__1>(ref val2, ref this);
+ return;
+ }
+-goto IL_0111;
++goto IL_011c;
+ }
+ ((TaskAwaiter)(ref val)).GetResult();
+ result2 = _003Cresults_003E5__2;
+@@ -424,10 +425,10 @@
+ ///     <para xml:lang="en">Executes damage with per-hit hooks for the <c>AttackCommand.Execute</c> transpiler.</para>
+ ///     <para xml:lang="zh-CN">供 <c>AttackCommand.Execute</c> 指令转换器调用，在伤害前后运行单次命中钩子。</para>
+ /// </summary>
+-public static System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<DamageResult>> DamageWithAttackHitHooks(PlayerChoiceContext choiceContext, System.Collections.Generic.IEnumerable<Creature> targets, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, AttackCommand attack, int hitIndex, decimal totalHitCount)
++public static System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<DamageResult>> DamageWithAttackHitHooks(PlayerChoiceContext choiceContext, System.Collections.Generic.IEnumerable<Creature> targets, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay, AttackCommand attack, int hitIndex, decimal totalHitCount)
+ {
+ //IL_001f: Unknown result type (might be due to invalid IL or missing references)
+-//IL_003d: Unknown result type (might be due to invalid IL or missing references)
++//IL_003f: Unknown result type (might be due to invalid IL or missing references)
+ object obj = targets as System.Collections.Generic.IReadOnlyList<Creature>;
+ if (obj == null)
+ {
+@@ -436,12 +437,12 @@
+ obj = new _003C_003Ez__ReadOnlyList<Creature>(obj2);
+ }
+ System.Collections.Generic.IReadOnlyList<Creature> readOnlyList = (System.Collections.Generic.IReadOnlyList<Creature>)obj;
+-AttackHitContext attackHitContext = TryCreateContext(choiceContext, readOnlyList, amount, props, dealer, cardSource, attack, hitIndex, totalHitCount);
++AttackHitContext attackHitContext = TryCreateContext(choiceContext, readOnlyList, amount, props, dealer, cardSource, cardPlay, attack, hitIndex, totalHitCount);
+ if (attackHitContext != null)
+ {
+ return DamageAndAfterAttackHit(attackHitContext);
+ }
+-return CreatureCmd.Damage(choiceContext, (System.Collections.Generic.IEnumerable<Creature>)readOnlyList, amount, props, dealer, cardSource);
++return CreatureCmd.Damage(choiceContext, (System.Collections.Generic.IEnumerable<Creature>)readOnlyList, amount, props, dealer, cardSource, cardPlay);
+ }
+ [AsyncStateMachine(typeof(_003CDamageAndAfterAttackHit_003Ed__1))]
+ private static async System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<DamageResult>> DamageAndAfterAttackHit(AttackHitContext context)
+@@ -449,7 +450,7 @@
+ //IL_0002: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0007: Unknown result type (might be due to invalid IL or missing references)
+ await BeforeAttackHit(context);
+-DamageResult[] results = Enumerable.ToArray<DamageResult>(await CreatureCmd.Damage(context.ChoiceContext, (System.Collections.Generic.IEnumerable<Creature>)context.Targets, context.Damage, context.DamageProps, context.Dealer, context.CardSource));
++DamageResult[] results = Enumerable.ToArray<DamageResult>(await CreatureCmd.Damage(context.ChoiceContext, (System.Collections.Generic.IEnumerable<Creature>)context.Targets, context.Damage, context.DamageProps, context.Dealer, context.CardSource, context.CardPlay));
+ context.SetResults(results);
+ await AfterAttackHit(context);
+ return results;
+@@ -504,7 +505,7 @@
+ {
+ return Enumerable.Select<ModelHookListener<IAttackHitHookListener>, ListenerEntry>(ModelHookListenerDispatcher.FromCombat<IAttackHitHookListener>(combatState, extraModels), (Func<ModelHookListener<IAttackHitHookListener>, ListenerEntry>)((ModelHookListener<IAttackHitHookListener> entry) => new ListenerEntry(entry.Listener, entry.Model)));
+ }
+-private static AttackHitContext? TryCreateContext(PlayerChoiceContext choiceContext, System.Collections.Generic.IReadOnlyList<Creature> targets, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, AttackCommand attack, int hitIndex, decimal totalHitCount)
++private static AttackHitContext? TryCreateContext(PlayerChoiceContext choiceContext, System.Collections.Generic.IReadOnlyList<Creature> targets, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay, AttackCommand attack, int hitIndex, decimal totalHitCount)
+ {
+ //IL_002e: Unknown result type (might be due to invalid IL or missing references)
+ object obj;
+@@ -522,6 +523,6 @@
+ {
+ return null;
+ }
+-return new AttackHitContext(val, choiceContext, attack, targets, hitIndex, totalHitCount, amount, props, dealer, cardSource);
+-}
+-}
++return new AttackHitContext(val, choiceContext, attack, targets, hitIndex, totalHitCount, amount, props, dealer, cardSource, cardPlay);
++}
++}
+====================================================================================================
+FILE: STS2RitsuLib.Combat.CardTargeting.Patches/ModelDbInitCustomTargetTypeRegistrationPatch.cs
+--- 
++++ 
+@@ -6,10 +6,10 @@
+ namespace STS2RitsuLib.Combat.CardTargeting.Patches;
+ /// <summary>
+ ///     <para xml:lang="en">
+-///         Registers the built-in custom target predicates after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" />.
++///         Registers the built-in custom target predicates after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" />.
+ ///     </para>
+ ///     <para xml:lang="zh-CN">
+-///         在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" /> 完成后注册内置的自定义目标谓词。
++///         在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" /> 完成后注册内置的自定义目标谓词。
+ ///     </para>
+ /// </summary>
+ internal sealed class ModelDbInitCustomTargetTypeRegistrationPatch : IPatchMethod
+====================================================================================================
+FILE: STS2RitsuLib.Combat.HandSize/BaseLibMaxHandSizeBridge.cs
+--- 
++++ 
+@@ -59,11 +59,12 @@
+ }
+ private static bool IsSetupPlayerTurnPatchedByBaseLib()
+ {
+-return IsPatchedByBaseLib(new ModPatchTarget(typeof(CombatManager), "SetupPlayerTurn", new System.Type[2]
+-{
++return IsPatchedByBaseLib(new ModPatchTarget(typeof(CombatManager), "SetupPlayerTurn", new System.Type[3]
++{
++typeof(CombatTurnState),
+ typeof(Player),
+ typeof(HookPlayerChoiceContext)
+-}));
++}, (MethodType)6));
+ }
+ internal static bool IsBaseLibBaseAmountConsumer(CodeInstruction instruction)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Combat.HandSize/MaxHandSizePatchInstaller.cs
+--- 
++++ 
+@@ -63,8 +63,9 @@
+ HarmonyMethod transpiler3 = FromMethodAfterBaseLib("StateMachineTranspiler");
+ HarmonyMethod transpiler4 = FromMethodAfterBaseLib("CardOnPlayTranspiler");
+ TryAddMethodPatch(builder, typeof(CardPileCmd), "CheckIfDrawIsPossibleAndShowThoughtBubbleIfNot", new System.Type[1] { typeof(Player) }, transpiler);
+-MethodInfo asyncMethod = AccessTools.Method(typeof(CombatManager), "SetupPlayerTurn", new System.Type[2]
+-{
++MethodInfo asyncMethod = AccessTools.Method(typeof(CombatManager), "SetupPlayerTurn", new System.Type[3]
++{
++typeof(CombatTurnState),
+ typeof(Player),
+ typeof(HookPlayerChoiceContext)
+ }, (System.Type[])null);
+@@ -74,13 +75,13 @@
+ typeof(Player),
+ typeof(string[])
+ }, transpiler2);
+-TryAddAsyncMoveNextPatch(builder, AccessTools.Method(typeof(CardPileCmd), "Draw", new System.Type[4]
++TryAddAsyncMoveNextPatch(builder, AccessTools.Method(typeof(CardPileCmd), "DrawInternal", new System.Type[4]
+ {
+ typeof(PlayerChoiceContext),
+ typeof(decimal),
+ typeof(Player),
+ typeof(bool)
+-}, (System.Type[])null), transpiler3, "Patch CardPileCmd.Draw state machine max-hand-size constants");
++}, (System.Type[])null), transpiler3, "Patch CardPileCmd.DrawInternal state machine max-hand-size constants");
+ TryAddAsyncMoveNextPatch(builder, ResolveCardPileCmdAddMethod(), transpiler4, "Patch CardPileCmd.Add state machine max-hand-size constants");
+ TryAddAsyncMoveNextPatch(builder, AccessTools.Method(typeof(Scrawl), "OnPlay", new System.Type[2]
+ {
+@@ -165,12 +166,13 @@
+ }
+ private static MethodInfo? ResolveCardPileCmdAddMethod()
+ {
+-return AccessTools.Method(typeof(CardPileCmd), "Add", new System.Type[5]
++return AccessTools.Method(typeof(CardPileCmd), "Add", new System.Type[6]
+ {
+ typeof(System.Collections.Generic.IEnumerable<CardModel>),
+ typeof(CardPile),
+ typeof(CardPilePosition),
+ typeof(AbstractModel),
++typeof(bool),
+ typeof(bool)
+ }, (System.Type[])null);
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Combat.Rewards.Patches/CardRewardToSerializablePatch.cs
+--- 
++++ 
+@@ -4,7 +4,6 @@
+ using System.Text.Json;
+ using HarmonyLib;
+ using MegaCrit.Sts2.Core.Models;
+-using MegaCrit.Sts2.Core.Random;
+ using MegaCrit.Sts2.Core.Rewards;
+ using MegaCrit.Sts2.Core.Runs;
+ using MegaCrit.Sts2.Core.Saves;
+@@ -48,14 +47,12 @@
+ //IL_005d: Expected O, but got Unknown
+ //IL_0080: Unknown result type (might be due to invalid IL or missing references)
+ //IL_008d: Unknown result type (might be due to invalid IL or missing references)
+-//IL_013c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0149: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00b2: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00ea: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00f7: Unknown result type (might be due to invalid IL or missing references)
+-//IL_01ac: Unknown result type (might be due to invalid IL or missing references)
+-//IL_01b6: Expected I4, but got Unknown
++//IL_010a: Unknown result type (might be due to invalid IL or missing references)
++//IL_0117: Unknown result type (might be due to invalid IL or missing references)
++//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
++//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
++//IL_017a: Unknown result type (might be due to invalid IL or missing references)
++//IL_0184: Expected I4, but got Unknown
+ CardCreationOptions val = GetOptions.Invoke(__instance);
+ bool flag = (int)val.Flags > 0;
+ bool flag2 = val.CardPoolFilter != null;
+@@ -73,12 +70,6 @@
+ if (flag4)
+ {
+ rewardExtData = BuildSpecificCardsExt(val, __instance.Cards, GetRerollOptions.Invoke(__instance));
+-val2.Source = val.Source;
+-val2.RarityOdds = val.RarityOdds;
+-}
+-else if (flag3 && val.CustomCardPool != null)
+-{
+-rewardExtData = BuildCustomPoolExt(val);
+ val2.Source = val.Source;
+ val2.RarityOdds = val.RarityOdds;
+ }
+@@ -128,20 +119,6 @@
+ RarityOdds = (int)options.RarityOdds
+ };
+ }
+-private static RewardExtData BuildCustomPoolExt(CardCreationOptions options)
+-{
+-//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+-//IL_004d: Expected I4, but got Unknown
+-//IL_004f: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0059: Expected I4, but got Unknown
+-return new RewardExtData
+-{
+-IsCustomPool = true,
+-CandidateCardIds = Enumerable.ToList<string>(Enumerable.Select<CardModel, string>(options.CustomCardPool, (Func<CardModel, string>)((CardModel c) => ((object)((AbstractModel)c).Id).ToString()))),
+-Source = (int)options.Source,
+-RarityOdds = (int)options.RarityOdds
+-};
+-}
+ private static CardRewardRerollExtData BuildRerollOptionsExt(CardCreationOptions options)
+ {
+ //IL_003c: Unknown result type (might be due to invalid IL or missing references)
+@@ -150,23 +127,15 @@
+ //IL_0052: Expected I4, but got Unknown
+ //IL_0054: Unknown result type (might be due to invalid IL or missing references)
+ //IL_005e: Expected I4, but got Unknown
+-CardRewardRerollExtData obj = new CardRewardRerollExtData
++CardRewardRerollExtData cardRewardRerollExtData = new CardRewardRerollExtData
+ {
+ CardPoolIds = Enumerable.ToList<string>(Enumerable.Select<CardPoolModel, string>((System.Collections.Generic.IEnumerable<CardPoolModel>)options.CardPools, (Func<CardPoolModel, string>)((CardPoolModel pool) => ((object)((AbstractModel)pool).Id).ToString()))),
+ Source = (int)options.Source,
+ RarityOdds = (int)options.RarityOdds,
+-Flags = (int)options.Flags
++Flags = (int)options.Flags,
++Rng = ((options.RngOverride == null) ? null : JsonSerializer.Serialize<SerializableRng>(options.RngOverride.ToSerializable(), JsonSerializationUtility.Options))
+ };
+-Rng rngOverride = options.RngOverride;
+-obj.LegacyRngSeed = ((rngOverride != null) ? new uint?(rngOverride.Seed) : ((uint?)null));
+-Rng rngOverride2 = options.RngOverride;
+-obj.LegacyRngCounter = ((rngOverride2 != null) ? rngOverride2.Counter : 0);
+-CardRewardRerollExtData cardRewardRerollExtData = obj;
+-if (options.CustomCardPool != null)
+-{
+-cardRewardRerollExtData.CandidateCardIds = Enumerable.ToList<string>(Enumerable.Select<CardModel, string>(options.CustomCardPool, (Func<CardModel, string>)((CardModel card) => ((object)((AbstractModel)card).Id).ToString())));
+-}
+-else if (options.CardPoolFilter != null)
++if (options.CardPoolFilter != null)
+ {
+ cardRewardRerollExtData.CandidateCardIds = BuildFilterSnapshotExt(options).CandidateCardIds;
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Combat.Rewards.Patches/RewardFromSerializableExtPatch.cs
+--- 
++++ 
+@@ -72,29 +72,31 @@
+ //IL_0095: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00a4: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00aa: Expected O, but got Unknown
+-//IL_0194: Unknown result type (might be due to invalid IL or missing references)
+-//IL_019a: Unknown result type (might be due to invalid IL or missing references)
+-//IL_01a0: Unknown result type (might be due to invalid IL or missing references)
+-//IL_01a6: Expected O, but got Unknown
+-//IL_01a6: Unknown result type (might be due to invalid IL or missing references)
++//IL_01f1: Unknown result type (might be due to invalid IL or missing references)
++//IL_01f7: Unknown result type (might be due to invalid IL or missing references)
++//IL_01fd: Unknown result type (might be due to invalid IL or missing references)
++//IL_0203: Expected O, but got Unknown
++//IL_0203: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0052: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0058: Unknown result type (might be due to invalid IL or missing references)
+ //IL_005e: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0063: Unknown result type (might be due to invalid IL or missing references)
+-//IL_01ba: Unknown result type (might be due to invalid IL or missing references)
+-//IL_01c0: Expected O, but got Unknown
+-//IL_01aa: Unknown result type (might be due to invalid IL or missing references)
++//IL_0217: Unknown result type (might be due to invalid IL or missing references)
++//IL_021d: Expected O, but got Unknown
++//IL_0207: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0079: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00cc: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d3: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0156: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0157: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0159: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0160: Expected O, but got Unknown
+-//IL_0160: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0176: Unknown result type (might be due to invalid IL or missing references)
+-//IL_017c: Expected O, but got Unknown
+-//IL_0165: Unknown result type (might be due to invalid IL or missing references)
++//IL_0192: Unknown result type (might be due to invalid IL or missing references)
++//IL_0193: Unknown result type (might be due to invalid IL or missing references)
++//IL_0196: Unknown result type (might be due to invalid IL or missing references)
++//IL_019d: Expected O, but got Unknown
++//IL_019d: Unknown result type (might be due to invalid IL or missing references)
++//IL_016d: Unknown result type (might be due to invalid IL or missing references)
++//IL_017c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0182: Expected O, but got Unknown
++//IL_01a2: Unknown result type (might be due to invalid IL or missing references)
++//IL_01cf: Unknown result type (might be due to invalid IL or missing references)
+ CardCreationFlags val = (CardCreationFlags)ext.Flags;
+ if (ext.FixedCards == null)
+ {
+@@ -107,12 +109,19 @@
+ List<CardModel> val4 = Enumerable.ToList<CardModel>(Enumerable.Select<CardModel, CardModel>(Enumerable.Where<CardModel>(Enumerable.Select<string, CardModel>((System.Collections.Generic.IEnumerable<string>)ext.CustomCardIds, (Func<string, CardModel>)TryResolveCard), (Func<CardModel, bool>)((CardModel c) => c != null)), (Func<CardModel, CardModel>)((CardModel c) => c)));
+ if (val4.Count > 0)
+ {
+-CardCreationOptions val5 = new CardCreationOptions((System.Collections.Generic.IEnumerable<CardModel>)val4, val2, val3);
++if (val4.Count > save.OptionCount)
++{
++return new CardReward(CreateCandidateOptions(save, ext.CustomCardIds, val, player), save.OptionCount, player, (PlayerChoiceSynchronizer)null);
++}
++CardCreationOptions val5 = new CardCreationOptions((System.Collections.Generic.IEnumerable<CardPoolModel>)new _003C_003Ez__ReadOnlySingleElementList<CardPoolModel>(player.Character.CardPool), val2, val3, (Func<CardModel, bool>)null);
+ if ((int)val != 0)
+ {
+ val5.WithFlags(val);
+ }
+-return new CardReward(val5, save.OptionCount, player, (PlayerChoiceSynchronizer)null);
++return CreateFixedCardReward(Enumerable.Select<CardModel, SerializableCard>((System.Collections.Generic.IEnumerable<CardModel>)val4, (Func<CardModel, SerializableCard>)((CardModel card) => new SerializableCard
++{
++Id = ((AbstractModel)card).Id
++})), val2, player, val5);
+ }
+ Log.Warn("[RitsuLib] Reward.FromSerializable: CustomCardPool had no resolvable cards, falling back to standard card reward.", 2);
+ }
+@@ -159,12 +168,13 @@
+ //IL_004f: Expected O, but got Unknown
+ //IL_0055: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00a0: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00d3: Expected O, but got Unknown
+ //IL_0080: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0086: Unknown result type (might be due to invalid IL or missing references)
+ //IL_008c: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0091: Unknown result type (might be due to invalid IL or missing references)
++//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
++//IL_00da: Expected O, but got Unknown
++//IL_00ca: Unknown result type (might be due to invalid IL or missing references)
+ SerializableReward val = new SerializableReward
+ {
+ CardPoolIds = Enumerable.ToList<ModelId>(Enumerable.Select<string, ModelId>((System.Collections.Generic.IEnumerable<string>)data.CardPoolIds, (Func<string, ModelId>)ModelId.Deserialize)),
+@@ -173,31 +183,20 @@
+ };
+ CardCreationFlags val2 = (CardCreationFlags)data.Flags;
+ CardCreationOptions val3 = (CardCreationOptions)((data.CandidateCardIds != null) ? ((object)CreateCandidateOptions(val, data.CandidateCardIds, val2, player)) : ((object)new CardCreationOptions((val.CardPoolIds.Count > 0) ? ((System.Collections.Generic.IEnumerable<CardPoolModel>)ResolveCardPools((System.Collections.Generic.IEnumerable<ModelId>?)val.CardPoolIds, player)) : ((System.Collections.Generic.IEnumerable<CardPoolModel>)new List<CardPoolModel>()), val.Source, val.RarityOdds, (Func<CardModel, bool>)null).WithFlags(val2)));
+-uint? legacyRngSeed = data.LegacyRngSeed;
+-if (legacyRngSeed.HasValue)
+-{
+-uint valueOrDefault = legacyRngSeed.GetValueOrDefault();
+-val3.WithRngOverride(new Rng(valueOrDefault, data.LegacyRngCounter));
++if (data.Rng != null)
++{
++val3.WithRngOverride(new Rng(JsonSerializer.Deserialize<SerializableRng>(data.Rng, JsonSerializationUtility.Options) ?? throw new JsonException("Card reward contains a null reroll RNG.")));
+ }
+ return val3;
+ }
+ private static CardCreationOptions CreateCandidateOptions(SerializableReward save, List<string> candidateCardIds, CardCreationFlags flags, Player player)
+ {
+-//IL_0047: Unknown result type (might be due to invalid IL or missing references)
+-//IL_004d: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0052: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0057: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0118: Unknown result type (might be due to invalid IL or missing references)
+-//IL_011e: Unknown result type (might be due to invalid IL or missing references)
+-//IL_012f: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0134: Unknown result type (might be due to invalid IL or missing references)
++//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
++//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
++//IL_0103: Unknown result type (might be due to invalid IL or missing references)
++//IL_0108: Unknown result type (might be due to invalid IL or missing references)
+ List<CardModel> val = Enumerable.ToList<CardModel>(Enumerable.OfType<CardModel>((System.Collections.IEnumerable)Enumerable.Select<string, CardModel>((System.Collections.Generic.IEnumerable<string>)candidateCardIds, (Func<string, CardModel>)TryResolveCard)));
+ List<ModelId> cardPoolIds = save.CardPoolIds;
+-if (cardPoolIds == null || cardPoolIds.Count <= 0)
+-{
+-return new CardCreationOptions((System.Collections.Generic.IEnumerable<CardModel>)val, save.Source, save.RarityOdds).WithFlags(flags);
+-}
+-cardPoolIds = save.CardPoolIds;
+ List<CardPoolModel> val2 = (List<CardPoolModel>)((cardPoolIds != null && cardPoolIds.Count > 0) ? ((object)ResolveCardPools((System.Collections.Generic.IEnumerable<ModelId>?)save.CardPoolIds, player)) : ((object)Enumerable.ToList<CardPoolModel>(Enumerable.Distinct<CardPoolModel>(Enumerable.Select<CardModel, CardPoolModel>((System.Collections.Generic.IEnumerable<CardModel>)val, (Func<CardModel, CardPoolModel>)((CardModel card) => card.Pool))))));
+ HashSet<ModelId> val3 = new HashSet<ModelId>();
+ System.Collections.Generic.IEnumerator<ModelId> enumerator = Enumerable.Select<CardModel, ModelId>((System.Collections.Generic.IEnumerable<CardModel>)val, (Func<CardModel, ModelId>)((CardModel card) => ((AbstractModel)card).Id)).GetEnumerator();
+====================================================================================================
+FILE: STS2RitsuLib.Compat/Sts2InputRuntime.cs
+--- 
++++ 
+@@ -4,8 +4,8 @@
+ namespace STS2RitsuLib.Compat;
+ internal static class Sts2InputRuntime
+ {
+-public static StringName ConfirmAction => MegaInput.accept;
+-public static StringName CancelCardPlayAction => MegaInput.releaseCard;
++public static StringName ConfirmAction => MegaInput.confirm;
++public static StringName CancelCardPlayAction => MegaInput.cancel;
+ public static bool IsUsingDirectionalNavigation
+ {
+ get
+@@ -15,19 +15,21 @@
+ {
+ return false;
+ }
+-return instance.IsUsingController;
++return instance.IsUsingDirectionalNavigation;
+ }
+ }
+ public static bool IsUsingController
+ {
+ get
+ {
++//IL_000b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0011: Invalid comparison between Unknown and I4
+ NControllerManager instance = NControllerManager.Instance;
+ if (instance == null)
+ {
+ return false;
+ }
+-return instance.IsUsingController;
++return (int)instance.InputType == 2;
+ }
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Compat/Sts2ModManagerCompat.cs
+--- 
++++ 
+@@ -56,7 +56,7 @@
+ try
+ {
+ ModManifest val2 = ReadManifest.Invoke(current);
+-string text = ((val2 == null) ? null : ReadManifestId.Invoke(val2));
++string text = ((val2 == (ModManifest)null) ? null : ReadManifestId.Invoke(val2));
+ Assembly val3 = ReadAssembly.Invoke(current);
+ if (!string.IsNullOrWhiteSpace(text) && !(val3 == (Assembly)null))
+ {
+@@ -87,7 +87,7 @@
+ try
+ {
+ ModManifest val2 = ReadManifest.Invoke(current);
+-string text = ((val2 == null) ? null : ReadManifestId.Invoke(val2));
++string text = ((val2 == (ModManifest)null) ? null : ReadManifestId.Invoke(val2));
+ Assembly[] array = Enumerable.ToArray<Assembly>(Enumerable.Distinct<Assembly>(Enumerable.Where<Assembly>((System.Collections.Generic.IEnumerable<Assembly>)ReadAssemblies.Invoke(current), (Func<Assembly, bool>)((Assembly assembly) => assembly != (Assembly)null))));
+ if (!string.IsNullOrWhiteSpace(text) && array.Length != 0)
+ {
+@@ -127,7 +127,7 @@
+ continue;
+ }
+ ModManifest val = ReadManifest.Invoke(current);
+-return val == null || ReadManifestAffectsGameplay.Invoke(val);
++return val == (ModManifest)null || ReadManifestAffectsGameplay.Invoke(val);
+ }
+ catch (System.Exception ex)
+ {
+@@ -158,7 +158,7 @@
+ continue;
+ }
+ ModManifest val = ReadManifest.Invoke(current);
+-modId = ((val == null) ? "" : (ReadManifestId.Invoke(val) ?? ""));
++modId = ((val == (ModManifest)null) ? "" : (ReadManifestId.Invoke(val) ?? ""));
+ return !string.IsNullOrWhiteSpace(modId);
+ }
+ catch (System.Exception ex)
+@@ -187,7 +187,7 @@
+ try
+ {
+ ModManifest val = ReadManifest.Invoke(current);
+-if (val == null || !string.Equals(ReadManifestId.Invoke(val), modId, (StringComparison)4))
++if (val == (ModManifest)null || !string.Equals(ReadManifestId.Invoke(val), modId, (StringComparison)4))
+ {
+ continue;
+ }
+@@ -252,7 +252,7 @@
+ continue;
+ }
+ ModManifest val = ReadManifest.Invoke(current);
+-modId = ((val == null) ? string.Empty : (ReadManifestId.Invoke(val) ?? string.Empty));
++modId = ((val == (ModManifest)null) ? string.Empty : (ReadManifestId.Invoke(val) ?? string.Empty));
+ return !string.IsNullOrWhiteSpace(modId);
+ }
+ catch
+@@ -368,7 +368,7 @@
+ AssemblyName val2 = ResolveAssemblyName(ReadAssembly.Invoke(mod));
+ System.Collections.Generic.IReadOnlyList<LocString> readOnlyList = ReadErrors.Invoke(mod);
+ string text = ((val2 != null) ? val2.Name : null) ?? "<unknown>";
+-return new Sts2ModInventoryEntry((val == null) ? text : (ReadManifestId.Invoke(val) ?? text), (val == null) ? text : (ReadManifestName.Invoke(val) ?? text), (val == null) ? null : ReadManifestVersion.Invoke(val), ReadLoadState.Invoke(mod, ((System.Collections.Generic.IReadOnlyCollection<LocString>)readOnlyList).Count), ReadSource.Invoke(mod), val == null || ReadManifestAffectsGameplay.Invoke(val), (val2 != null) ? val2.Name : null, (val2 == null) ? null : ((object)val2.Version)?.ToString(), readOnlyList, TryGetWorkshopItemId(mod));
++return new Sts2ModInventoryEntry((val == (ModManifest)null) ? text : (ReadManifestId.Invoke(val) ?? text), (val == (ModManifest)null) ? text : (ReadManifestName.Invoke(val) ?? text), (val == (ModManifest)null) ? null : ReadManifestVersion.Invoke(val), ReadLoadState.Invoke(mod, ((System.Collections.Generic.IReadOnlyCollection<LocString>)readOnlyList).Count), ReadSource.Invoke(mod), val == (ModManifest)null || ReadManifestAffectsGameplay.Invoke(val), (val2 != null) ? val2.Name : null, (val2 == null) ? null : ((object)val2.Version)?.ToString(), readOnlyList, TryGetWorkshopItemId(mod));
+ }
+ catch (System.Exception ex)
+ {
+@@ -388,10 +388,10 @@
+ }
+ AssemblyName? obj = ResolveAssemblyName(Enumerable.FirstOrDefault<Assembly>((System.Collections.Generic.IEnumerable<Assembly>)array));
+ string text = ((obj != null) ? obj.Name : null) ?? "<unknown>";
+-string id = ((manifest == null) ? text : (ReadManifestId.Invoke(manifest) ?? text));
+-string name = ((manifest == null) ? text : (ReadManifestName.Invoke(manifest) ?? text));
++string id = ((manifest == (ModManifest)null) ? text : (ReadManifestId.Invoke(manifest) ?? text));
++string name = ((manifest == (ModManifest)null) ? text : (ReadManifestName.Invoke(manifest) ?? text));
+ List<Sts2LoadedModAssemblyEntry> obj2 = new List<Sts2LoadedModAssemblyEntry>();
+-obj2.AddRange(Enumerable.Select<Assembly, Sts2LoadedModAssemblyEntry>((System.Collections.Generic.IEnumerable<Assembly>)array, (Func<Assembly, Sts2LoadedModAssemblyEntry>)((Assembly assembly) => new Sts2LoadedModAssemblyEntry(id, name, (manifest == null) ? null : ReadManifestVersion.Invoke(manifest), assembly))));
++obj2.AddRange(Enumerable.Select<Assembly, Sts2LoadedModAssemblyEntry>((System.Collections.Generic.IEnumerable<Assembly>)array, (Func<Assembly, Sts2LoadedModAssemblyEntry>)((Assembly assembly) => new Sts2LoadedModAssemblyEntry(id, name, (manifest == (ModManifest)null) ? null : ReadManifestVersion.Invoke(manifest), assembly))));
+ return new _003C_003Ez__ReadOnlyList<Sts2LoadedModAssemblyEntry>(obj2);
+ }
+ catch (System.Exception ex)
+@@ -408,9 +408,9 @@
+ AssemblyName val2 = ResolveAssemblyName(ReadAssembly.Invoke(mod));
+ System.Collections.Generic.IReadOnlyList<LocString> readOnlyList = ReadErrors.Invoke(mod);
+ string text = ((val2 != null) ? val2.Name : null) ?? "<unknown>";
+-string id = ((val == null) ? text : (ReadManifestId.Invoke(val) ?? text));
+-string name = ((val == null) ? text : (ReadManifestName.Invoke(val) ?? text));
+-return new RitsuModInfo(id, name, (val == null) ? null : ReadManifestAuthor.Invoke(val), (val == null) ? null : ReadManifestVersion.Invoke(val), ParseLoadState(ReadLoadState.Invoke(mod, ((System.Collections.Generic.IReadOnlyCollection<LocString>)readOnlyList).Count)), ParseSource(ReadSource.Invoke(mod)), val == null || ReadManifestAffectsGameplay.Invoke(val), (val2 != null) ? val2.Name : null, (val2 == null) ? null : ((object)val2.Version)?.ToString(), readOnlyList, TryGetWorkshopItemId(mod));
++string id = ((val == (ModManifest)null) ? text : (ReadManifestId.Invoke(val) ?? text));
++string name = ((val == (ModManifest)null) ? text : (ReadManifestName.Invoke(val) ?? text));
++return new RitsuModInfo(id, name, (val == (ModManifest)null) ? null : ReadManifestAuthor.Invoke(val), (val == (ModManifest)null) ? null : ReadManifestVersion.Invoke(val), ParseLoadState(ReadLoadState.Invoke(mod, ((System.Collections.Generic.IReadOnlyCollection<LocString>)readOnlyList).Count)), ParseSource(ReadSource.Invoke(mod)), val == (ModManifest)null || ReadManifestAffectsGameplay.Invoke(val), (val2 != null) ? val2.Name : null, (val2 == null) ? null : ((object)val2.Version)?.ToString(), readOnlyList, TryGetWorkshopItemId(mod));
+ }
+ catch (System.Exception ex)
+ {
+@@ -420,19 +420,19 @@
+ }
+ private static RitsuModPresentationInfo? TryBuildModPresentationInfo(Mod mod)
+ {
+-//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00ed: Expected O, but got Unknown
++//IL_0104: Unknown result type (might be due to invalid IL or missing references)
++//IL_010b: Expected O, but got Unknown
+ try
+ {
+ ModManifest val = ReadManifest.Invoke(mod);
+ AssemblyName? obj = ResolveAssemblyName(ReadAssembly.Invoke(mod));
+ System.Collections.Generic.IReadOnlyList<LocString> readOnlyList = ReadErrors.Invoke(mod);
+ string text = ((obj != null) ? obj.Name : null) ?? "<unknown>";
+-string text2 = ((val == null) ? text : (ReadManifestId.Invoke(val) ?? text));
+-string text3 = ((val == null) ? text : (ReadManifestName.Invoke(val) ?? text));
++string text2 = ((val == (ModManifest)null) ? text : (ReadManifestId.Invoke(val) ?? text));
++string text3 = ((val == (ModManifest)null) ? text : (ReadManifestName.Invoke(val) ?? text));
+ RitsuModSource source = ParseSource(ReadSource.Invoke(mod));
+ RitsuModLoadState state = ParseLoadState(ReadLoadState.Invoke(mod, ((System.Collections.Generic.IReadOnlyCollection<LocString>)readOnlyList).Count));
+-return new RitsuModPresentationInfo(text2, text3, (val == null) ? null : ReadManifestAuthor.Invoke(val), (val == null) ? null : ReadManifestVersion.Invoke(val), (val == null) ? null : ReadManifestDescription.Invoke(val), "res://" + text2 + "/mod_image.png", GetBestModPresentationRank(state, source));
++return new RitsuModPresentationInfo(text2, text3, (val == (ModManifest)null) ? null : ReadManifestAuthor.Invoke(val), (val == (ModManifest)null) ? null : ReadManifestVersion.Invoke(val), (val == (ModManifest)null) ? null : ReadManifestDescription.Invoke(val), "res://" + text2 + "/mod_image.png", GetBestModPresentationRank(state, source));
+ }
+ catch (System.Exception ex)
+ {
+@@ -555,9 +555,9 @@
+ }
+ private static Func<Mod, System.Collections.Generic.IReadOnlyList<Assembly>> CreateModAssembliesAccessor()
+ {
+-if (typeof(Mod).GetField("assembly", (BindingFlags)52) != (FieldInfo)null)
+-{
+-return (Mod mod) => (!(mod.assembly == (Assembly)null)) ? ((System.Collections.Generic.IReadOnlyList<Assembly>)new _003C_003Ez__ReadOnlySingleElementList<Assembly>(mod.assembly)) : ((System.Collections.Generic.IReadOnlyList<Assembly>)System.Array.Empty<Assembly>());
++if (typeof(Mod).GetField("assemblies", (BindingFlags)52) != (FieldInfo)null)
++{
++return (Mod mod) => (System.Collections.Generic.IReadOnlyList<Assembly>)mod.assemblies;
+ }
+ Func<object, object?> assembliesGetter = CreateUntypedMemberGetter(typeof(Mod), "assemblies");
+ if (assembliesGetter != null)
+====================================================================================================
+FILE: STS2RitsuLib.Content/ContentRegistryPhase.cs
+--- 
++++ 
+@@ -11,8 +11,8 @@
+ /// </summary>
+ Open,
+ /// <summary>
+-///     <para xml:lang="en">Registrations are frozen before <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" /> runs.</para>
+-///     <para xml:lang="zh-CN">在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" /> 运行前冻结注册。</para>
++///     <para xml:lang="en">Registrations are frozen before <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" /> runs.</para>
++///     <para xml:lang="zh-CN">在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" /> 运行前冻结注册。</para>
+ /// </summary>
+ Frozen,
+ /// <summary>
+====================================================================================================
+FILE: STS2RitsuLib.Content/ModContentRegistry.cs
+--- 
++++ 
+@@ -1902,9 +1902,9 @@
+ }
+ /// <summary>
+ ///     <para xml:lang="en">
+-///         Warms all resolved-model caches after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" />.
+-///     </para>
+-///     <para xml:lang="zh-CN">在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" /> 后预热所有已解析模型缓存。</para>
++///         Warms all resolved-model caches after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" />.
++///     </para>
++///     <para xml:lang="zh-CN">在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" /> 后预热所有已解析模型缓存。</para>
+ /// </summary>
+ internal static void WarmResolvedModelCaches()
+ {
+@@ -3922,7 +3922,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex NonAlphaNumericRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__NonAlphaNumericRegex_0.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__NonAlphaNumericRegex_0.Instance;
+ }
+ /// <remarks>
+ /// Pattern:<br />
+@@ -3940,7 +3940,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex AcronymBoundaryRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__AcronymBoundaryRegex_1.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__AcronymBoundaryRegex_1.Instance;
+ }
+ /// <remarks>
+ /// Pattern:<br />
+@@ -3957,7 +3957,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex CamelBoundaryRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__CamelBoundaryRegex_2.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__CamelBoundaryRegex_2.Instance;
+ }
+ /// <remarks>
+ /// Pattern:<br />
+@@ -3971,7 +3971,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex RepeatedUnderscoreRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__RepeatedUnderscoreRegex_3.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__RepeatedUnderscoreRegex_3.Instance;
+ }
+ private void RememberOwner(System.Type type)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Content/ResolvedModelCache.cs
+--- 
++++ 
+@@ -7,10 +7,10 @@
+ namespace STS2RitsuLib.Content;
+ /// <summary>
+ ///     <para xml:lang="en">
+-///         Resolves registered model types after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" /> and caches them by catalog.
++///         Resolves registered model types after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" /> and caches them by catalog.
+ ///     </para>
+ ///     <para xml:lang="zh-CN">
+-///         在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" /> 后解析已注册模型类型，并按目录缓存。
++///         在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" /> 后解析已注册模型类型，并按目录缓存。
+ ///     </para>
+ /// </summary>
+ internal static class ResolvedModelCache
+====================================================================================================
+FILE: STS2RitsuLib.Diagnostics.DebugTools/RitsuDebugActionProtocol.cs
+--- 
++++ 
+@@ -502,14 +502,16 @@
+ }
+ internal static bool CanHostSynchronize(NetHostGameService host, RitsuLibSidecarPeerFeatures requiredPeerFeatures, out RitsuDebugActionFeedback feedback)
+ {
+-//IL_000f: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0014: Unknown result type (might be due to invalid IL or missing references)
++//IL_0006: Unknown result type (might be due to invalid IL or missing references)
++//IL_000b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0010: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0015: Unknown result type (might be due to invalid IL or missing references)
+-//IL_003b: Unknown result type (might be due to invalid IL or missing references)
+-System.Collections.Generic.IEnumerator<NetClientData> enumerator = ((System.Collections.Generic.IEnumerable<NetClientData>)host.ConnectedPeers).GetEnumerator();
+-try
+-{
+-while (((System.Collections.IEnumerator)enumerator).MoveNext())
++//IL_0016: Unknown result type (might be due to invalid IL or missing references)
++//IL_003c: Unknown result type (might be due to invalid IL or missing references)
++Enumerator<NetClientData> enumerator = host.ConnectedPeers.GetEnumerator();
++try
++{
++while (enumerator.MoveNext())
+ {
+ NetClientData current = enumerator.Current;
+ if (!current.readyForBroadcasting)
+@@ -526,7 +528,7 @@
+ }
+ finally
+ {
+-((System.IDisposable)enumerator)?.Dispose();
++((System.IDisposable)enumerator/*cast due to .constrained prefix*/).Dispose();
+ }
+ feedback = default(RitsuDebugActionFeedback);
+ return true;
+====================================================================================================
+FILE: STS2RitsuLib.Diagnostics.DebugTools/RitsuDebugCombatActions.cs
+--- 
++++ 
+@@ -1100,7 +1100,7 @@
+ }
+ goto IL_0387;
+ IL_0142:
+-val4 = CreatureCmd.Damage((PlayerChoiceContext)new BlockingPlayerChoiceContext(), _003Ccreature_003E5__2, decimal.op_Implicit(payload.Value), (ValueProp)4, (Creature)null, (CardModel)null).GetAwaiter();
++val4 = CreatureCmd.Damage((PlayerChoiceContext)new BlockingPlayerChoiceContext(), _003Ccreature_003E5__2, decimal.op_Implicit(payload.Value), (ValueProp)4, (CardModel)null, (CardPlay)null).GetAwaiter();
+ if (!val4.IsCompleted)
+ {
+ num = (_003C_003E1__state = 1);
+@@ -1488,17 +1488,19 @@
+ //IL_0078: Unknown result type (might be due to invalid IL or missing references)
+ //IL_007d: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0084: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00df: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00e4: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
++//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
++//IL_00ea: Unknown result type (might be due to invalid IL or missing references)
++//IL_00f1: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0045: Unknown result type (might be due to invalid IL or missing references)
+ //IL_004a: Unknown result type (might be due to invalid IL or missing references)
+ //IL_005e: Unknown result type (might be due to invalid IL or missing references)
+ //IL_005f: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00af: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00b4: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
++//IL_009d: Unknown result type (might be due to invalid IL or missing references)
++//IL_00b5: Expected O, but got Unknown
++//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
++//IL_00ba: Unknown result type (might be due to invalid IL or missing references)
++//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
++//IL_00cf: Unknown result type (might be due to invalid IL or missing references)
+ int num = _003C_003E1__state;
+ try
+ {
+@@ -1516,7 +1518,7 @@
+ val2 = _003C_003Eu__2;
+ _003C_003Eu__2 = default(TaskAwaiter);
+ num = (_003C_003E1__state = -1);
+-goto IL_00fa;
++goto IL_0100;
+ }
+ int num2 = block - creature.Block;
+ if (num2 > 0)
+@@ -1533,7 +1535,7 @@
+ }
+ if (num2 < 0)
+ {
+-val2 = CreatureCmd.LoseBlock(creature, decimal.op_Implicit(-num2)).GetAwaiter();
++val2 = CreatureCmd.LoseBlock((PlayerChoiceContext)new BlockingPlayerChoiceContext(), creature, decimal.op_Implicit(-num2), (Creature)null).GetAwaiter();
+ if (!((TaskAwaiter)(ref val2)).IsCompleted)
+ {
+ num = (_003C_003E1__state = 1);
+@@ -1541,10 +1543,10 @@
+ ((AsyncTaskMethodBuilder)(ref _003C_003Et__builder)).AwaitUnsafeOnCompleted<TaskAwaiter, _003CSetCreatureBlockAsync_003Ed__74>(ref val2, ref this);
+ return;
+ }
+-goto IL_00fa;
++goto IL_0100;
+ }
+ goto end_IL_0007;
+-IL_00fa:
++IL_0100:
+ ((TaskAwaiter)(ref val2)).GetResult();
+ goto end_IL_0007;
+ IL_0093:
+@@ -2104,7 +2106,7 @@
+ }
+ break;
+ case RitsuDebugCreatureOperation.Damage:
+-await CreatureCmd.Damage((PlayerChoiceContext)new BlockingPlayerChoiceContext(), creature, decimal.op_Implicit(payload.Value), (ValueProp)4, (Creature)null, (CardModel)null);
++await CreatureCmd.Damage((PlayerChoiceContext)new BlockingPlayerChoiceContext(), creature, decimal.op_Implicit(payload.Value), (ValueProp)4, (CardModel)null, (CardPlay)null);
+ await CombatManager.Instance.CheckWinCondition();
+ break;
+ case RitsuDebugCreatureOperation.Heal:
+====================================================================================================
+FILE: STS2RitsuLib.Diagnostics.DebugTools/RitsuDebugStatePresetActions.cs
+--- 
++++ 
+@@ -101,9 +101,9 @@
+ //IL_06cf: Unknown result type (might be due to invalid IL or missing references)
+ //IL_06d4: Unknown result type (might be due to invalid IL or missing references)
+ //IL_06dc: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0742: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0747: Unknown result type (might be due to invalid IL or missing references)
+-//IL_074e: Unknown result type (might be due to invalid IL or missing references)
++//IL_0748: Unknown result type (might be due to invalid IL or missing references)
++//IL_074d: Unknown result type (might be due to invalid IL or missing references)
++//IL_0754: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0071: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0076: Unknown result type (might be due to invalid IL or missing references)
+ //IL_008a: Unknown result type (might be due to invalid IL or missing references)
+@@ -138,16 +138,18 @@
+ //IL_0300: Unknown result type (might be due to invalid IL or missing references)
+ //IL_04b2: Unknown result type (might be due to invalid IL or missing references)
+ //IL_04b3: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0711: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0716: Unknown result type (might be due to invalid IL or missing references)
++//IL_06f5: Unknown result type (might be due to invalid IL or missing references)
++//IL_0717: Expected O, but got Unknown
++//IL_0717: Unknown result type (might be due to invalid IL or missing references)
++//IL_071c: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0699: Unknown result type (might be due to invalid IL or missing references)
+ //IL_069e: Unknown result type (might be due to invalid IL or missing references)
+ //IL_038f: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0390: Unknown result type (might be due to invalid IL or missing references)
+ //IL_014b: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0150: Unknown result type (might be due to invalid IL or missing references)
+-//IL_072b: Unknown result type (might be due to invalid IL or missing references)
+-//IL_072c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0731: Unknown result type (might be due to invalid IL or missing references)
++//IL_0732: Unknown result type (might be due to invalid IL or missing references)
+ //IL_06b4: Unknown result type (might be due to invalid IL or missing references)
+ //IL_06b6: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0164: Unknown result type (might be due to invalid IL or missing references)
+@@ -380,7 +382,7 @@
+ }
+ goto IL_06eb;
+ }
+-val = CreatureCmd.LoseBlock(context.Target.Creature, decimal.op_Implicit(-num2)).GetAwaiter();
++val = CreatureCmd.LoseBlock((PlayerChoiceContext)new BlockingPlayerChoiceContext(), context.Target.Creature, decimal.op_Implicit(-num2), (Creature)null).GetAwaiter();
+ if (!((TaskAwaiter)(ref val)).IsCompleted)
+ {
+ num = (_003C_003E1__state = 11);
+====================================================================================================
+FILE: STS2RitsuLib.Diagnostics/SelfCheckBundleWriter.cs
+--- 
++++ 
+@@ -2303,7 +2303,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex KeywordIdRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__KeywordIdRegex_4.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__KeywordIdRegex_4.Instance;
+ }
+ /// <remarks>
+ /// Pattern:<br />
+@@ -2321,7 +2321,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex PublicEntryRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__KeywordIdRegex_4.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__KeywordIdRegex_4.Instance;
+ }
+ private static string Diagnose(string reasonCode)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Interactions.RightClick/ModRightClickRegistry.cs
+--- 
++++ 
+@@ -1013,7 +1013,7 @@
+ {
+ return false;
+ }
+-if (CombatManager.Instance.IsInProgress && (int)instance.ActionQueueSynchronizer.CombatState != 1)
++if (CombatManager.Instance.IsInProgress && (int)instance.ActionQueueSynchronizer.CombatState != 2)
+ {
+ return false;
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Interop.Patches/SavedPropertiesTypeCacheInjectionPatch.cs
+--- 
++++ 
+@@ -1,14 +1,17 @@
+ using System;
++using System.Collections;
+ using System.Collections.Generic;
++using System.IO.Hashing;
+ using System.Linq;
+ using System.Reflection;
+ using System.Runtime.CompilerServices;
++using System.Text;
+ using System.Threading;
+ using Godot;
+ using HarmonyLib;
+-using MegaCrit.Sts2.Core.Localization;
+ using MegaCrit.Sts2.Core.Modding;
+ using MegaCrit.Sts2.Core.Models;
++using MegaCrit.Sts2.Core.Multiplayer.Serialization;
+ using MegaCrit.Sts2.Core.Saves.Runs;
+ using STS2RitsuLib.Compat;
+ using STS2RitsuLib.Data;
+@@ -31,6 +34,7 @@
+ {
+ private static readonly Lock Gate = new Lock();
+ private static bool _completed;
++private static int _remainingGameplayTypes = -1;
+ [field: CompilerGenerated]
+ internal static bool UsesDeterministicNetIdTable
+ {
+@@ -40,61 +44,90 @@
+ private set;
+ }
+ public static string PatchId => "ritsulib_saved_properties_type_cache_injection";
+-public static string Description => "Deterministic SavedPropertiesTypeCache injection for modded models with SavedProperty";
++public static string Description => "Collect synthetic SavedProperties names during native ModelIdSerializationCache initialization";
+ public static bool IsCritical => true;
+ public static ModPatchTarget[] GetTargets()
+ {
+ return new ModPatchTarget[1]
+ {
+-new ModPatchTarget(typeof(LocManager), "Initialize")
++new ModPatchTarget(typeof(ModelIdSerializationCache), "CachePropertiesForType", new System.Type[3]
++{
++typeof(System.Type),
++typeof(XxHash32),
++typeof(byte[])
++})
+ };
+ }
+-/// <summary>
+-///     <para xml:lang="en">
+-///         Injects cache entries after mod type-discovery contributors have registered their content.
+-///     </para>
+-///     <para xml:lang="zh-CN">在模组类型发现贡献器完成内容注册后注入缓存条目。</para>
+-/// </summary>
+-[HarmonyAfter(new string[] { "BaseLib" })]
+-[HarmonyPriority(0)]
+-public static void Prefix()
++public static void Postfix(XxHash32? __1)
+ {
+-//IL_0005: Unknown result type (might be due to invalid IL or missing references)
+-//IL_000a: Unknown result type (might be due to invalid IL or missing references)
++//IL_0009: Unknown result type (might be due to invalid IL or missing references)
++//IL_000e: Unknown result type (might be due to invalid IL or missing references)
++if (__1 == null)
++{
++return;
++}
+ Scope val = Gate.EnterScope();
++int propertyNameCount;
++System.Collections.Generic.IReadOnlyList<string> readOnlyList;
++int propertyNameCount2;
+ try
+ {
+ if (_completed)
+ {
+ return;
+ }
++if (_remainingGameplayTypes < 0)
++{
++_remainingGameplayTypes = Enumerable.Count<Item<ModelId>>((System.Collections.Generic.IEnumerable<Item<ModelId>>)ContentSorter<ModelId>.Sort(Enumerable.Select<AbstractModel, System.Type>(ModelDb.All, (Func<AbstractModel, System.Type>)((AbstractModel model) => ((object)model).GetType())), (Func<System.Type, ModelId>)ModelDb.GetId, true), (Func<Item<ModelId>, bool>)((Item<ModelId> item) => item.mod?.manifest?.affectsGameplay ?? true));
++}
++_remainingGameplayTypes--;
++if (_remainingGameplayTypes > 0)
++{
++return;
++}
+ _completed = true;
++ModelSavedDataRegistry.FinalizeRegistration();
++propertyNameCount = GetPropertyNameCount();
++readOnlyList = SavedAttachedStateRegistry.FinalizePropertyNameRegistration(injectIntoBaseGameCache: false);
++System.Collections.Generic.IEnumerator<string> enumerator = ((System.Collections.Generic.IEnumerable<string>)readOnlyList).GetEnumerator();
++try
++{
++while (((System.Collections.IEnumerator)enumerator).MoveNext())
++{
++InjectSyntheticName(enumerator.Current, __1);
++}
++}
++finally
++{
++((System.IDisposable)enumerator)?.Dispose();
++}
++propertyNameCount2 = GetPropertyNameCount();
++UsesDeterministicNetIdTable = true;
+ }
+ finally
+ {
+ ((Scope)(ref val)).Dispose();
+ }
+-System.Type[] array = Enumerable.ToArray<System.Type>(GetModModelTypesWithSavedProperties());
+-int propertyNameCount = GetPropertyNameCount();
+-int num = 0;
+-System.Type[] array2 = array;
+-foreach (System.Type type in array2)
++if (((System.Collections.Generic.IReadOnlyCollection<string>)readOnlyList).Count > 0)
+ {
+-if (SavedPropertiesTypeCache.GetJsonPropertiesForType(type) == null)
+-{
+-SavedPropertiesTypeCache.InjectTypeIntoCache(type);
+-num++;
++RitsuLibFramework.Logger.Info($"[SavedProperties] Collected {((System.Collections.Generic.IReadOnlyCollection<string>)readOnlyList).Count} synthetic property name(s) during native cache initialization; property net IDs: {propertyNameCount} -> {propertyNameCount2}.", 1);
+ }
+ }
+-ModelSavedDataRegistry.FinalizeRegistration();
+-SavedAttachedStateRegistry.FinalizePropertyNameRegistration();
+-int propertyNameCount2 = GetPropertyNameCount();
+-bool flag = (UsesDeterministicNetIdTable = SortNetIdTableIfEnabled(array.Length != 0 || propertyNameCount2 != propertyNameCount));
+-RefreshNetIdBitSize();
+-if (num > 0 || flag || propertyNameCount2 != propertyNameCount)
++private static void InjectSyntheticName(string name, XxHash32 hash)
+ {
+-RitsuLibFramework.Logger.Info($"[SavedProperties] Injected {num} mod model type(s); property net IDs: {propertyNameCount} -> {propertyNameCount2}, bit size {SavedPropertiesTypeCache.NetIdBitSize}, deterministic sort: {(flag ? "applied" : "not applied")}.", 1);
++//IL_000e: Unknown result type (might be due to invalid IL or missing references)
++//IL_0022: Unknown result type (might be due to invalid IL or missing references)
++//IL_003d: Unknown result type (might be due to invalid IL or missing references)
++Dictionary<string, int>? obj = GetPropertyNameToNetIdMap() ?? throw new InvalidOperationException("Native saved-property name-to-id map is unavailable.");
++List<string> val = GetNetIdToPropertyNameMap() ?? throw new InvalidOperationException("Native saved-property id-to-name map is unavailable.");
++if (obj.ContainsKey(name))
++{
++throw new InvalidOperationException("SavedAttachedState name is not unique in the native saved-property cache: " + name);
+ }
++obj[name] = val.Count;
++val.Add(name);
++byte[] bytes = Encoding.UTF8.GetBytes(name);
++((NonCryptographicHashAlgorithm)hash).Append(bytes);
+ }
+ private static bool HasSavedProperty(System.Type modelType)
+ {
+@@ -122,7 +155,7 @@
+ {
+ int propertyNameCount = GetPropertyNameCount();
+ int num = ((propertyNameCount > 1) ? Mathf.CeilToInt(Mathf.Log((float)propertyNameCount) / Mathf.Log(2f)) : 0);
+-PropertyInfo obj = AccessTools.Property(typeof(SavedPropertiesTypeCache), "NetIdBitSize");
++PropertyInfo obj = AccessTools.Property(typeof(ModelIdSerializationCache), "PropertyIdBitSize");
+ if (obj != null)
+ {
+ obj.SetValue((object)null, (object)num);
+@@ -155,12 +188,12 @@
+ }
+ private static Dictionary<string, int>? GetPropertyNameToNetIdMap()
+ {
+-FieldInfo obj = AccessTools.DeclaredField(typeof(SavedPropertiesTypeCache), "_propertyNameToNetIdMap");
++FieldInfo obj = AccessTools.DeclaredField(typeof(ModelIdSerializationCache), "_propertyNameToNetIdMap");
+ return ((obj != null) ? obj.GetValue((object)null) : null) as Dictionary<string, int>;
+ }
+ private static List<string>? GetNetIdToPropertyNameMap()
+ {
+-FieldInfo obj = AccessTools.DeclaredField(typeof(SavedPropertiesTypeCache), "_netIdToPropertyNameMap");
++FieldInfo obj = AccessTools.DeclaredField(typeof(ModelIdSerializationCache), "_netIdToPropertyNameMap");
+ return ((obj != null) ? obj.GetValue((object)null) : null) as List<string>;
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Lifecycle.Patches/AfterBlockBrokenLifecyclePatch.cs
+--- 
++++ 
+@@ -3,6 +3,7 @@
+ using HarmonyLib;
+ using MegaCrit.Sts2.Core.Combat;
+ using MegaCrit.Sts2.Core.Entities.Creatures;
++using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+ using MegaCrit.Sts2.Core.Hooks;
+ using STS2RitsuLib.Patching.Models;
+ namespace STS2RitsuLib.Lifecycle.Patches;
+@@ -15,22 +16,24 @@
+ {
+ return new ModPatchTarget[1]
+ {
+-new ModPatchTarget(typeof(Hook), "AfterBlockBroken", new System.Type[2]
++new ModPatchTarget(typeof(Hook), "AfterBlockBroken", new System.Type[4]
+ {
+ typeof(ICombatState),
++typeof(PlayerChoiceContext),
++typeof(Creature),
+ typeof(Creature)
+ })
+ };
+ }
+ [HarmonyPriority(0)]
+-public static void Postfix(ICombatState __0, Creature __1, ref System.Threading.Tasks.Task __result)
++public static void Postfix(ICombatState __0, Creature __2, ref System.Threading.Tasks.Task __result)
+ {
+ //IL_001e: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0028: Expected O, but got Unknown
+ __result = LifecyclePatchTaskBridge.After(__result, (Action)delegate
+ {
+ //IL_000c: Unknown result type (might be due to invalid IL or missing references)
+-RitsuLibFramework.PublishLifecycleEvent<BlockBrokenEvent>(new BlockBrokenEvent(__0, __1, DateTimeOffset.UtcNow), "BlockBrokenEvent");
++RitsuLibFramework.PublishLifecycleEvent<BlockBrokenEvent>(new BlockBrokenEvent(__0, __2, DateTimeOffset.UtcNow), "BlockBrokenEvent");
+ });
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Lifecycle.Patches/AfterTurnEndLifecyclePatch.cs
+--- 
++++ 
+@@ -16,7 +16,7 @@
+ {
+ return new ModPatchTarget[1]
+ {
+-new ModPatchTarget(typeof(Hook), "AfterTurnEnd", new System.Type[3]
++new ModPatchTarget(typeof(Hook), "AfterSideTurnEnd", new System.Type[3]
+ {
+ typeof(ICombatState),
+ typeof(CombatSide),
+====================================================================================================
+FILE: STS2RitsuLib.Lifecycle.Patches/BeforeTurnEndLifecyclePatch.cs
+--- 
++++ 
+@@ -15,7 +15,7 @@
+ {
+ return new ModPatchTarget[1]
+ {
+-new ModPatchTarget(typeof(Hook), "BeforeTurnEnd", new System.Type[3]
++new ModPatchTarget(typeof(Hook), "BeforeSideTurnEnd", new System.Type[3]
+ {
+ typeof(ICombatState),
+ typeof(CombatSide),
+====================================================================================================
+FILE: STS2RitsuLib.Lifecycle.Patches/UnlockIncrementLifecyclePatch.cs
+--- 
++++ 
+@@ -1,5 +1,6 @@
+ using System;
+ using MegaCrit.Sts2.Core.Saves;
++using MegaCrit.Sts2.Core.Timeline;
+ using STS2RitsuLib.Patching.Models;
+ namespace STS2RitsuLib.Lifecycle.Patches;
+ /// <summary>
+@@ -21,12 +22,12 @@
+ {
+ return new ModPatchTarget[1]
+ {
+-new ModPatchTarget(typeof(SaveManager), "IncrementUnlock", System.Type.EmptyTypes)
++new ModPatchTarget(typeof(SaveManager), "GrantNextUnlock", System.Type.EmptyTypes)
+ };
+ }
+-public static void Postfix(SaveManager __instance, string? __result)
++public static void Postfix(SaveManager __instance, EpochModel? __result)
+ {
+-//IL_000d: Unknown result type (might be due to invalid IL or missing references)
+-RitsuLibFramework.PublishLifecycleEvent<UnlockIncrementedEvent>(new UnlockIncrementedEvent(__instance, __instance.Progress.TotalUnlocks, __result, DateTimeOffset.UtcNow), "UnlockIncrementedEvent");
++//IL_0018: Unknown result type (might be due to invalid IL or missing references)
++RitsuLibFramework.PublishLifecycleEvent<UnlockIncrementedEvent>(new UnlockIncrementedEvent(__instance, __instance.Progress.TotalUnlocks, (__result != null) ? __result.Id : null, DateTimeOffset.UtcNow), "UnlockIncrementedEvent");
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Models.Capabilities.Patches/CardModelCapabilityPatches.cs
+--- 
++++ 
+@@ -386,14 +386,15 @@
+ {
+ return new ModPatchTarget[1]
+ {
+-new ModPatchTarget(typeof(CardModel), "GetResultPileTypeForCardPlay", System.Type.EmptyTypes)
+-};
+-}
+-public static void Postfix(CardModel __instance, ref PileType __result)
+-{
+-//IL_0004: Unknown result type (might be due to invalid IL or missing references)
+-//IL_000a: Expected I4, but got Unknown
+-__result = (PileType)(int)CardModelCapabilityHost.ApplyResultPileTypeForCardPlay(__instance, __result);
++new ModPatchTarget(typeof(CardModel), "GetResultLocationForCardPlay", System.Type.EmptyTypes)
++};
++}
++public static void Postfix(CardModel __instance, ref CardLocation __result)
++{
++//IL_0003: Unknown result type (might be due to invalid IL or missing references)
++//IL_0008: Unknown result type (might be due to invalid IL or missing references)
++//IL_000d: Unknown result type (might be due to invalid IL or missing references)
++__result.pileType = CardModelCapabilityHost.ApplyResultPileTypeForCardPlay(__instance, __result.pileType);
+ }
+ }
+ internal sealed class TransformCarryOverPatch : IPatchMethod
+====================================================================================================
+FILE: STS2RitsuLib.Models.Capabilities.Patches/ModelCapabilityHookListenerPatches.cs
+--- 
++++ 
+@@ -3,7 +3,6 @@
+ using System.Reflection;
+ using HarmonyLib;
+ using MegaCrit.Sts2.Core.Combat;
+-using MegaCrit.Sts2.Core.Entities.Creatures;
+ using MegaCrit.Sts2.Core.Entities.Multiplayer;
+ using MegaCrit.Sts2.Core.Entities.Players;
+ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+@@ -80,43 +79,11 @@
+ private static Player? ResolveOwner(AbstractModel source, ICombatState? combatState)
+ {
+ AbstractModel owner = ((IModelCapability)source).Owner;
+-CardModel val = (CardModel)(object)((owner is CardModel) ? owner : null);
+-if (val == null)
++if (owner != null)
+ {
+-RelicModel val2 = (RelicModel)(object)((owner is RelicModel) ? owner : null);
+-if (val2 == null)
+-{
+-PotionModel val3 = (PotionModel)(object)((owner is PotionModel) ? owner : null);
+-if (val3 == null)
+-{
+-AfflictionModel val4 = (AfflictionModel)(object)((owner is AfflictionModel) ? owner : null);
+-if (val4 == null)
+-{
+-EnchantmentModel val5 = (EnchantmentModel)(object)((owner is EnchantmentModel) ? owner : null);
+-if (val5 == null)
+-{
+-PowerModel val6 = (PowerModel)(object)((owner is PowerModel) ? owner : null);
+-if (val6 != null)
+-{
+-Creature owner2 = val6.Owner;
+-if (owner2 != null)
+-{
+-return owner2.IsPlayer ? owner2.Player : ((combatState != null && ((System.Collections.Generic.IReadOnlyCollection<Player>)combatState.Players).Count > 0) ? combatState.Players[0] : null);
+-}
++return HookPlayerChoiceContext.GetOwner(owner, combatState);
+ }
+ return null;
+ }
+-CardModel card = val5.Card;
+-return (card != null) ? card.Owner : null;
+-}
+-CardModel card2 = val4.Card;
+-return (card2 != null) ? card2.Owner : null;
+-}
+-return val3.Owner;
+-}
+-return val2.Owner;
+-}
+-return val.Owner;
+ }
+ }
+-}
+====================================================================================================
+FILE: STS2RitsuLib.Models.Capabilities.Patches/OrbModelCapabilityPatches.cs
+--- 
++++ 
+@@ -54,11 +54,33 @@
+ public static bool IsCritical => true;
+ public static ModPatchTarget[] GetTargets()
+ {
+-return new ModPatchTarget[1] { PatchTarget.AsyncMethod(typeof(OrbCmd), "Passive", typeof(PlayerChoiceContext), typeof(OrbModel), typeof(Creature)) };
++return new ModPatchTarget[1] { PatchTarget.AsyncMethod(typeof(OrbCmd), "Passive", typeof(PlayerChoiceContext), typeof(OrbModel), typeof(Creature), typeof(bool)) };
+ }
+ public static System.Collections.Generic.IEnumerable<CodeInstruction> Transpiler(System.Collections.Generic.IEnumerable<CodeInstruction> instructions)
+ {
+ return RedirectSingleAwaitedCall(instructions, "[OrbCapabilities] OrbCmd.Passive direct passive notification", PatchId, AccessTools.Method(typeof(OrbModel), "Passive", new System.Type[2]
++{
++typeof(PlayerChoiceContext),
++typeof(Creature)
++}, (System.Type[])null), AccessTools.Method(typeof(OrbModelCapabilityPatches), "RunPassiveWithCapability", (System.Type[])null, (System.Type[])null));
++}
++}
++internal sealed class OrbModelTriggerPassivePatch : IPatchMethod
++{
++public static string PatchId => "ritsulib_orb_capability_trigger_passive";
++public static string Description => "Notify orb capabilities after each OrbModel.TriggerPassive passive call";
++public static bool IsCritical => true;
++public static ModPatchTarget[] GetTargets()
++{
++return new ModPatchTarget[1] { PatchTarget.AsyncMethod<OrbModel>("TriggerPassive", new System.Type[2]
++{
++typeof(PlayerChoiceContext),
++typeof(Creature)
++}) };
++}
++public static System.Collections.Generic.IEnumerable<CodeInstruction> Transpiler(System.Collections.Generic.IEnumerable<CodeInstruction> instructions)
++{
++return RedirectSingleAwaitedCall(instructions, "[OrbCapabilities] OrbModel.TriggerPassive passive notification", PatchId, AccessTools.Method(typeof(OrbModel), "Passive", new System.Type[2]
+ {
+ typeof(PlayerChoiceContext),
+ typeof(Creature)
+====================================================================================================
+FILE: STS2RitsuLib.Networking.JoinDiagnostics/JoinDiagnosticsPayloadCodec.cs
+--- 
++++ 
+@@ -241,34 +241,27 @@
+ }
+ private static System.Collections.Generic.IReadOnlyList<string>? GetFallbackGameplayModKeys(InitialGameInfoMessage message, JoinHostVersionSnapshot? versionInfo)
+ {
+-//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+-return GetGameplayAffectingMods(message);
++return versionInfo?.GameplayMods;
+ }
+ private static System.Collections.Generic.IReadOnlyList<string>? GetFallbackContentModKeys(InitialGameInfoMessage message, JoinHostVersionSnapshot? versionInfo)
+ {
+-//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+-return MergeModKeys(GetGameplayAffectingMods(message), GetOtherMods(message));
++return MergeModKeys(versionInfo?.GameplayMods, versionInfo?.OtherMods);
+ }
+ private static string GetGameVersion(InitialGameInfoMessage message)
+ {
+-//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+-return message.version;
++return "UNKNOWN";
+ }
+ private static uint GetModelDbHash(InitialGameInfoMessage message)
+ {
+-//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+-return message.idDatabaseHash;
++return 0u;
+ }
+ private static System.Collections.Generic.IReadOnlyList<string>? GetGameplayAffectingMods(InitialGameInfoMessage message)
+ {
+-//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+-return (System.Collections.Generic.IReadOnlyList<string>?)message.gameplayAffectingMods;
++return null;
+ }
+ private static System.Collections.Generic.IReadOnlyList<string>? GetOtherMods(InitialGameInfoMessage message)
+ {
+-//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+-return (System.Collections.Generic.IReadOnlyList<string>?)message.otherMods;
++return null;
+ }
+ private static System.Collections.Generic.IReadOnlyList<string>? MergeModKeys(System.Collections.Generic.IReadOnlyList<string>? gameplayAffectingMods, System.Collections.Generic.IReadOnlyList<string>? otherMods)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Networking.JoinDiagnostics/JoinFailureDiagnosticsService.cs
+--- 
++++ 
+@@ -4,6 +4,7 @@
+ using System.Linq;
+ using System.Threading;
+ using MegaCrit.Sts2.Core.Entities.Multiplayer;
++using MegaCrit.Sts2.Core.Multiplayer;
+ using MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby;
+ using STS2RitsuLib.Compat;
+ namespace STS2RitsuLib.Networking.JoinDiagnostics;
+@@ -158,6 +159,19 @@
+ }
+ private static JoinHostVersionSnapshot? CreateHostVersionSnapshot(NetErrorInfo info)
+ {
++//IL_0016: Unknown result type (might be due to invalid IL or missing references)
++//IL_002c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0031: Unknown result type (might be due to invalid IL or missing references)
++//IL_0036: Unknown result type (might be due to invalid IL or missing references)
++//IL_003c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0042: Unknown result type (might be due to invalid IL or missing references)
++//IL_0048: Unknown result type (might be due to invalid IL or missing references)
++PeerVersionInfo? val = ((NetErrorInfo)(ref info)).ConnectionExtraInfo?.remoteInfo;
++if (val.HasValue)
++{
++PeerVersionInfo valueOrDefault = val.GetValueOrDefault();
++return new JoinHostVersionSnapshot(valueOrDefault.version, valueOrDefault.idDatabaseHash, (System.Collections.Generic.IReadOnlyList<string>?)valueOrDefault.gameplayAffectingMods, (System.Collections.Generic.IReadOnlyList<string>?)valueOrDefault.otherMods);
++}
+ return null;
+ }
+ private static void AddModelDbHashModeIssue(System.Collections.Generic.ICollection<JoinFailureIssue> issues, JoinPeerSnapshot host, JoinPeerSnapshot local)
+====================================================================================================
+FILE: STS2RitsuLib.Networking.ManagedActions.Patches/RitsuLibManagedNetActionMessagePatches.cs
+--- 
++++ 
+@@ -1,5 +1,4 @@
+ using System;
+-using System.Collections;
+ using System.Collections.Generic;
+ using HarmonyLib;
+ using MegaCrit.Sts2.Core.Entities.Multiplayer;
+@@ -258,7 +257,7 @@
+ //IL_0086: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0087: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0089: Unknown result type (might be due to invalid IL or missing references)
+-if ((int)action.ActionType == 2 && (int)synchronizer.CombatState == 3)
++if ((int)action.ActionType == 2 && (int)synchronizer.CombatState == 4)
+ {
+ RequestedActionsWaitingForPlayerTurnRef.Invoke(synchronizer).Add(action);
+ return true;
+@@ -326,19 +325,21 @@
+ //IL_0006: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0007: Unknown result type (might be due to invalid IL or missing references)
+ //IL_000c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0028: Unknown result type (might be due to invalid IL or missing references)
+-//IL_002d: Unknown result type (might be due to invalid IL or missing references)
++//IL_001f: Unknown result type (might be due to invalid IL or missing references)
++//IL_0024: Unknown result type (might be due to invalid IL or missing references)
++//IL_0029: Unknown result type (might be due to invalid IL or missing references)
+ //IL_002e: Unknown result type (might be due to invalid IL or missing references)
+-//IL_003c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0046: Unknown result type (might be due to invalid IL or missing references)
+-//IL_004d: Unknown result type (might be due to invalid IL or missing references)
++//IL_002f: Unknown result type (might be due to invalid IL or missing references)
++//IL_003d: Unknown result type (might be due to invalid IL or missing references)
++//IL_0047: Unknown result type (might be due to invalid IL or missing references)
++//IL_004e: Unknown result type (might be due to invalid IL or missing references)
+ ValueTuple<byte[], int> val = SerializeManagedActionMessage(host.NetId, message);
+ byte[] item = val.Item1;
+ int item2 = val.Item2;
+-System.Collections.Generic.IEnumerator<NetClientData> enumerator = ((System.Collections.Generic.IEnumerable<NetClientData>)host.ConnectedPeers).GetEnumerator();
++Enumerator<NetClientData> enumerator = host.ConnectedPeers.GetEnumerator();
+ try
+ {
+-while (((System.Collections.IEnumerator)enumerator).MoveNext())
++while (enumerator.MoveNext())
+ {
+ NetClientData current = enumerator.Current;
+ if (current.readyForBroadcasting)
+@@ -349,7 +350,7 @@
+ }
+ finally
+ {
+-((System.IDisposable)enumerator)?.Dispose();
++((System.IDisposable)enumerator/*cast due to .constrained prefix*/).Dispose();
+ }
+ }
+ private static ValueTuple<byte[], int> SerializeManagedActionMessage(ulong senderId, RequestEnqueueActionMessage message)
+====================================================================================================
+FILE: STS2RitsuLib.Networking.Sidecar/RitsuLibSidecarChecksumDiagnostics.cs
+--- 
++++ 
+@@ -43,7 +43,7 @@
+ RitsuLibFramework.Logger.Warn("[Sidecar] host divergence relay failed: " + ex.Message, 1);
+ }
+ }
+-private static void OnClientStateDiverged(NetFullCombatState _)
++private static void OnClientStateDiverged(ulong _, NetFullCombatState __)
+ {
+ try
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Networking.Sidecar/RitsuLibSidecarHighLevelSend.cs
+--- 
++++ 
+@@ -29,7 +29,7 @@
+ public INetGameService _003C_003E3__netService;
+ private bool readyOnly;
+ public bool _003C_003E3__readyOnly;
+-private System.Collections.Generic.IEnumerator<NetClientData> _003C_003E7__wrap1;
++private Enumerator<NetClientData> _003C_003E7__wrap1;
+ ulong System.Collections.Generic.IEnumerator<ulong>.Current
+ {
+ [DebuggerHidden]
+@@ -55,6 +55,7 @@
+ [DebuggerHidden]
+ void System.IDisposable.Dispose()
+ {
++//IL_0020: Unknown result type (might be due to invalid IL or missing references)
+ int num = _003C_003E1__state;
+ if (num == -3 || num == 1)
+ {
+@@ -66,15 +67,18 @@
+ _003C_003Em__Finally1();
+ }
+ }
+-_003C_003E7__wrap1 = null;
++_003C_003E7__wrap1 = default(Enumerator<NetClientData>);
+ _003C_003E1__state = -2;
+ }
+ private bool MoveNext()
+ {
+-//IL_0050: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0055: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0067: Unknown result type (might be due to invalid IL or missing references)
+-//IL_005e: Unknown result type (might be due to invalid IL or missing references)
++//IL_0039: Unknown result type (might be due to invalid IL or missing references)
++//IL_003e: Unknown result type (might be due to invalid IL or missing references)
++//IL_0053: Unknown result type (might be due to invalid IL or missing references)
++//IL_0058: Unknown result type (might be due to invalid IL or missing references)
++//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
++//IL_006a: Unknown result type (might be due to invalid IL or missing references)
++//IL_0061: Unknown result type (might be due to invalid IL or missing references)
+ try
+ {
+ switch (_003C_003E1__state)
+@@ -90,7 +94,7 @@
+ {
+ return false;
+ }
+-_003C_003E7__wrap1 = ((System.Collections.Generic.IEnumerable<NetClientData>)val.ConnectedPeers).GetEnumerator();
++_003C_003E7__wrap1 = val.ConnectedPeers.GetEnumerator();
+ _003C_003E1__state = -3;
+ break;
+ }
+@@ -98,7 +102,7 @@
+ _003C_003E1__state = -3;
+ break;
+ }
+-while (((System.Collections.IEnumerator)_003C_003E7__wrap1).MoveNext())
++while (_003C_003E7__wrap1.MoveNext())
+ {
+ NetClientData current = _003C_003E7__wrap1.Current;
+ if (!readyOnly || current.readyForBroadcasting)
+@@ -109,7 +113,7 @@
+ }
+ }
+ _003C_003Em__Finally1();
+-_003C_003E7__wrap1 = null;
++_003C_003E7__wrap1 = default(Enumerator<NetClientData>);
+ return false;
+ }
+ catch
+@@ -127,10 +131,7 @@
+ private void _003C_003Em__Finally1()
+ {
+ _003C_003E1__state = -1;
+-if (_003C_003E7__wrap1 != null)
+-{
+-((System.IDisposable)_003C_003E7__wrap1).Dispose();
+-}
++((System.IDisposable)_003C_003E7__wrap1/*cast due to .constrained prefix*/).Dispose();
+ }
+ [DebuggerHidden]
+ void System.Collections.IEnumerator.Reset()
+@@ -372,10 +373,10 @@
+ {
+ yield break;
+ }
+-System.Collections.Generic.IEnumerator<NetClientData> enumerator = ((System.Collections.Generic.IEnumerable<NetClientData>)val.ConnectedPeers).GetEnumerator();
++Enumerator<NetClientData> enumerator = val.ConnectedPeers.GetEnumerator();
+ try
+ {
+-while (((System.Collections.IEnumerator)enumerator).MoveNext())
++while (enumerator.MoveNext())
+ {
+ NetClientData current = enumerator.Current;
+ if (!readyOnly || current.readyForBroadcasting)
+@@ -386,7 +387,7 @@
+ }
+ finally
+ {
+-((System.IDisposable)enumerator)?.Dispose();
+-}
+-}
+-}
++((System.IDisposable)enumerator/*cast due to .constrained prefix*/).Dispose();
++}
++}
++}
+====================================================================================================
+FILE: STS2RitsuLib.Networking.Sidecar/RitsuLibSidecarSend.cs
+--- 
++++ 
+@@ -1,5 +1,4 @@
+ using System;
+-using System.Collections;
+ using System.Collections.Generic;
+ using MegaCrit.Sts2.Core.Entities.Multiplayer;
+ using MegaCrit.Sts2.Core.Multiplayer;
+@@ -148,16 +147,18 @@
+ /// <inheritdoc cref="M:STS2RitsuLib.Networking.Sidecar.RitsuLibSidecarSend.TryBroadcastToReadyPeers(MegaCrit.Sts2.Core.Runs.RunManager,System.Byte[],MegaCrit.Sts2.Core.Multiplayer.Transport.NetTransferMode,System.Int32)" />
+ public static bool TryBroadcastToReadyPeers(INetGameService? netService, byte[] envelope, NetTransferMode mode, int channel)
+ {
+-//IL_009d: Unknown result type (might be due to invalid IL or missing references)
+-//IL_003b: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0040: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+-//IL_004b: Unknown result type (might be due to invalid IL or missing references)
+-//IL_005e: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0065: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0088: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0093: Unknown result type (might be due to invalid IL or missing references)
++//IL_009e: Unknown result type (might be due to invalid IL or missing references)
++//IL_003c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0041: Unknown result type (might be due to invalid IL or missing references)
++//IL_0043: Unknown result type (might be due to invalid IL or missing references)
++//IL_0032: Unknown result type (might be due to invalid IL or missing references)
++//IL_0037: Unknown result type (might be due to invalid IL or missing references)
++//IL_004c: Unknown result type (might be due to invalid IL or missing references)
++//IL_005f: Unknown result type (might be due to invalid IL or missing references)
++//IL_0066: Unknown result type (might be due to invalid IL or missing references)
++//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
++//IL_0089: Unknown result type (might be due to invalid IL or missing references)
++//IL_0094: Unknown result type (might be due to invalid IL or missing references)
+ ArgumentNullException.ThrowIfNull((object)envelope, "envelope");
+ NetHostGameService val = (NetHostGameService)(object)((netService is NetHostGameService) ? netService : null);
+ if (val == null || !val.IsConnected || val.NetHost == null)
+@@ -166,10 +167,10 @@
+ }
+ int num = 0;
+ long num2 = 0L;
+-System.Collections.Generic.IEnumerator<NetClientData> enumerator = ((System.Collections.Generic.IEnumerable<NetClientData>)val.ConnectedPeers).GetEnumerator();
+-try
+-{
+-while (((System.Collections.IEnumerator)enumerator).MoveNext())
++Enumerator<NetClientData> enumerator = val.ConnectedPeers.GetEnumerator();
++try
++{
++while (enumerator.MoveNext())
+ {
+ NetClientData current = enumerator.Current;
+ if (!current.readyForBroadcasting)
+@@ -196,7 +197,7 @@
+ }
+ finally
+ {
+-((System.IDisposable)enumerator)?.Dispose();
++((System.IDisposable)enumerator/*cast due to .constrained prefix*/).Dispose();
+ }
+ if (num <= 0)
+ {
+@@ -224,15 +225,17 @@
+ /// </summary>
+ public static bool TryBroadcastToAllConnectedClients(INetGameService? netService, byte[] envelope, NetTransferMode mode, int channel)
+ {
+-//IL_0094: Unknown result type (might be due to invalid IL or missing references)
+-//IL_003b: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0040: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0055: Unknown result type (might be due to invalid IL or missing references)
+-//IL_005c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_007f: Unknown result type (might be due to invalid IL or missing references)
+-//IL_008a: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00d9: Unknown result type (might be due to invalid IL or missing references)
++//IL_0095: Unknown result type (might be due to invalid IL or missing references)
++//IL_003c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0041: Unknown result type (might be due to invalid IL or missing references)
++//IL_0043: Unknown result type (might be due to invalid IL or missing references)
++//IL_0032: Unknown result type (might be due to invalid IL or missing references)
++//IL_0037: Unknown result type (might be due to invalid IL or missing references)
++//IL_0056: Unknown result type (might be due to invalid IL or missing references)
++//IL_005d: Unknown result type (might be due to invalid IL or missing references)
++//IL_0080: Unknown result type (might be due to invalid IL or missing references)
++//IL_008b: Unknown result type (might be due to invalid IL or missing references)
++//IL_00df: Unknown result type (might be due to invalid IL or missing references)
+ ArgumentNullException.ThrowIfNull((object)envelope, "envelope");
+ NetHostGameService val = (NetHostGameService)(object)((netService is NetHostGameService) ? netService : null);
+ if (val == null || !val.IsConnected || val.NetHost == null)
+@@ -241,10 +244,10 @@
+ }
+ int num = 0;
+ long num2 = 0L;
+-System.Collections.Generic.IEnumerator<NetClientData> enumerator = ((System.Collections.Generic.IEnumerable<NetClientData>)val.ConnectedPeers).GetEnumerator();
+-try
+-{
+-while (((System.Collections.IEnumerator)enumerator).MoveNext())
++Enumerator<NetClientData> enumerator = val.ConnectedPeers.GetEnumerator();
++try
++{
++while (enumerator.MoveNext())
+ {
+ NetClientData current = enumerator.Current;
+ if (!RitsuLibSidecarSessionManager.CanSendToPeer(current.peerId))
+@@ -267,7 +270,7 @@
+ }
+ finally
+ {
+-((System.IDisposable)enumerator)?.Dispose();
++((System.IDisposable)enumerator/*cast due to .constrained prefix*/).Dispose();
+ }
+ if (num <= 0)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Networking.Sidecar/RitsuLibSidecarSessionManager.cs
+--- 
++++ 
+@@ -1,5 +1,4 @@
+ using System;
+-using System.Collections;
+ using System.Collections.Generic;
+ using System.Linq;
+ using System.Runtime.CompilerServices;
+@@ -642,9 +641,11 @@
+ }
+ private static void SeedKnownPeers(INetGameService netService)
+ {
+-//IL_0024: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0029: Unknown result type (might be due to invalid IL or missing references)
+-//IL_002f: Unknown result type (might be due to invalid IL or missing references)
++//IL_001b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0020: Unknown result type (might be due to invalid IL or missing references)
++//IL_0025: Unknown result type (might be due to invalid IL or missing references)
++//IL_002a: Unknown result type (might be due to invalid IL or missing references)
++//IL_0030: Unknown result type (might be due to invalid IL or missing references)
+ NetHostGameService val = (NetHostGameService)(object)((netService is NetHostGameService) ? netService : null);
+ if (val == null)
+ {
+@@ -655,10 +656,10 @@
+ }
+ return;
+ }
+-System.Collections.Generic.IEnumerator<NetClientData> enumerator = ((System.Collections.Generic.IEnumerable<NetClientData>)val.ConnectedPeers).GetEnumerator();
+-try
+-{
+-while (((System.Collections.IEnumerator)enumerator).MoveNext())
++Enumerator<NetClientData> enumerator = val.ConnectedPeers.GetEnumerator();
++try
++{
++while (enumerator.MoveNext())
+ {
+ NetClientData current = enumerator.Current;
+ PeerReachability[current.peerId] = RitsuLibSidecarPeerReachability.Unknown;
+@@ -666,7 +667,7 @@
+ }
+ finally
+ {
+-((System.IDisposable)enumerator)?.Dispose();
++((System.IDisposable)enumerator/*cast due to .constrained prefix*/).Dispose();
+ }
+ }
+ private static void UpdateReachability(ulong peerNetId, RitsuLibSidecarPeerReachability next, string reason)
+====================================================================================================
+FILE: STS2RitsuLib.Networking.Sidecar/RitsuLibSidecarTypedMessageRegistry.cs
+--- 
++++ 
+@@ -1,5 +1,4 @@
+ using System;
+-using System.Collections;
+ using System.Collections.Generic;
+ using System.Linq;
+ using System.Runtime.CompilerServices;
+@@ -300,6 +299,8 @@
+ /// </summary>
+ public static bool Broadcast<T>(INetGameService? netService, RitsuLibSidecarMessageDescriptor<T> descriptor, T message)
+ {
++//IL_0070: Unknown result type (might be due to invalid IL or missing references)
++//IL_0075: Unknown result type (might be due to invalid IL or missing references)
+ //IL_007e: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0083: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0085: Unknown result type (might be due to invalid IL or missing references)
+@@ -319,10 +320,10 @@
+ if (endpointHandle != null)
+ {
+ HashSet<ulong> val2 = Enumerable.ToHashSet<ulong>((System.Collections.Generic.IEnumerable<ulong>)endpointHandle.GetParticipantsSnapshot());
+-System.Collections.Generic.IEnumerator<NetClientData> enumerator = ((System.Collections.Generic.IEnumerable<NetClientData>)val.ConnectedPeers).GetEnumerator();
+-try
+-{
+-while (((System.Collections.IEnumerator)enumerator).MoveNext())
++Enumerator<NetClientData> enumerator = val.ConnectedPeers.GetEnumerator();
++try
++{
++while (enumerator.MoveNext())
+ {
+ NetClientData current = enumerator.Current;
+ if (!current.readyForBroadcasting || !RitsuLibSidecarSessionManager.CanSendToPeer(current.peerId))
+@@ -342,7 +343,7 @@
+ }
+ finally
+ {
+-((System.IDisposable)enumerator)?.Dispose();
++((System.IDisposable)enumerator/*cast due to .constrained prefix*/).Dispose();
+ }
+ return true;
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Networking.StateDivergence.Patches/StateDivergenceDiagnosticsPopupCreatePatch.cs
+--- 
++++ 
+@@ -19,7 +19,7 @@
+ {
+ //IL_0005: Unknown result type (might be due to invalid IL or missing references)
+ //IL_000c: Invalid comparison between Unknown and I4
+-if (__result != null && (int)((NetErrorInfo)(ref info)).GetReason() == 12 && StateDivergenceDiagnosticsReports.TryGetLatest(out StateDivergenceDiagnosticReport report))
++if (__result != null && (int)((NetErrorInfo)(ref info)).GetReason() == 105 && StateDivergenceDiagnosticsReports.TryGetLatest(out StateDivergenceDiagnosticReport report))
+ {
+ StateDivergenceDiagnosticsReports.PopupReports.Remove(__result);
+ StateDivergenceDiagnosticsReports.PopupReports.Add(__result, report);
+====================================================================================================
+FILE: STS2RitsuLib.Networking.StateDivergence/StateDivergenceDiagnosticReportBuilder.cs
+--- 
++++ 
+@@ -13,13 +13,14 @@
+ using MegaCrit.Sts2.Core.Localization;
+ using MegaCrit.Sts2.Core.Models;
+ using MegaCrit.Sts2.Core.Multiplayer.Messages.Game.Checksums;
++using MegaCrit.Sts2.Core.Saves;
+ using MegaCrit.Sts2.Core.Saves.Runs;
+ using STS2RitsuLib.Compat;
+ namespace STS2RitsuLib.Networking.StateDivergence;
+ internal static class StateDivergenceDiagnosticReportBuilder
+ {
+ [CompilerGenerated]
+-private sealed class _003CFormatMinionLibComponent_003Ed__63 : System.Collections.Generic.IEnumerable<string>, System.Collections.IEnumerable, System.Collections.Generic.IEnumerator<string>, System.Collections.IEnumerator, System.IDisposable
++private sealed class _003CFormatMinionLibComponent_003Ed__64 : System.Collections.Generic.IEnumerable<string>, System.Collections.IEnumerable, System.Collections.Generic.IEnumerator<string>, System.Collections.IEnumerator, System.IDisposable
+ {
+ private int _003C_003E1__state;
+ private string _003C_003E2__current;
+@@ -45,7 +46,7 @@
+ }
+ }
+ [DebuggerHidden]
+-public _003CFormatMinionLibComponent_003Ed__63(int _003C_003E1__state)
++public _003CFormatMinionLibComponent_003Ed__64(int _003C_003E1__state)
+ {
+ this._003C_003E1__state = _003C_003E1__state;
+ _003C_003El__initialThreadId = Environment.CurrentManagedThreadId;
+@@ -147,7 +148,7 @@
+ [DebuggerHidden]
+ System.Collections.Generic.IEnumerator<string> System.Collections.Generic.IEnumerable<string>.GetEnumerator()
+ {
+-_003CFormatMinionLibComponent_003Ed__63 _003CFormatMinionLibComponent_003Ed__;
++_003CFormatMinionLibComponent_003Ed__64 _003CFormatMinionLibComponent_003Ed__;
+ if (_003C_003E1__state == -2 && _003C_003El__initialThreadId == Environment.CurrentManagedThreadId)
+ {
+ _003C_003E1__state = 0;
+@@ -155,7 +156,7 @@
+ }
+ else
+ {
+-_003CFormatMinionLibComponent_003Ed__ = new _003CFormatMinionLibComponent_003Ed__63(0);
++_003CFormatMinionLibComponent_003Ed__ = new _003CFormatMinionLibComponent_003Ed__64(0);
+ }
+ _003CFormatMinionLibComponent_003Ed__.component = _003C_003E3__component;
+ return _003CFormatMinionLibComponent_003Ed__;
+@@ -657,17 +658,17 @@
+ //IL_015e: Unknown result type (might be due to invalid IL or missing references)
+ List<StateDivergenceDiagnosticRow> val = new List<StateDivergenceDiagnosticRow>();
+ AddIfDifferent((System.Collections.Generic.ICollection<StateDivergenceDiagnosticRow>)val, "rng.run.seed", local.Rng.Seed ?? "", remote.Rng.Seed ?? "", includeMatching);
+-CompareCounters<RunRngType>((System.Collections.Generic.ICollection<StateDivergenceDiagnosticRow>)val, "rng.run.counters", (IReadOnlyDictionary<RunRngType, int>)(object)local.Rng.Counters, (IReadOnlyDictionary<RunRngType, int>)(object)remote.Rng.Counters, includeMatching);
++CompareRngStates<RunRngType>((System.Collections.Generic.ICollection<StateDivergenceDiagnosticRow>)val, "rng.run.rngs", (IReadOnlyDictionary<RunRngType, SerializableRng>)(object)local.Rng.Rngs, (IReadOnlyDictionary<RunRngType, SerializableRng>)(object)remote.Rng.Rngs, includeMatching);
+ int num = Math.Max(local.Players.Count, remote.Players.Count);
+ for (int i = 0; i < num; i++)
+ {
+ if (i < local.Players.Count && i < remote.Players.Count)
+ {
+ AddIfDifferent((System.Collections.Generic.ICollection<StateDivergenceDiagnosticRow>)val, $"players[{i}].rng.seed", local.Players[i].rngSet.Seed, remote.Players[i].rngSet.Seed, includeMatching);
+-CompareCounters<PlayerRngType>((System.Collections.Generic.ICollection<StateDivergenceDiagnosticRow>)val, $"players[{i}].rng.counters", (IReadOnlyDictionary<PlayerRngType, int>)(object)local.Players[i].rngSet.Counters, (IReadOnlyDictionary<PlayerRngType, int>)(object)remote.Players[i].rngSet.Counters, includeMatching);
+-}
+-}
+-return new StateDivergenceDiagnosticSection(L("section.rng.title", "RNG"), L("section.rng.description", "Run and player RNG seeds and counters."), val.Count == 0, (System.Collections.Generic.IReadOnlyList<StateDivergenceDiagnosticRow>)val);
++CompareRngStates<PlayerRngType>((System.Collections.Generic.ICollection<StateDivergenceDiagnosticRow>)val, $"players[{i}].rng.rngs", (IReadOnlyDictionary<PlayerRngType, SerializableRng>)(object)local.Players[i].rngSet.Rngs, (IReadOnlyDictionary<PlayerRngType, SerializableRng>)(object)remote.Players[i].rngSet.Rngs, includeMatching);
++}
++}
++return new StateDivergenceDiagnosticSection(L("section.rng.title", "RNG"), L("section.rng.description", "Run and player RNG seeds and states."), val.Count == 0, (System.Collections.Generic.IReadOnlyList<StateDivergenceDiagnosticRow>)val);
+ }
+ private unsafe static StateDivergenceDiagnosticSection BuildRelicGrabBags(NetFullCombatState local, NetFullCombatState remote, bool includeMatching)
+ {
+@@ -721,6 +722,30 @@
+ local.TryGetValue(current, ref num);
+ remote.TryGetValue(current, ref num2);
+ AddIfDifferent(rows, $"{path}.{current}", num, num2, includeMatching);
++}
++}
++finally
++{
++((System.IDisposable)enumerator)?.Dispose();
++}
++}
++private static void CompareRngStates<TKey>(System.Collections.Generic.ICollection<StateDivergenceDiagnosticRow> rows, string path, IReadOnlyDictionary<TKey, SerializableRng> local, IReadOnlyDictionary<TKey, SerializableRng> remote, bool includeMatching) where TKey : notnull
++{
++System.Collections.Generic.IEnumerator<TKey> enumerator = ((System.Collections.Generic.IEnumerable<TKey>)Enumerable.OrderBy<TKey, string>(Enumerable.Distinct<TKey>(Enumerable.Concat<TKey>(local.Keys, remote.Keys)), (Func<TKey, string>)((TKey k) => ((object)k/*cast due to .constrained prefix*/).ToString()))).GetEnumerator();
++try
++{
++SerializableRng val = default(SerializableRng);
++SerializableRng val2 = default(SerializableRng);
++while (((System.Collections.IEnumerator)enumerator).MoveNext())
++{
++TKey current = enumerator.Current;
++local.TryGetValue(current, ref val);
++remote.TryGetValue(current, ref val2);
++AddIfDifferent(rows, $"{path}.{current}.counter", val?.counter, val2?.counter, includeMatching);
++AddIfDifferent(rows, $"{path}.{current}.state0", val?.state0, val2?.state0, includeMatching);
++AddIfDifferent(rows, $"{path}.{current}.state1", val?.state1, val2?.state1, includeMatching);
++AddIfDifferent(rows, $"{path}.{current}.state2", val?.state2, val2?.state2, includeMatching);
++AddIfDifferent(rows, $"{path}.{current}.state3", val?.state3, val2?.state3, includeMatching);
+ }
+ }
+ finally
+@@ -1244,7 +1269,7 @@
+ return null;
+ }
+ }
+-[IteratorStateMachine(typeof(_003CFormatMinionLibComponent_003Ed__63))]
++[IteratorStateMachine(typeof(_003CFormatMinionLibComponent_003Ed__64))]
+ private static System.Collections.Generic.IEnumerable<string> FormatMinionLibComponent(object component)
+ {
+ System.Type type = component.GetType();
+====================================================================================================
+FILE: STS2RitsuLib.Networking.StateDivergence/StateDivergenceSupplementPayloadCodec.cs
+--- 
++++ 
+@@ -13,7 +13,7 @@
+ using HarmonyLib;
+ using MegaCrit.Sts2.Core.Entities.Multiplayer;
+ using MegaCrit.Sts2.Core.Multiplayer.Messages.Game.Checksums;
+-using MegaCrit.Sts2.Core.Saves.Runs;
++using MegaCrit.Sts2.Core.Multiplayer.Serialization;
+ using STS2RitsuLib.Compat;
+ using STS2RitsuLib.Content.Patches;
+ using STS2RitsuLib.Diagnostics.Logging;
+@@ -227,7 +227,7 @@
+ }
+ private static System.Collections.Generic.IReadOnlyList<string> GetSavedPropertyNames()
+ {
+-FieldInfo obj = AccessTools.DeclaredField(typeof(SavedPropertiesTypeCache), "_netIdToPropertyNameMap");
++FieldInfo obj = AccessTools.DeclaredField(typeof(ModelIdSerializationCache), "_netIdToPropertyNameMap");
+ if (!(((obj != null) ? obj.GetValue((object)null) : null) is List<string> val))
+ {
+ return System.Array.Empty<string>();
+@@ -236,7 +236,7 @@
+ }
+ private static int GetSavedPropertyNetIdBitSize()
+ {
+-return SavedPropertiesTypeCache.NetIdBitSize;
++return ModelIdSerializationCache.PropertyIdBitSize;
+ }
+ private static byte[] Brotli(byte[] data)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Platform.Patches/RitsuLibModelDbInitPostfixPatch.cs
+--- 
++++ 
+@@ -11,12 +11,12 @@
+ namespace STS2RitsuLib.Platform.Patches;
+ /// <summary>
+ ///     <para xml:lang="en">
+-///         Applies deferred Harmony patches after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" />. These patches cannot resolve their
++///         Applies deferred Harmony patches after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" />. These patches cannot resolve their
+ ///         targets during the first mod-load pass because resolution can trigger static initialization that
+ ///         depends on <see cref="T:MegaCrit.Sts2.Core.Models.ModelDb" />.
+ ///     </para>
+ ///     <para xml:lang="zh-CN">
+-///         在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" /> 后应用延迟的 Harmony 补丁。这些补丁不能在首次加载模组时解析目标，
++///         在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" /> 后应用延迟的 Harmony 补丁。这些补丁不能在首次加载模组时解析目标，
+ ///         因为解析可能触发依赖 <see cref="T:MegaCrit.Sts2.Core.Models.ModelDb" /> 的静态初始化。
+ ///     </para>
+ /// </summary>
+====================================================================================================
+FILE: STS2RitsuLib.RunData.Patches/RunSavedDataLobbyPlayerJoinedPatch.cs
+--- 
++++ 
+@@ -13,15 +13,16 @@
+ {
+ return new ModPatchTarget[1]
+ {
+-new ModPatchTarget(typeof(StartRunLobby), "TryAddPlayerInFirstAvailableSlot", new System.Type[3]
++new ModPatchTarget(typeof(StartRunLobby), "TryAddPlayerInFirstAvailableSlot", new System.Type[4]
+ {
+ typeof(SerializableUnlockState),
+ typeof(int),
++typeof(bool),
+ typeof(ulong)
+ })
+ };
+ }
+-public static void Postfix(StartRunLobby __instance, LobbyPlayer? __result)
++public static void Postfix(StartRunLobby __instance, StartRunLobbyPlayer? __result)
+ {
+ //IL_000f: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0015: Invalid comparison between Unknown and I4
+====================================================================================================
+FILE: STS2RitsuLib.RunData.Patches/RunSavedDataPatchHelpers.cs
+--- 
++++ 
+@@ -96,7 +96,7 @@
+ public static string GetRunSavePath(RunSaveManager manager, bool isMultiplayer)
+ {
+ string text = (isMultiplayer ? "current_run_mp.save" : "current_run.save");
+-return RunSaveManager.GetRunSavePath(RunSavedDataRunSaveManagerAccess.ProfileIdProvider(manager).CurrentProfileId, text);
++return RunSaveManager.GetRunSavePath(RunSavedDataRunSaveManagerAccess.ProfileIdProvider(manager).CurrentProfileId, text, (bool?)null);
+ }
+ public static void AttachDocumentFromCurrentFile(RunSaveManager manager, SerializableRun? save, bool isMultiplayer)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.RunData/RunSavedDataRegistry.cs
+--- 
++++ 
+@@ -298,12 +298,12 @@
+ }
+ private static bool IsActiveLobbyPlayer(StartRunLobby lobby, ulong netId)
+ {
+-return Enumerable.Any<LobbyPlayer>((System.Collections.Generic.IEnumerable<LobbyPlayer>)lobby.Players, (Func<LobbyPlayer, bool>)((LobbyPlayer player) => player.id == netId));
++return Enumerable.Any<StartRunLobbyPlayer>((System.Collections.Generic.IEnumerable<StartRunLobbyPlayer>)lobby.Players, (Func<StartRunLobbyPlayer, bool>)((StartRunLobbyPlayer player) => player.id == netId));
+ }
+ private static HashSet<ulong> GetActiveLobbyPlayerIds(StartRunLobby lobby)
+ {
+ HashSet<ulong> val = new HashSet<ulong>();
+-System.Collections.Generic.IEnumerator<ulong> enumerator = Enumerable.Select<LobbyPlayer, ulong>((System.Collections.Generic.IEnumerable<LobbyPlayer>)lobby.Players, (Func<LobbyPlayer, ulong>)((LobbyPlayer player) => player.id)).GetEnumerator();
++System.Collections.Generic.IEnumerator<ulong> enumerator = Enumerable.Select<StartRunLobbyPlayer, ulong>((System.Collections.Generic.IEnumerable<StartRunLobbyPlayer>)lobby.Players, (Func<StartRunLobbyPlayer, ulong>)((StartRunLobbyPlayer player) => player.id)).GetEnumerator();
+ try
+ {
+ while (((System.Collections.IEnumerator)enumerator).MoveNext())
+====================================================================================================
+FILE: STS2RitsuLib.RunRngs/ModRunRngExtensions.cs
+--- 
++++ 
+@@ -4,13 +4,13 @@
+ {
+ public static int GetCounter(this Rng rng)
+ {
+-return rng.Counter;
++return rng.ToSerializable().counter;
+ }
+ public static Rng FastForwarded(this Rng rng, int counter)
+ {
+-if (counter > 0)
++for (int i = 0; i < counter; i++)
+ {
+-rng.FastForwardCounter(counter);
++rng.NextUnsignedLong();
+ }
+ return rng;
+ }
+====================================================================================================
+FILE: STS2RitsuLib.RunRngs/ModRunRngRegistry.cs
+--- 
++++ 
+@@ -94,10 +94,10 @@
+ //IL_0017: Unknown result type (might be due to invalid IL or missing references)
+ //IL_001c: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0021: Unknown result type (might be due to invalid IL or missing references)
+-//IL_006d: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0072: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0078: Unknown result type (might be due to invalid IL or missing references)
+-//IL_007d: Unknown result type (might be due to invalid IL or missing references)
++//IL_0087: Unknown result type (might be due to invalid IL or missing references)
++//IL_008c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0092: Unknown result type (might be due to invalid IL or missing references)
++//IL_0097: Unknown result type (might be due to invalid IL or missing references)
+ Scope val = _syncRoot.EnterScope();
+ try
+ {
+@@ -112,6 +112,7 @@
+ StreamKey streamKey2 = streamKey;
+ Rng rng = val2;
+ state.SetRunCounter(streamKey2.ModId, streamKey2.StreamId, rng.GetCounter());
++state.SetRunRngState(streamKey2.ModId, streamKey2.StreamId, ModRunRngSnapshot.From(rng));
+ }
+ }
+ finally
+@@ -128,6 +129,7 @@
+ PlayerStreamKey playerStreamKey2 = playerStreamKey;
+ Rng rng2 = val2;
+ state.SetPlayerCounter(playerStreamKey2.NetId, playerStreamKey2.ModId, playerStreamKey2.StreamId, rng2.GetCounter());
++state.SetPlayerRngState(playerStreamKey2.NetId, playerStreamKey2.ModId, playerStreamKey2.StreamId, ModRunRngSnapshot.From(rng2));
+ }
+ }
+ finally
+@@ -142,22 +144,36 @@
+ }
+ private static Rng CreateRunRng(RunState runState, StreamKey key)
+ {
+-//IL_0084: Unknown result type (might be due to invalid IL or missing references)
+-//IL_008f: Expected O, but got Unknown
++//IL_0080: Unknown result type (might be due to invalid IL or missing references)
++//IL_0086: Expected O, but got Unknown
++//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
++//IL_00ba: Expected O, but got Unknown
+ string text = $"{"ritsulib.mod_run_rng"}/run/{key.ModId}/{key.StreamId}";
+ ModRunRngState value;
+-int counter = (SavedData.TryGet(runState, out value) ? value.GetRunCounter(key.ModId, key.StreamId) : 0);
++bool flag = SavedData.TryGet(runState, out value);
++if (flag && value.TryGetRunRngState(key.ModId, key.StreamId, out ModRunRngSnapshot state))
++{
++return new Rng(state.ToSerializable());
++}
++int counter = (flag ? value.GetRunCounter(key.ModId, key.StreamId) : 0);
+ return ModRunRngExtensions.FastForwarded(new Rng(runState.Rng.Seed, text), counter);
+ }
+ private static Rng CreatePlayerRng(Player player, PlayerStreamKey key)
+ {
+-//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00ab: Expected O, but got Unknown
++//IL_009d: Unknown result type (might be due to invalid IL or missing references)
++//IL_00a3: Expected O, but got Unknown
++//IL_00d2: Unknown result type (might be due to invalid IL or missing references)
++//IL_00de: Expected O, but got Unknown
+ string text = $"{"ritsulib.mod_run_rng"}/player/{key.ModId}/{key.StreamId}";
+ ModRunRngState value = null;
+ IRunState runState = player.RunState;
+ RunState val = (RunState)(object)((runState is RunState) ? runState : null);
+-int counter = ((val != null && SavedData.TryGet(val, out value)) ? value.GetPlayerCounter(key.NetId, key.ModId, key.StreamId) : 0);
++bool flag = val != null && SavedData.TryGet(val, out value);
++if (flag && value.TryGetPlayerRngState(key.NetId, key.ModId, key.StreamId, out ModRunRngSnapshot state))
++{
++return new Rng(state.ToSerializable());
++}
++int counter = (flag ? value.GetPlayerCounter(key.NetId, key.ModId, key.StreamId) : 0);
+ return ModRunRngExtensions.FastForwarded(new Rng(player.PlayerRng.Seed, text), counter);
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.RunRngs/ModRunRngSnapshot.cs
+--- 
++++ 
+@@ -1,4 +1,6 @@
+ using System.Runtime.CompilerServices;
++using MegaCrit.Sts2.Core.Random;
++using MegaCrit.Sts2.Core.Saves;
+ namespace STS2RitsuLib.RunRngs;
+ /// <summary>
+ ///     <para xml:lang="en">Serializable complete state of one mod RNG stream.</para>
+@@ -81,4 +83,34 @@
+ return false;
+ }
+ }
++internal static ModRunRngSnapshot From(Rng rng)
++{
++SerializableRng val = rng.ToSerializable();
++return new ModRunRngSnapshot
++{
++Counter = val.counter,
++State0 = val.state0,
++State1 = val.state1,
++State2 = val.state2,
++State3 = val.state3
++};
+ }
++internal SerializableRng ToSerializable()
++{
++//IL_0000: Unknown result type (might be due to invalid IL or missing references)
++//IL_0005: Unknown result type (might be due to invalid IL or missing references)
++//IL_0011: Unknown result type (might be due to invalid IL or missing references)
++//IL_001d: Unknown result type (might be due to invalid IL or missing references)
++//IL_0029: Unknown result type (might be due to invalid IL or missing references)
++//IL_0035: Unknown result type (might be due to invalid IL or missing references)
++//IL_0042: Expected O, but got Unknown
++return new SerializableRng
++{
++counter = Counter,
++state0 = State0,
++state1 = State1,
++state2 = State2,
++state3 = State3
++};
++}
++}
+====================================================================================================
+FILE: STS2RitsuLib.Saves.RawProgress/RawProgressCommitBridge.cs
+--- 
++++ 
+@@ -2,7 +2,6 @@
+ using System.Collections.Frozen;
+ using System.Collections.Generic;
+ using System.Diagnostics.CodeAnalysis;
+-using System.IO;
+ using System.Linq;
+ using System.Runtime.CompilerServices;
+ using System.Security.Cryptography;
+@@ -1116,7 +1115,7 @@
+ } = new RawProgressCommitBridge();
+ private RawProgressCommitBridge()
+ {
+-_features = RawProgressBridgeFeature.RawSchema21Document | RawProgressBridgeFeature.UnknownJsonPassThrough | RawProgressBridgeFeature.LiveGameStoreCommit | RawProgressBridgeFeature.DurableLocalReplacement | RawProgressBridgeFeature.CloudSaveBatch | RawProgressBridgeFeature.ConditionalGenerationCheck | RawProgressBridgeFeature.ExclusiveSaveWindow | RawProgressBridgeFeature.LocalOnlyRecoveryJournal | RawProgressBridgeFeature.StructuredRecoveryOutcome | RawProgressBridgeFeature.StablePublicContract | RawProgressBridgeFeature.CloudReadBackVerification | RawProgressBridgeFeature.LiveProgressStateSynchronization | RawProgressBridgeFeature.SubsequentSaveUnknownJsonPreservation | RawProgressBridgeFeature.ActiveProgressSnapshot | RawProgressBridgeFeature.RecoveryJournalManagement | RawProgressBridgeFeature.RecoveryJournalOwnership | RawProgressBridgeFeature.RecoveryJournalDisposition | RawProgressBridgeFeature.InvalidRecoveryJournalQuarantine;
++_features = RawProgressBridgeFeature.UnknownJsonPassThrough | RawProgressBridgeFeature.LiveGameStoreCommit | RawProgressBridgeFeature.DurableLocalReplacement | RawProgressBridgeFeature.CloudSaveBatch | RawProgressBridgeFeature.ConditionalGenerationCheck | RawProgressBridgeFeature.ExclusiveSaveWindow | RawProgressBridgeFeature.LocalOnlyRecoveryJournal | RawProgressBridgeFeature.StructuredRecoveryOutcome | RawProgressBridgeFeature.StablePublicContract | RawProgressBridgeFeature.CloudReadBackVerification | RawProgressBridgeFeature.LiveProgressStateSynchronization | RawProgressBridgeFeature.SubsequentSaveUnknownJsonPreservation | RawProgressBridgeFeature.ActiveProgressSnapshot | RawProgressBridgeFeature.RecoveryJournalManagement | RawProgressBridgeFeature.RecoveryJournalOwnership | RawProgressBridgeFeature.RecoveryJournalDisposition | RawProgressBridgeFeature.InvalidRecoveryJournalQuarantine;
+ }
+ public RawProgressBridgeDescriptor Describe()
+ {
+@@ -1261,7 +1260,7 @@
+ string text = JsonSerializationUtility.ToJson<SerializableProgress>(val);
+ ProgressMirrorStore.SaveMirror(val, text);
+ string text2 = RawProgressJsonPreservation.PreserveAndAdvance(progress, text);
+-SaveStore(manager).WriteFile(ProgressSaveManager.GetProgressPathForProfile(ProfileIdProvider(manager).CurrentProfileId), text2);
++SaveStore(manager).WriteFile(ProgressSaveManager.GetProgressPathForProfile(ProfileIdProvider(manager).CurrentProfileId, (bool?)null), text2);
+ }
+ catch (System.Exception ex)
+ {
+@@ -1275,7 +1274,7 @@
+ Monitor.Enter(SaveWindow);
+ try
+ {
+-string progressPathForProfile = ProgressSaveManager.GetProgressPathForProfile(ProfileIdProvider(manager).CurrentProfileId);
++string progressPathForProfile = ProgressSaveManager.GetProgressPathForProfile(ProfileIdProvider(manager).CurrentProfileId, (bool?)null);
+ string text = SaveStore(manager).ReadFile(progressPathForProfile);
+ return string.IsNullOrWhiteSpace(text) ? null : new LoadCapture(text);
+ }
+@@ -2319,7 +2318,7 @@
+ }
+ private static string GetProgressPath(int profileId, bool isModded)
+ {
+-return Path.Combine(isModded ? "modded" : string.Empty, $"profile{profileId}", UserDataPathProvider.SavesDir, "progress.save");
++return ProgressSaveManager.GetProgressPathForProfile(profileId, (bool?)isModded);
+ }
+ private static bool IsValidDestination(RawProgressDestination? destination)
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Scaffolding.Characters/ModCharacterTemplate.cs
+--- 
++++ 
+@@ -290,11 +290,11 @@
+ /// <summary>
+ ///     <para xml:lang="en">
+ ///         Creates a Spine <see cref="T:MegaCrit.Sts2.Core.Animation.CreatureAnimator" />, or returns <see langword="null" /> to use
+-///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite)" />.
++///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite,MegaCrit.Sts2.Core.Entities.Creatures.Creature)" />.
+ ///     </para>
+ ///     <para xml:lang="zh-CN">
+ ///         创建 Spine <see cref="T:MegaCrit.Sts2.Core.Animation.CreatureAnimator" />；返回 <see langword="null" /> 时使用
+-///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite)" />。
++///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite,MegaCrit.Sts2.Core.Entities.Creatures.Creature)" />。
+ ///     </para>
+ /// </summary>
+ /// <param name="controller">
+====================================================================================================
+FILE: STS2RitsuLib.Scaffolding.Content.Patches/CardVisualRefreshPatch.cs
+--- 
++++ 
+@@ -12,10 +12,11 @@
+ public static bool IsCritical => false;
+ public static ModPatchTarget[] GetTargets()
+ {
+-return new ModPatchTarget[2]
++return new ModPatchTarget[3]
+ {
+ new ModPatchTarget(typeof(NCard), "Reload"),
+-new ModPatchTarget(typeof(NCard), "ReloadOverlay")
++new ModPatchTarget(typeof(NCard), "ReloadOverlay"),
++new ModPatchTarget(typeof(NCard), "UpdatePortrait")
+ };
+ }
+ public static bool Prefix(NCard __instance, out CardVisualState? __state)
+====================================================================================================
+FILE: STS2RitsuLib.Scaffolding.Content.Patches/HoverTipCardVisualContextPatch.cs
+--- 
++++ 
+@@ -27,9 +27,10 @@
+ public static bool IsCritical => false;
+ public static ModPatchTarget[] GetTargets()
+ {
+-return new ModPatchTarget[2]
++return new ModPatchTarget[3]
+ {
+ new ModPatchTarget(typeof(NCard), "Reload"),
++new ModPatchTarget(typeof(NCard), "UpdatePortrait"),
+ new ModPatchTarget(typeof(NCard), "ReloadOverlay")
+ };
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Scaffolding.Content.Patches/ModModelRuntimeGodotFactoryPatches.cs
+--- 
++++ 
+@@ -187,9 +187,9 @@
+ /// <summary>
+ ///     <para xml:lang="en">
+ ///         Integrates runtime creature-animator factories with
+-///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite)" />.
+-///     </para>
+-///     <para xml:lang="zh-CN">将运行时生物动画器工厂接入 <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite)" />。</para>
++///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite,MegaCrit.Sts2.Core.Entities.Creatures.Creature)" />.
++///     </para>
++///     <para xml:lang="zh-CN">将运行时生物动画器工厂接入 <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite,MegaCrit.Sts2.Core.Entities.Creatures.Creature)" />。</para>
+ /// </summary>
+ internal class CharacterCreatureAnimatorRuntimeFactoryPatch : IPatchMethod
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Scaffolding.Godot.NodeFactories/RitsuNCreatureVisualsNodeFactory.cs
+--- 
++++ 
+@@ -42,10 +42,11 @@
+ ///     </para>
+ /// </summary>
+ public RitsuNCreatureVisualsNodeFactory()
+-: base((System.Collections.Generic.IEnumerable<IRitsuGodotNodeSlot>)new _003C_003Ez__ReadOnlyArray<IRitsuGodotNodeSlot>(new IRitsuGodotNodeSlot[7]
++: base((System.Collections.Generic.IEnumerable<IRitsuGodotNodeSlot>)new _003C_003Ez__ReadOnlyArray<IRitsuGodotNodeSlot>(new IRitsuGodotNodeSlot[8]
+ {
+ new RitsuGodotNodeSlot<Node2D>("%Visuals"),
+ new RitsuGodotNodeSlot<Node2D>("%PhobiaModeVisuals"),
++new RitsuGodotNodeSlot<Control>("%FormVfx"),
+ new RitsuGodotNodeSlot<Control>("Bounds"),
+ new RitsuGodotNodeSlot<Marker2D>("%CenterPos"),
+ new RitsuGodotNodeSlot<Marker2D>("IntentPos"),
+@@ -76,6 +77,33 @@
+ }
+ internal static void EnsureFormVfxHolder(NCreatureVisuals visuals)
+ {
++//IL_0099: Unknown result type (might be due to invalid IL or missing references)
++//IL_009e: Unknown result type (might be due to invalid IL or missing references)
++//IL_009f: Unknown result type (might be due to invalid IL or missing references)
++//IL_00aa: Expected O, but got Unknown
++//IL_0093: Unknown result type (might be due to invalid IL or missing references)
++if (((Node)visuals).GetNodeOrNull<Control>(NodePath.op_Implicit("%FormVfx")) != null)
++{
++return;
++}
++Node nodeOrNull = ((Node)visuals).GetNodeOrNull(NodePath.op_Implicit("FormVfx"));
++Control val = (Control)(object)((nodeOrNull is Control) ? nodeOrNull : null);
++if (val != null)
++{
++((Node)val).UniqueNameInOwner = true;
++((Node)val).Owner = (Node)(object)visuals;
++return;
++}
++if (nodeOrNull != null)
++{
++throw new InvalidOperationException($"NCreatureVisuals child 'FormVfx' must be a {"Control"}, but was {((MemberInfo)((object)nodeOrNull).GetType()).Name}.");
++}
++Control val2 = new Control
++{
++Position = Vector2.Zero
++};
++((Node)(object)visuals).AddUniqueChild((Node)(object)val2, "FormVfx");
++((Node)visuals).MoveChild((Node)(object)val2, 0);
+ }
+ protected override NCreatureVisuals CreateBareFromResourceImpl(object resource)
+ {
+@@ -129,29 +157,31 @@
+ }
+ protected override void GenerateNode(NCreatureVisuals target, IRitsuGodotNodeSlot required)
+ {
+-//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0047: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0052: Unknown result type (might be due to invalid IL or missing references)
+-//IL_005c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0067: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0072: Expected O, but got Unknown
+-//IL_0090: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0096: Expected O, but got Unknown
++//IL_0056: Unknown result type (might be due to invalid IL or missing references)
++//IL_005b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0066: Unknown result type (might be due to invalid IL or missing references)
++//IL_0070: Unknown result type (might be due to invalid IL or missing references)
++//IL_007b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0086: Expected O, but got Unknown
+ //IL_00a4: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00b9: Unknown result type (might be due to invalid IL or missing references)
++//IL_00aa: Expected O, but got Unknown
++//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00be: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c3: Unknown result type (might be due to invalid IL or missing references)
++//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d2: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d7: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00fb: Expected O, but got Unknown
+-//IL_010c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0113: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0122: Unknown result type (might be due to invalid IL or missing references)
++//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
++//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
++//IL_0108: Unknown result type (might be due to invalid IL or missing references)
++//IL_010f: Expected O, but got Unknown
++//IL_0120: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0127: Unknown result type (might be due to invalid IL or missing references)
+-//IL_012c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0136: Unknown result type (might be due to invalid IL or missing references)
++//IL_013b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0140: Unknown result type (might be due to invalid IL or missing references)
+ string path = required.Path;
++if (!(path == "%FormVfx"))
++{
+ if (!(path == "Bounds"))
+ {
+ if (!(path == "IntentPos"))
+@@ -189,4 +219,9 @@
+ ((Node)(object)target).AddUniqueChild((Node)(object)child, "Bounds");
+ }
+ }
+-}
++else
++{
++EnsureFormVfxHolder(target);
++}
++}
++}
+====================================================================================================
+FILE: STS2RitsuLib.Scaffolding.Visuals.StateMachine.Backends/SpineAnimationBackend.cs
+--- 
++++ 
+@@ -174,8 +174,10 @@
+ /// <inheritdoc />
+ public void Play(string id, bool loop)
+ {
+-if (HasAnimation(id))
+-{
++if (!HasAnimation(id))
++{
++return;
++}
+ _currentId = id;
+ MegaAnimationState animationState = _controller.GetAnimationState();
+ if (_paused)
+@@ -183,23 +185,38 @@
+ animationState.SetTimeScale(1f);
+ _paused = false;
+ }
+-MegaTrackEntry val = animationState.SetAnimation(id, loop, 0);
+-if (val != null && loop)
++animationState.SetAnimation(id, loop, 0);
++MegaTrackEntry current = animationState.GetCurrent(0);
++try
++{
++if (current != null && loop)
++{
++OffsetLoopingAnimation(current);
++}
++}
++finally
++{
++((System.IDisposable)current)?.Dispose();
++}
++}
++/// <inheritdoc />
++public void Queue(string id, bool loop)
++{
++if (!HasAnimation(id))
++{
++return;
++}
++MegaTrackEntry val = _controller.GetAnimationState().AddAnimationTracked(id, 0f, loop, 0);
++try
++{
++if (loop)
+ {
+ OffsetLoopingAnimation(val);
+ }
+ }
+-}
+-/// <inheritdoc />
+-public void Queue(string id, bool loop)
+-{
+-if (HasAnimation(id))
+-{
+-MegaTrackEntry track = _controller.GetAnimationState().AddAnimation(id, 0f, loop, 0);
+-if (loop)
+-{
+-OffsetLoopingAnimation(track);
+-}
++finally
++{
++((System.IDisposable)val)?.Dispose();
+ }
+ }
+ /// <inheritdoc />
+====================================================================================================
+FILE: STS2RitsuLib.Settings/RitsuDebugToolsPanel.cs
+--- 
++++ 
+@@ -3725,7 +3725,7 @@
+ }
+ private static Texture2D PotionPreviewImage(PotionModel potion)
+ {
+-return potion.Image;
++return potion.LargeImage;
+ }
+ private static string OperationLabel<TValue>(TValue value) where TValue : struct, System.Enum
+ {
+====================================================================================================
+FILE: STS2RitsuLib.Settings/RitsuLibModSettingsBootstrap.cs
+--- 
++++ 
+@@ -15,17 +15,13 @@
+ using Godot.Bridge;
+ using Godot.NativeInterop;
+ using MegaCrit.Sts2.Core.Modding;
+-using MegaCrit.Sts2.Core.Multiplayer.Game;
+ using MegaCrit.Sts2.Core.Nodes.Screens.ModdingScreen;
+-using MegaCrit.Sts2.Core.Runs;
+ using MegaCrit.Sts2.addons.mega_text;
+-using STS2RitsuLib.Content.Patches;
+ using STS2RitsuLib.Data;
+ using STS2RitsuLib.Diagnostics;
+ using STS2RitsuLib.Diagnostics.CardExport;
+ using STS2RitsuLib.Diagnostics.CompendiumExport;
+ using STS2RitsuLib.Diagnostics.Logging;
+-using STS2RitsuLib.Interop.Patches;
+ using STS2RitsuLib.Platform.Steam;
+ using STS2RitsuLib.RuntimeInput;
+ using STS2RitsuLib.Search;
+@@ -3302,38 +3298,37 @@
+ private static class _003C_003EO
+ {
+ public static Action _003C0_003E__TryResetExistingThemeFiles;
+-public static Action _003C1_003E__TryRebuildModelDbDeterministicCacheFromSettings;
+-public static Func<bool> _003C2_003E__IsDebugCompatibilityMasterEnabled;
+-public static Func<bool> _003C3_003E__CanUseSteamWorkshopUpdates;
++public static Func<bool> _003C1_003E__IsDebugCompatibilityMasterEnabled;
++public static Func<bool> _003C2_003E__CanUseSteamWorkshopUpdates;
++public static Action _003C3_003E__CheckNowFromSettings;
+ public static Action _003C4_003E__CheckNowFromSettings;
+-public static Action _003C5_003E__CheckNowFromSettings;
+-public static Func<bool> _003C6_003E__CanUseModDataCloud;
+-public static Action _003C7_003E__TryManualPushFromSettings;
+-public static Action _003C8_003E__TryManualPullFromSettings;
+-public static Action _003C9_003E__TryClearRegisteredModDataFromSettings;
+-public static Action _003C10_003E__TryOpenDebugToolsWorkspace;
+-public static Func<bool> _003C11_003E__AreDeveloperToolsEnabled;
+-public static Action _003C12_003E__CopyCurrentOrder;
+-public static Func<bool> _003C13_003E__IsModSourceHoverTipsEnabled;
+-public static Action _003C14_003E__OpenDebugLogViewerFromSettings;
+-public static Func<ModSettingsListItemContext<ModSettingsDebugShowcaseListItem>, Control> _003C15_003E__CreateShowcaseListItemEditor;
+-public static Action _003C16_003E__TryManualDumpFromSettings;
+-public static Action _003C17_003E__TryOpenOutputFolderFromSettings;
+-public static Action _003C18_003E__TryManualRunFromSettings;
+-public static Action<ModSettingsSectionBuilder> _003C19_003E__ConfigureMainCategoriesSection;
+-public static Func<string> _003C20_003E__FormatPinyinStatus;
+-public static Action<IModSettingsUiActionHost> _003C21_003E__RequestPinyinInitialization;
+-public static Func<string> _003C22_003E__FormatPinyinSource;
+-public static Func<bool> _003C23_003E__HasPinyinCache;
+-public static Action<IModSettingsUiActionHost> _003C24_003E__RequestPinyinReload;
+-public static Func<CancellationToken, System.Threading.Tasks.Task> _003C25_003E__RebuildFromCachedSourceAsync;
+-public static Action<IModSettingsUiActionHost> _003C26_003E__RequestPinyinRemoval;
+-public static Func<CancellationToken, System.Threading.Tasks.Task> _003C27_003E__DeleteCachedDataAsync;
+-public static Action<IModSettingsUiActionHost> _003C28_003E__OpenOrInitializePinyin;
+-public static Func<string> _003C29_003E__FormatPinyinOverview;
+-public static Func<bool> _003C30_003E__HasAdditionalSearchProviders;
+-public static Func<IModSettingsUiActionHost, Control> _003C31_003E__CreateAdditionalProviderControls;
+-public static Func<ModSettingsListItemContext<ModSettingsDebugShowcaseListDetail>, Control> _003C32_003E__CreateShowcaseDetailEditor;
++public static Func<bool> _003C5_003E__CanUseModDataCloud;
++public static Action _003C6_003E__TryManualPushFromSettings;
++public static Action _003C7_003E__TryManualPullFromSettings;
++public static Action _003C8_003E__TryClearRegisteredModDataFromSettings;
++public static Action _003C9_003E__TryOpenDebugToolsWorkspace;
++public static Func<bool> _003C10_003E__AreDeveloperToolsEnabled;
++public static Action _003C11_003E__CopyCurrentOrder;
++public static Func<bool> _003C12_003E__IsModSourceHoverTipsEnabled;
++public static Action _003C13_003E__OpenDebugLogViewerFromSettings;
++public static Func<ModSettingsListItemContext<ModSettingsDebugShowcaseListItem>, Control> _003C14_003E__CreateShowcaseListItemEditor;
++public static Action _003C15_003E__TryManualDumpFromSettings;
++public static Action _003C16_003E__TryOpenOutputFolderFromSettings;
++public static Action _003C17_003E__TryManualRunFromSettings;
++public static Action<ModSettingsSectionBuilder> _003C18_003E__ConfigureMainCategoriesSection;
++public static Func<string> _003C19_003E__FormatPinyinStatus;
++public static Action<IModSettingsUiActionHost> _003C20_003E__RequestPinyinInitialization;
++public static Func<string> _003C21_003E__FormatPinyinSource;
++public static Func<bool> _003C22_003E__HasPinyinCache;
++public static Action<IModSettingsUiActionHost> _003C23_003E__RequestPinyinReload;
++public static Func<CancellationToken, System.Threading.Tasks.Task> _003C24_003E__RebuildFromCachedSourceAsync;
++public static Action<IModSettingsUiActionHost> _003C25_003E__RequestPinyinRemoval;
++public static Func<CancellationToken, System.Threading.Tasks.Task> _003C26_003E__DeleteCachedDataAsync;
++public static Action<IModSettingsUiActionHost> _003C27_003E__OpenOrInitializePinyin;
++public static Func<string> _003C28_003E__FormatPinyinOverview;
++public static Func<bool> _003C29_003E__HasAdditionalSearchProviders;
++public static Func<IModSettingsUiActionHost, Control> _003C30_003E__CreateAdditionalProviderControls;
++public static Func<ModSettingsListItemContext<ModSettingsDebugShowcaseListDetail>, Control> _003C31_003E__CreateShowcaseDetailEditor;
+ }
+ [Serializable]
+ [CompilerGenerated]
+@@ -3341,87 +3336,87 @@
+ {
+ public static readonly _003C_003Ec _003C_003E9 = new _003C_003Ec();
+ public static Func<string, ModSettingsChoiceOption<string>> _003C_003E9__2_0;
+-public static Func<double, string> _003C_003E9__5_3;
+-public static Func<string> _003C_003E9__6_0;
+-public static Action _003C_003E9__8_4;
+-public static Action _003C_003E9__8_5;
+-public static Action _003C_003E9__8_6;
+-public static Action _003C_003E9__8_7;
+-public static Action _003C_003E9__8_8;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__8_3;
+-public static Action<IModSettingsUiActionHost> _003C_003E9__13_3;
+-public static Action<IModSettingsUiActionHost> _003C_003E9__13_4;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__13_1;
+-public static Func<IModSettingsUiActionHost, Control> _003C_003E9__13_5;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__13_2;
+-public static Action<ModSettingsPageBuilder> _003C_003E9__13_0;
+-public static Func<ContentModLoadOrderPreviewEntry, string> _003C_003E9__16_0;
+-public static Func<ContentModLoadOrderPreviewEntry, string> _003C_003E9__16_1;
+-public static Action<ModSettingsPageBuilder> _003C_003E9__34_0;
+-public static Func<int, string> _003C_003E9__37_2;
+-public static Func<Texture2D?> _003C_003E9__41_8;
+-public static Func<double, string> _003C_003E9__41_13;
+-public static Func<int, string> _003C_003E9__41_16;
+-public static Func<ModSettingsDebugShowcaseMode, ModSettingsText> _003C_003E9__41_23;
+-public static Action<string> _003C_003E9__41_29;
+-public static Action<List<string>> _003C_003E9__41_30;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__41_5;
+-public static Func<ModSettingsDebugShowcaseListItem, ModSettingsText> _003C_003E9__41_36;
+-public static Func<ModSettingsDebugShowcaseListItem, ModSettingsText?> _003C_003E9__41_37;
+-public static Func<double, string> _003C_003E9__44_5;
+-public static Func<double, string> _003C_003E9__44_8;
+-public static Func<double, string> _003C_003E9__44_11;
+-public static Action<ModSettingsPageBuilder> _003C_003E9__45_0;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__50_1;
+-public static Func<bool> _003C_003E9__50_5;
+-public static Func<bool> _003C_003E9__50_6;
+-public static Func<bool> _003C_003E9__50_7;
+-public static Func<bool> _003C_003E9__50_9;
+-public static Action<IModSettingsUiActionHost> _003C_003E9__50_10;
+-public static Func<bool> _003C_003E9__50_11;
+-public static Func<bool> _003C_003E9__50_12;
+-public static Func<bool> _003C_003E9__50_13;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__50_4;
+-public static Func<CancellationToken, System.Threading.Tasks.Task> _003C_003E9__51_1;
+-public static Action _003C_003E9__51_2;
+-public static Func<CancellationToken, System.Threading.Tasks.Task> _003C_003E9__52_1;
+-public static Action _003C_003E9__53_1;
+-public static Func<string> _003C_003E9__60_0;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__60_1;
+-public static Func<RuntimeHotkeyRegistrationInfo, string> _003C_003E9__61_0;
+-public static Func<IGrouping<string, RuntimeHotkeyRegistrationInfo>, string> _003C_003E9__61_2;
+-public static Func<RuntimeHotkeyRegistrationInfo, string> _003C_003E9__61_4;
+-public static Func<IGrouping<string, RuntimeHotkeyRegistrationInfo>, RuntimeHotkeyCategoryGroup> _003C_003E9__61_3;
+-public static Func<char, char> _003C_003E9__68_0;
+-public static Func<string> _003C_003E9__70_3;
+-public static Func<bool> _003C_003E9__70_4;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__70_1;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__70_2;
+-public static Action<ModSettingsPageBuilder> _003C_003E9__70_0;
+-public static Func<ProviderSnapshot, bool> _003C_003E9__72_0;
+-public static Func<ProviderSnapshot, bool> _003C_003E9__73_0;
+-public static Func<ModSettingsDebugShowcaseListItem, List<ModSettingsDebugShowcaseListDetail>> _003C_003E9__76_3;
+-public static Func<ModSettingsDebugShowcaseListItem, List<ModSettingsDebugShowcaseListDetail>, ModSettingsDebugShowcaseListItem> _003C_003E9__76_4;
+-public static Func<ModSettingsDebugShowcaseListDetail> _003C_003E9__76_5;
+-public static Func<ModSettingsDebugShowcaseListDetail, ModSettingsText> _003C_003E9__76_6;
+-public static Func<ModSettingsDebugShowcaseListDetail, ModSettingsText?> _003C_003E9__76_7;
+-public static Func<IModSettingsUiActionHost, Control> _003C_003E9__80_2;
+-public static Action<ModSettingsSectionBuilder> _003C_003E9__80_1;
+-public static Action<ModSettingsPageBuilder> _003C_003E9__80_0;
+-public static Func<double, string> _003C_003E9__83_2;
+-public static Func<double, string> _003C_003E9__83_3;
+-public static Func<int, string> _003C_003E9__83_4;
+-public static Func<double, string> _003C_003E9__83_5;
++public static Func<double, string> _003C_003E9__4_3;
++public static Func<string> _003C_003E9__5_0;
++public static Action _003C_003E9__7_4;
++public static Action _003C_003E9__7_5;
++public static Action _003C_003E9__7_6;
++public static Action _003C_003E9__7_7;
++public static Action _003C_003E9__7_8;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__7_3;
++public static Action<IModSettingsUiActionHost> _003C_003E9__12_3;
++public static Action<IModSettingsUiActionHost> _003C_003E9__12_4;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__12_1;
++public static Func<IModSettingsUiActionHost, Control> _003C_003E9__12_5;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__12_2;
++public static Action<ModSettingsPageBuilder> _003C_003E9__12_0;
++public static Func<ContentModLoadOrderPreviewEntry, string> _003C_003E9__15_0;
++public static Func<ContentModLoadOrderPreviewEntry, string> _003C_003E9__15_1;
++public static Action<ModSettingsPageBuilder> _003C_003E9__33_0;
++public static Func<int, string> _003C_003E9__36_2;
++public static Func<Texture2D?> _003C_003E9__40_8;
++public static Func<double, string> _003C_003E9__40_13;
++public static Func<int, string> _003C_003E9__40_16;
++public static Func<ModSettingsDebugShowcaseMode, ModSettingsText> _003C_003E9__40_23;
++public static Action<string> _003C_003E9__40_29;
++public static Action<List<string>> _003C_003E9__40_30;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__40_5;
++public static Func<ModSettingsDebugShowcaseListItem, ModSettingsText> _003C_003E9__40_36;
++public static Func<ModSettingsDebugShowcaseListItem, ModSettingsText?> _003C_003E9__40_37;
++public static Func<double, string> _003C_003E9__43_5;
++public static Func<double, string> _003C_003E9__43_8;
++public static Func<double, string> _003C_003E9__43_11;
++public static Action<ModSettingsPageBuilder> _003C_003E9__44_0;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__47_1;
++public static Func<bool> _003C_003E9__47_5;
++public static Func<bool> _003C_003E9__47_6;
++public static Func<bool> _003C_003E9__47_7;
++public static Func<bool> _003C_003E9__47_9;
++public static Action<IModSettingsUiActionHost> _003C_003E9__47_10;
++public static Func<bool> _003C_003E9__47_11;
++public static Func<bool> _003C_003E9__47_12;
++public static Func<bool> _003C_003E9__47_13;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__47_4;
++public static Func<CancellationToken, System.Threading.Tasks.Task> _003C_003E9__48_1;
++public static Action _003C_003E9__48_2;
++public static Func<CancellationToken, System.Threading.Tasks.Task> _003C_003E9__49_1;
++public static Action _003C_003E9__50_1;
++public static Func<string> _003C_003E9__57_0;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__57_1;
++public static Func<RuntimeHotkeyRegistrationInfo, string> _003C_003E9__58_0;
++public static Func<IGrouping<string, RuntimeHotkeyRegistrationInfo>, string> _003C_003E9__58_2;
++public static Func<RuntimeHotkeyRegistrationInfo, string> _003C_003E9__58_4;
++public static Func<IGrouping<string, RuntimeHotkeyRegistrationInfo>, RuntimeHotkeyCategoryGroup> _003C_003E9__58_3;
++public static Func<char, char> _003C_003E9__65_0;
++public static Func<string> _003C_003E9__67_3;
++public static Func<bool> _003C_003E9__67_4;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__67_1;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__67_2;
++public static Action<ModSettingsPageBuilder> _003C_003E9__67_0;
++public static Func<ProviderSnapshot, bool> _003C_003E9__69_0;
++public static Func<ProviderSnapshot, bool> _003C_003E9__70_0;
++public static Func<ModSettingsDebugShowcaseListItem, List<ModSettingsDebugShowcaseListDetail>> _003C_003E9__73_3;
++public static Func<ModSettingsDebugShowcaseListItem, List<ModSettingsDebugShowcaseListDetail>, ModSettingsDebugShowcaseListItem> _003C_003E9__73_4;
++public static Func<ModSettingsDebugShowcaseListDetail> _003C_003E9__73_5;
++public static Func<ModSettingsDebugShowcaseListDetail, ModSettingsText> _003C_003E9__73_6;
++public static Func<ModSettingsDebugShowcaseListDetail, ModSettingsText?> _003C_003E9__73_7;
++public static Func<IModSettingsUiActionHost, Control> _003C_003E9__77_2;
++public static Action<ModSettingsSectionBuilder> _003C_003E9__77_1;
++public static Action<ModSettingsPageBuilder> _003C_003E9__77_0;
++public static Func<double, string> _003C_003E9__80_2;
++public static Func<double, string> _003C_003E9__80_3;
++public static Func<int, string> _003C_003E9__80_4;
++public static Func<double, string> _003C_003E9__80_5;
+ internal ModSettingsChoiceOption<string> _003CConfigureCoreSettingsSection_003Eb__2_0(string id)
+ {
+ //IL_0012: Unknown result type (might be due to invalid IL or missing references)
+ return new ModSettingsChoiceOption<string>(id, T("ritsulib.uiShellTheme.option." + id, id));
+ }
+-internal string _003CRegisterUpdateSettingsPage_003Eb__5_3(double value)
++internal string _003CRegisterUpdateSettingsPage_003Eb__4_3(double value)
+ {
+ return value.ToString("0");
+ }
+-internal string _003CCreateUpdatesCategoryTitle_003Eb__6_0()
++internal string _003CCreateUpdatesCategoryTitle_003Eb__5_0()
+ {
+ if (!SteamWorkshopUpdateCoordinator.CanUseSteamWorkshopUpdates())
+ {
+@@ -3429,7 +3424,7 @@
+ }
+ return L("ritsulib.category.updatesWithWorkshop.label", "Updates & Workshop");
+ }
+-internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__8_3(ModSettingsSectionBuilder section)
++internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__7_3(ModSettingsSectionBuilder section)
+ {
+ //IL_0066: Unknown result type (might be due to invalid IL or missing references)
+ //IL_006b: Unknown result type (might be due to invalid IL or missing references)
+@@ -3449,91 +3444,91 @@
+ ModSettingsSectionBuilder obj = section.WithTitle(T("ritsulib.section.devCommonFolders.title", "Common folders")).WithDescription(T("ritsulib.section.devCommonFolders.description", "Open common game data folders in the system file explorer.")).Collapsible(false);
+ ModSettingsText obj2 = T("ritsulib.commonFolders.logs.label", "Logs folder");
+ ModSettingsText obj3 = T("ritsulib.commonFolders.logs.button", "Open logs");
+-object obj4 = _003C_003E9__8_4;
++object obj4 = _003C_003E9__7_4;
+ if (obj4 == null)
+ {
+ Action val = delegate
+ {
+ GameCommonFolderOpener.OpenLogsFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][Logs]");
+ };
+-_003C_003E9__8_4 = val;
++_003C_003E9__7_4 = val;
+ obj4 = (object)val;
+ }
+ ModSettingsSectionBuilder obj5 = obj.AddButton("open_logs_folder", obj2, obj3, (Action)obj4, (ModSettingsButtonTone)0, T("ritsulib.commonFolders.logs.description", "Opens the same folder as the open logs console command."));
+ ModSettingsText obj6 = T("ritsulib.commonFolders.saves.label", "Current profile saves folder");
+ ModSettingsText obj7 = T("ritsulib.commonFolders.saves.button", "Open saves");
+-object obj8 = _003C_003E9__8_5;
++object obj8 = _003C_003E9__7_5;
+ if (obj8 == null)
+ {
+ Action val2 = delegate
+ {
+ GameCommonFolderOpener.OpenSavesFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][Saves]");
+ };
+-_003C_003E9__8_5 = val2;
++_003C_003E9__7_5 = val2;
+ obj8 = (object)val2;
+ }
+ ModSettingsSectionBuilder obj9 = obj5.AddButton("open_saves_folder", obj6, obj7, (Action)obj8, (ModSettingsButtonTone)0, T("ritsulib.commonFolders.saves.description", "Opens the current profile's saves folder, matching the open saves console command."));
+ ModSettingsText obj10 = T("ritsulib.commonFolders.root.label", "User data root");
+ ModSettingsText obj11 = T("ritsulib.commonFolders.root.button", "Open root");
+-object obj12 = _003C_003E9__8_6;
++object obj12 = _003C_003E9__7_6;
+ if (obj12 == null)
+ {
+ Action val3 = delegate
+ {
+ GameCommonFolderOpener.OpenUserDataRootFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][Root]");
+ };
+-_003C_003E9__8_6 = val3;
++_003C_003E9__7_6 = val3;
+ obj12 = (object)val3;
+ }
+ ModSettingsSectionBuilder obj13 = obj9.AddButton("open_user_data_root_folder", obj10, obj11, (Action)obj12, (ModSettingsButtonTone)0, T("ritsulib.commonFolders.root.description", "Opens the game user data root folder."));
+ ModSettingsText obj14 = T("ritsulib.commonFolders.buildLogs.label", "Build logs folder");
+ ModSettingsText obj15 = T("ritsulib.commonFolders.buildLogs.button", "Open build logs");
+-object obj16 = _003C_003E9__8_7;
++object obj16 = _003C_003E9__7_7;
+ if (obj16 == null)
+ {
+ Action val4 = delegate
+ {
+ GameCommonFolderOpener.OpenBuildLogsFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][BuildLogs]");
+ };
+-_003C_003E9__8_7 = val4;
++_003C_003E9__7_7 = val4;
+ obj16 = (object)val4;
+ }
+ ModSettingsSectionBuilder obj17 = obj13.AddButton("open_build_logs_folder", obj14, obj15, (Action)obj16, (ModSettingsButtonTone)0, T("ritsulib.commonFolders.buildLogs.description", "Opens Godot Mono build logs."));
+ ModSettingsText obj18 = T("ritsulib.commonFolders.locOverride.label", "Localization override folder");
+ ModSettingsText obj19 = T("ritsulib.commonFolders.locOverride.button", "Open localization");
+-object obj20 = _003C_003E9__8_8;
++object obj20 = _003C_003E9__7_8;
+ if (obj20 == null)
+ {
+ Action val5 = delegate
+ {
+ GameCommonFolderOpener.OpenLocalizationOverrideFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][LocOverride]");
+ };
+-_003C_003E9__8_8 = val5;
++_003C_003E9__7_8 = val5;
+ obj20 = (object)val5;
+ }
+ obj17.AddButton("open_localization_override_folder", obj18, obj19, (Action)obj20, (ModSettingsButtonTone)0, T("ritsulib.commonFolders.locOverride.description", "Opens the localization_override folder."));
+ }
+-internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__8_4()
++internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__7_4()
+ {
+ GameCommonFolderOpener.OpenLogsFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][Logs]");
+ }
+-internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__8_5()
++internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__7_5()
+ {
+ GameCommonFolderOpener.OpenSavesFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][Saves]");
+ }
+-internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__8_6()
++internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__7_6()
+ {
+ GameCommonFolderOpener.OpenUserDataRootFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][Root]");
+ }
+-internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__8_7()
++internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__7_7()
+ {
+ GameCommonFolderOpener.OpenBuildLogsFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][BuildLogs]");
+ }
+-internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__8_8()
++internal void _003CRegisterDeveloperToolsSettingsPage_003Eb__7_8()
+ {
+ GameCommonFolderOpener.OpenLocalizationOverrideFromUi(L("ritsulib.commonFolders.toastTitle", "Common folders"), "[Settings][CommonFolders][LocOverride]");
+ }
+-internal void _003CRegisterContentModLoadOrderPage_003Eb__13_0(ModSettingsPageBuilder page)
++internal void _003CRegisterContentModLoadOrderPage_003Eb__12_0(ModSettingsPageBuilder page)
+ {
+ page.AsChildOf("com.ritsukage.sts2-RitsuLib").WithSortOrder(-875).WithTitle(T("ritsulib.page.contentModLoadOrder.title", "Content mod load order"))
+ .WithDescription(T("ritsulib.page.contentModLoadOrder.description", "Save, copy, and apply deterministic ordering for enabled content mods, framework libraries, and dependencies."))
+@@ -3549,11 +3544,11 @@
+ }, (ModSettingsButtonTone)1, T("ritsulib.contentModLoadOrder.sort.description", "Orders relevant mods by dependency topology, then by mod id for ties. Other mods keep their relative slots."));
+ ModSettingsText obj2 = T("ritsulib.contentModLoadOrder.copy.label", "Copy current order");
+ ModSettingsText obj3 = T("ritsulib.contentModLoadOrder.copy.button", "Copy id list");
+-object obj4 = _003C_003EO._003C12_003E__CopyCurrentOrder;
++object obj4 = _003C_003EO._003C11_003E__CopyCurrentOrder;
+ if (obj4 == null)
+ {
+ Action val = ContentModLoadOrderCoordinator.CopyCurrentOrder;
+-_003C_003EO._003C12_003E__CopyCurrentOrder = val;
++_003C_003EO._003C11_003E__CopyCurrentOrder = val;
+ obj4 = (object)val;
+ }
+ obj.AddButton("content_mod_load_order_copy", obj2, obj3, (Action)obj4, (ModSettingsButtonTone)0, T("ritsulib.contentModLoadOrder.copy.description", "Copies the current relevant mod id list as one id per line.")).AddButton("content_mod_load_order_paste", T("ritsulib.contentModLoadOrder.paste.label", "Apply copied order"), T("ritsulib.contentModLoadOrder.paste.button", "Apply from clipboard"), (Action<IModSettingsUiActionHost>)delegate
+@@ -3567,7 +3562,7 @@
+ section.WithTitle(T("ritsulib.section.contentModLoadOrder.preview.title", "Preview")).WithDescription(T("ritsulib.section.contentModLoadOrder.preview.description", "Shows enabled content-affecting mods, framework libraries, and dependencies. Other mods keep their relative slots.")).AddCustom("content_mod_load_order_compare", T("ritsulib.contentModLoadOrder.compare.label", "Order comparison"), (Func<IModSettingsUiActionHost, Control>)((IModSettingsUiActionHost _) => CreateContentModLoadOrderPreview()), (ModSettingsText)null, (Func<bool>)null);
+ });
+ }
+-internal void _003CRegisterContentModLoadOrderPage_003Eb__13_1(ModSettingsSectionBuilder section)
++internal void _003CRegisterContentModLoadOrderPage_003Eb__12_1(ModSettingsSectionBuilder section)
+ {
+ //IL_00b3: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00b8: Unknown result type (might be due to invalid IL or missing references)
+@@ -3579,11 +3574,11 @@
+ }, (ModSettingsButtonTone)1, T("ritsulib.contentModLoadOrder.sort.description", "Orders relevant mods by dependency topology, then by mod id for ties. Other mods keep their relative slots."));
+ ModSettingsText obj2 = T("ritsulib.contentModLoadOrder.copy.label", "Copy current order");
+ ModSettingsText obj3 = T("ritsulib.contentModLoadOrder.copy.button", "Copy id list");
+-object obj4 = _003C_003EO._003C12_003E__CopyCurrentOrder;
++object obj4 = _003C_003EO._003C11_003E__CopyCurrentOrder;
+ if (obj4 == null)
+ {
+ Action val = ContentModLoadOrderCoordinator.CopyCurrentOrder;
+-_003C_003EO._003C12_003E__CopyCurrentOrder = val;
++_003C_003EO._003C11_003E__CopyCurrentOrder = val;
+...(truncated)
+====================================================================================================
+FILE: STS2RitsuLib.Settings/RuntimeReflectionSpinePreviewExample.cs
+--- 
++++ 
+@@ -466,7 +466,7 @@
+ string name2 = state.Animation.Name;
+ if (ModCreatureVisualPlayback.TryPlayCue(visuals, character, name, new System.ReadOnlySpan<string>(ref name2)))
+ {
+-goto IL_021e;
++goto IL_021d;
+ }
+ }
+ ShowPreviewFailure();
+@@ -476,8 +476,8 @@
+ SpineAnimationAccess spineAnimation = visuals.SpineAnimation;
+ ((SpineAnimationAccess)(ref spineAnimation)).SetAnimation(state.Animation.Name, true, 0);
+ }
+-goto IL_021e;
+-IL_021e:
++goto IL_021d;
++IL_021d:
+ ApplyPreviewTransform();
+ }
+ catch (System.Exception ex) when (RitsuLibExceptionPolicy.IsRecoverable(ex))
+====================================================================================================
+FILE: STS2RitsuLib.Telemetry.Diagnostics/EngineErrorSanitizer.cs
+--- 
++++ 
+@@ -140,6 +140,6 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex Paths()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__Paths_5.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__Paths_5.Instance;
+ }
+ }
+====================================================================================================
+FILE: STS2RitsuLib.Timeline/ModTimelineRegistry.cs
+--- 
++++ 
+@@ -101,9 +101,11 @@
+ Dictionary<string, System.Type> staticField = GetStaticField<Dictionary<string, System.Type>>(typeof(EpochModel), "_epochTypeDictionary");
+ Dictionary<System.Type, string> staticField2 = GetStaticField<Dictionary<System.Type, string>>(typeof(EpochModel), "_typeToIdDictionary");
+ staticField.Add(epochId, epochType);
++bool flag = false;
+ try
+ {
+ staticField2.Add(epochType, epochId);
++flag = AddEpochTypeToAllEpochsLocked(epochType);
+ RefreshAllEpochIdsSnapshotLocked();
+ RegisteredEpochTypes.Add(epochType);
+ }
+@@ -111,6 +113,10 @@
+ {
+ staticField.Remove(epochId);
+ staticField2.Remove(epochType);
++if (flag)
++{
++RemoveEpochTypeFromAllEpochsLocked(epochType);
++}
+ RefreshAllEpochIdsSnapshotLocked();
+ throw;
+ }
+@@ -340,4 +346,18 @@
+ field.SetValue((object)null, (object)null);
+ }
+ }
+-}
++private static bool AddEpochTypeToAllEpochsLocked(System.Type epochType)
++{
++List<System.Type> staticField = GetStaticField<List<System.Type>>(typeof(EpochModel), "_allEpochs");
++if (staticField.Contains(epochType))
++{
++return false;
++}
++staticField.Add(epochType);
++return true;
++}
++private static void RemoveEpochTypeFromAllEpochsLocked(System.Type epochType)
++{
++GetStaticField<List<System.Type>>(typeof(EpochModel), "_allEpochs").Remove(epochType);
++}
++}
+====================================================================================================
+FILE: STS2RitsuLib.Utils/SavedAttachedStateRegistry.cs
+--- 
++++ 
+@@ -5,6 +5,7 @@
+ using System.Threading;
+ using HarmonyLib;
+ using MegaCrit.Sts2.Core.Models;
++using MegaCrit.Sts2.Core.Multiplayer.Serialization;
+ using MegaCrit.Sts2.Core.Saves.Runs;
+ namespace STS2RitsuLib.Utils;
+ internal static class SavedAttachedStateRegistry
+@@ -332,8 +333,8 @@
+ private static void InjectNameIntoBaseGameCache(string name)
+ {
+ //IL_003f: Unknown result type (might be due to invalid IL or missing references)
+-Dictionary<string, int> obj = AccessTools.StaticFieldRefAccess<Dictionary<string, int>>(typeof(SavedPropertiesTypeCache), "_propertyNameToNetIdMap");
+-List<string> val = AccessTools.StaticFieldRefAccess<List<string>>(typeof(SavedPropertiesTypeCache), "_netIdToPropertyNameMap");
++Dictionary<string, int> obj = AccessTools.StaticFieldRefAccess<Dictionary<string, int>>(typeof(ModelIdSerializationCache), "_propertyNameToNetIdMap");
++List<string> val = AccessTools.StaticFieldRefAccess<List<string>>(typeof(ModelIdSerializationCache), "_netIdToPropertyNameMap");
+ if (obj.ContainsKey(name))
+ {
+ throw new InvalidOperationException("SavedAttachedState name is not unique in the saved-property net-id cache: " + name);
+@@ -341,7 +342,7 @@
+ obj[name] = val.Count;
+ val.Add(name);
+ int num = (int)Math.Ceiling(Math.Log2((double)val.Count));
+-PropertyInfo obj2 = AccessTools.Property(typeof(SavedPropertiesTypeCache), "NetIdBitSize");
++PropertyInfo obj2 = AccessTools.Property(typeof(ModelIdSerializationCache), "PropertyIdBitSize");
+ if (obj2 != null)
+ {
+ obj2.SetValue((object)null, (object)num);
+====================================================================================================
+FILE: STS2RitsuLib/RitsuLibFramework.cs
+--- 
++++ 
+@@ -238,21 +238,20 @@
+ [CompilerGenerated]
+ private static class _003C_003EO
+ {
+-public static Action _003C0_003E__EnsureRegistered;
+-public static Action _003C1_003E__Install;
+-public static Action _003C2_003E__Initialize;
+-public static Action _003C3_003E__RunOnce;
++public static Action _003C0_003E__Install;
++public static Action _003C1_003E__Initialize;
++public static Action _003C2_003E__RunOnce;
++public static Action _003C3_003E__Initialize;
+ public static Action _003C4_003E__Initialize;
+ public static Action _003C5_003E__Initialize;
+-public static Action _003C6_003E__Initialize;
+-public static Action _003C7_003E__LogSuppressedSteamFeaturesAtStartup;
++public static Action _003C6_003E__LogSuppressedSteamFeaturesAtStartup;
++public static Action _003C7_003E__EnsureRegistered;
+ public static Action _003C8_003E__EnsureRegistered;
+-public static Action _003C9_003E__EnsureRegistered;
+-public static Action _003C10_003E__EnsureBuiltInContributorsRegistered;
++public static Action _003C9_003E__EnsureBuiltInContributorsRegistered;
++public static Action _003C10_003E__Initialize;
+ public static Action _003C11_003E__Initialize;
+-public static Action _003C12_003E__Initialize;
+-public static Func<bool> _003C13_003E__PatchAllRequired;
+-public static Action _003C14_003E__PrewarmModSettingsMirrorsForMainMenu;
++public static Func<bool> _003C12_003E__PatchAllRequired;
++public static Action _003C13_003E__PrewarmModSettingsMirrorsForMainMenu;
+ }
+ [Serializable]
+ [CompilerGenerated]
+@@ -327,51 +326,51 @@
+ //IL_00ce: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d3: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d9: Expected O, but got Unknown
+-object obj = _003C_003EO._003C7_003E__LogSuppressedSteamFeaturesAtStartup;
++object obj = _003C_003EO._003C6_003E__LogSuppressedSteamFeaturesAtStartup;
+ if (obj == null)
+ {
+ Action val = RitsuLibMobileSteamRuntime.LogSuppressedSteamFeaturesAtStartup;
+-_003C_003EO._003C7_003E__LogSuppressedSteamFeaturesAtStartup = val;
++_003C_003EO._003C6_003E__LogSuppressedSteamFeaturesAtStartup = val;
+ obj = (object)val;
+ }
+ RitsuLibStartupAudit.Measure("mobileSteamRuntime", (Action)obj);
+-object obj2 = _003C_003EO._003C8_003E__EnsureRegistered;
++object obj2 = _003C_003EO._003C7_003E__EnsureRegistered;
+ if (obj2 == null)
+ {
+ Action val2 = RitsuLibEmbeddedPngResourceLoader.EnsureRegistered;
+-_003C_003EO._003C8_003E__EnsureRegistered = val2;
++_003C_003EO._003C7_003E__EnsureRegistered = val2;
+ obj2 = (object)val2;
+ }
+ RitsuLibStartupAudit.Measure("imageResourceLoader", (Action)obj2);
+-object obj3 = _003C_003EO._003C9_003E__EnsureRegistered;
++object obj3 = _003C_003EO._003C8_003E__EnsureRegistered;
+ if (obj3 == null)
+ {
+ Action val3 = RitsuGodotNodeFactoryBootstrap.EnsureRegistered;
+-_003C_003EO._003C9_003E__EnsureRegistered = val3;
++_003C_003EO._003C8_003E__EnsureRegistered = val3;
+ obj3 = (object)val3;
+ }
+ RitsuLibStartupAudit.Measure("godotNodeFactories", (Action)obj3);
+-object obj4 = _003C_003EO._003C10_003E__EnsureBuiltInContributorsRegistered;
++object obj4 = _003C_003EO._003C9_003E__EnsureBuiltInContributorsRegistered;
+ if (obj4 == null)
+ {
+ Action val4 = ModTypeDiscoveryHub.EnsureBuiltInContributorsRegistered;
+-_003C_003EO._003C10_003E__EnsureBuiltInContributorsRegistered = val4;
++_003C_003EO._003C9_003E__EnsureBuiltInContributorsRegistered = val4;
+ obj4 = (object)val4;
+ }
+ RitsuLibStartupAudit.Measure("modTypeDiscoveryBuiltIns", (Action)obj4);
+-object obj5 = _003C_003EO._003C11_003E__Initialize;
++object obj5 = _003C_003EO._003C10_003E__Initialize;
+ if (obj5 == null)
+ {
+ Action val5 = SecondaryResourceLocalizationBootstrap.Initialize;
+-_003C_003EO._003C11_003E__Initialize = val5;
++_003C_003EO._003C10_003E__Initialize = val5;
+ obj5 = (object)val5;
+ }
+ RitsuLibStartupAudit.Measure("secondaryResourceLocalization", (Action)obj5);
+-object obj6 = _003C_003EO._003C12_003E__Initialize;
++object obj6 = _003C_003EO._003C11_003E__Initialize;
+ if (obj6 == null)
+ {
+ Action val6 = SecondaryResourceCloneBridge.Initialize;
+-_003C_003EO._003C12_003E__Initialize = val6;
++_003C_003EO._003C11_003E__Initialize = val6;
+ obj6 = (object)val6;
+ }
+ RitsuLibStartupAudit.Measure("secondaryResourceCloneBridge", (Action)obj6);
+@@ -407,11 +406,11 @@
+ //IL_001f: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0025: Expected O, but got Unknown
+ RitsuLibStartupAudit.LogReport("launch to main menu");
+-object obj = _003C_003EO._003C14_003E__PrewarmModSettingsMirrorsForMainMenu;
++object obj = _003C_003EO._003C13_003E__PrewarmModSettingsMirrorsForMainMenu;
+ if (obj == null)
+ {
+ Action val = PrewarmModSettingsMirrorsForMainMenu;
+-_003C_003EO._003C14_003E__PrewarmModSettingsMirrorsForMainMenu = val;
++_003C_003EO._003C13_003E__PrewarmModSettingsMirrorsForMainMenu = val;
+ obj = (object)val;
+ }
+ Callable val2 = Callable.From((Action)obj);
+@@ -1040,9 +1039,9 @@
+ {
+ //IL_0005: Unknown result type (might be due to invalid IL or missing references)
+ //IL_000a: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00cf: Expected O, but got Unknown
++//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
++//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
++//IL_00d3: Expected O, but got Unknown
+ //IL_00ed: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00f2: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00f8: Expected O, but got Unknown
+@@ -1055,31 +1054,28 @@
+ //IL_015c: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0161: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0167: Expected O, but got Unknown
+-//IL_0181: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0186: Unknown result type (might be due to invalid IL or missing references)
+-//IL_018c: Expected O, but got Unknown
++//IL_0185: Unknown result type (might be due to invalid IL or missing references)
++//IL_018a: Unknown result type (might be due to invalid IL or missing references)
++//IL_0190: Expected O, but got Unknown
+ //IL_01aa: Unknown result type (might be due to invalid IL or missing references)
+ //IL_01af: Unknown result type (might be due to invalid IL or missing references)
+ //IL_01b5: Expected O, but got Unknown
+ //IL_01cf: Unknown result type (might be due to invalid IL or missing references)
+ //IL_01d4: Unknown result type (might be due to invalid IL or missing references)
+ //IL_01da: Expected O, but got Unknown
+-//IL_01f4: Unknown result type (might be due to invalid IL or missing references)
+-//IL_01f9: Unknown result type (might be due to invalid IL or missing references)
+-//IL_01ff: Expected O, but got Unknown
+-//IL_0237: Unknown result type (might be due to invalid IL or missing references)
+-//IL_023c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_021d: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0222: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0228: Expected O, but got Unknown
+-//IL_02f2: Unknown result type (might be due to invalid IL or missing references)
+-//IL_02f7: Unknown result type (might be due to invalid IL or missing references)
+-//IL_02fd: Expected O, but got Unknown
+-//IL_0278: Unknown result type (might be due to invalid IL or missing references)
+-//IL_027d: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0283: Expected O, but got Unknown
+-//IL_033e: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0343: Unknown result type (might be due to invalid IL or missing references)
++//IL_0212: Unknown result type (might be due to invalid IL or missing references)
++//IL_0217: Unknown result type (might be due to invalid IL or missing references)
++//IL_01f8: Unknown result type (might be due to invalid IL or missing references)
++//IL_01fd: Unknown result type (might be due to invalid IL or missing references)
++//IL_0203: Expected O, but got Unknown
++//IL_02cd: Unknown result type (might be due to invalid IL or missing references)
++//IL_02d2: Unknown result type (might be due to invalid IL or missing references)
++//IL_02d8: Expected O, but got Unknown
++//IL_0253: Unknown result type (might be due to invalid IL or missing references)
++//IL_0258: Unknown result type (might be due to invalid IL or missing references)
++//IL_025e: Expected O, but got Unknown
++//IL_0319: Unknown result type (might be due to invalid IL or missing references)
++//IL_031e: Unknown result type (might be due to invalid IL or missing references)
+ Scope val = SyncRoot.EnterScope();
+ try
+ {
+@@ -1100,91 +1096,83 @@
+ Logger.Info("Framework Name: RitsuLib", 1);
+ Logger.Info(BuildVersionLogText(), 1);
+ Logger.Info("Initializing shared framework...", 1);
+-object obj = _003C_003EO._003C0_003E__EnsureRegistered;
++object obj = _003C_003Ec._003C_003E9__30_2;
+ if (obj == null)
+ {
+-Action val2 = LegacyInputMapCompat.EnsureRegistered;
+-_003C_003EO._003C0_003E__EnsureRegistered = val2;
+-obj = (object)val2;
+-}
+-RitsuLibStartupAudit.Measure("legacyInputMapCompat", (Action)obj);
+-object obj2 = _003C_003Ec._003C_003E9__30_2;
+-if (obj2 == null)
+-{
+-Action val3 = delegate
++Action val2 = delegate
+ {
+ HarmonyPatchAllTypeLoadGuard.Install(delegate(string message)
+ {
+ Logger.Warn(message, 1);
+ });
+ };
+-_003C_003Ec._003C_003E9__30_2 = val3;
++_003C_003Ec._003C_003E9__30_2 = val2;
++obj = (object)val2;
++}
++RitsuLibStartupAudit.Measure("harmonyPatchAllTypeLoadGuard", (Action)obj);
++object obj2 = _003C_003EO._003C0_003E__Install;
++if (obj2 == null)
++{
++Action val3 = HarmonyInitSetterCompat.Install;
++_003C_003EO._003C0_003E__Install = val3;
+ obj2 = (object)val3;
+ }
+-RitsuLibStartupAudit.Measure("harmonyPatchAllTypeLoadGuard", (Action)obj2);
+-object obj3 = _003C_003EO._003C1_003E__Install;
++RitsuLibStartupAudit.Measure("harmonyInitSetterCompat", (Action)obj2);
++object obj3 = _003C_003EO._003C1_003E__Initialize;
+ if (obj3 == null)
+ {
+-Action val4 = HarmonyInitSetterCompat.Install;
+-_003C_003EO._003C1_003E__Install = val4;
++Action val4 = RitsuLibSettingsStore.Initialize;
++_003C_003EO._003C1_003E__Initialize = val4;
+ obj3 = (object)val4;
+ }
+-RitsuLibStartupAudit.Measure("harmonyInitSetterCompat", (Action)obj3);
+-object obj4 = _003C_003EO._003C2_003E__Initialize;
++RitsuLibStartupAudit.Measure("settingsStore", (Action)obj3);
++object obj4 = _003C_003EO._003C2_003E__RunOnce;
+ if (obj4 == null)
+ {
+-Action val5 = RitsuLibSettingsStore.Initialize;
+-_003C_003EO._003C2_003E__Initialize = val5;
++Action val5 = RitsuLibLegacyGeneratedDataCleanup.RunOnce;
++_003C_003EO._003C2_003E__RunOnce = val5;
+ obj4 = (object)val5;
+ }
+-RitsuLibStartupAudit.Measure("settingsStore", (Action)obj4);
+-object obj5 = _003C_003EO._003C3_003E__RunOnce;
++RitsuLibStartupAudit.Measure("legacyGeneratedDataCleanup", (Action)obj4);
++object obj5 = _003C_003EO._003C3_003E__Initialize;
+ if (obj5 == null)
+ {
+-Action val6 = RitsuLibLegacyGeneratedDataCleanup.RunOnce;
+-_003C_003EO._003C3_003E__RunOnce = val6;
++Action val6 = RitsuSearchService.Initialize;
++_003C_003EO._003C3_003E__Initialize = val6;
+ obj5 = (object)val6;
+ }
+-RitsuLibStartupAudit.Measure("legacyGeneratedDataCleanup", (Action)obj5);
+-object obj6 = _003C_003EO._003C4_003E__Initialize;
++RitsuLibStartupAudit.Measure("searchExpansion", (Action)obj5);
++object obj6 = _003C_003Ec._003C_003E9__30_3;
+ if (obj6 == null)
+ {
+-Action val7 = RitsuSearchService.Initialize;
+-_003C_003EO._003C4_003E__Initialize = val7;
+-obj6 = (object)val7;
+-}
+-RitsuLibStartupAudit.Measure("searchExpansion", (Action)obj6);
+-object obj7 = _003C_003Ec._003C_003E9__30_3;
+-if (obj7 == null)
+-{
+-Action val8 = delegate
++Action val7 = delegate
+ {
+ RitsuDebugLogPipeline.Initialize(RitsuLibSettingsStore.GetDebugLogViewerOptions());
+ };
+-_003C_003Ec._003C_003E9__30_3 = val8;
++_003C_003Ec._003C_003E9__30_3 = val7;
++obj6 = (object)val7;
++}
++RitsuLibStartupAudit.Measure("debugLogViewer", (Action)obj6);
++object obj7 = _003C_003EO._003C4_003E__Initialize;
++if (obj7 == null)
++{
++Action val8 = RitsuLibModSettingsBootstrap.Initialize;
++_003C_003EO._003C4_003E__Initialize = val8;
+ obj7 = (object)val8;
+ }
+-RitsuLibStartupAudit.Measure("debugLogViewer", (Action)obj7);
++RitsuLibStartupAudit.Measure("modSettingsBootstrap", (Action)obj7);
+ object obj8 = _003C_003EO._003C5_003E__Initialize;
+ if (obj8 == null)
+ {
+-Action val9 = RitsuLibModSettingsBootstrap.Initialize;
++Action val9 = RitsuLibTelemetryBootstrap.Initialize;
+ _003C_003EO._003C5_003E__Initialize = val9;
+ obj8 = (object)val9;
+ }
+-RitsuLibStartupAudit.Measure("modSettingsBootstrap", (Action)obj8);
+-object obj9 = _003C_003EO._003C6_003E__Initialize;
++RitsuLibStartupAudit.Measure("telemetryBootstrap", (Action)obj8);
++object obj9 = _003C_003Ec._003C_003E9__30_4;
+ if (obj9 == null)
+ {
+-Action val10 = RitsuLibTelemetryBootstrap.Initialize;
+-_003C_003EO._003C6_003E__Initialize = val10;
+-obj9 = (object)val10;
+-}
+-RitsuLibStartupAudit.Measure("telemetryBootstrap", (Action)obj9);
+-object obj10 = _003C_003Ec._003C_003E9__30_4;
+-if (obj10 == null)
+-{
+-Action val11 = delegate
++Action val10 = delegate
+ {
+ //IL_0015: Unknown result type (might be due to invalid IL or missing references)
+ //IL_001a: Unknown result type (might be due to invalid IL or missing references)
+@@ -1204,69 +1192,69 @@
+ //IL_00ce: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d3: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d9: Expected O, but got Unknown
+-object obj13 = _003C_003EO._003C7_003E__LogSuppressedSteamFeaturesAtStartup;
++object obj12 = _003C_003EO._003C6_003E__LogSuppressedSteamFeaturesAtStartup;
++if (obj12 == null)
++{
++Action val13 = RitsuLibMobileSteamRuntime.LogSuppressedSteamFeaturesAtStartup;
++_003C_003EO._003C6_003E__LogSuppressedSteamFeaturesAtStartup = val13;
++obj12 = (object)val13;
++}
++RitsuLibStartupAudit.Measure("mobileSteamRuntime", (Action)obj12);
++object obj13 = _003C_003EO._003C7_003E__EnsureRegistered;
+ if (obj13 == null)
+ {
+-Action val14 = RitsuLibMobileSteamRuntime.LogSuppressedSteamFeaturesAtStartup;
+-_003C_003EO._003C7_003E__LogSuppressedSteamFeaturesAtStartup = val14;
++Action val14 = RitsuLibEmbeddedPngResourceLoader.EnsureRegistered;
++_003C_003EO._003C7_003E__EnsureRegistered = val14;
+ obj13 = (object)val14;
+ }
+-RitsuLibStartupAudit.Measure("mobileSteamRuntime", (Action)obj13);
++RitsuLibStartupAudit.Measure("imageResourceLoader", (Action)obj13);
+ object obj14 = _003C_003EO._003C8_003E__EnsureRegistered;
+ if (obj14 == null)
+ {
+-Action val15 = RitsuLibEmbeddedPngResourceLoader.EnsureRegistered;
++Action val15 = RitsuGodotNodeFactoryBootstrap.EnsureRegistered;
+ _003C_003EO._003C8_003E__EnsureRegistered = val15;
+ obj14 = (object)val15;
+ }
+-RitsuLibStartupAudit.Measure("imageResourceLoader", (Action)obj14);
+-object obj15 = _003C_003EO._003C9_003E__EnsureRegistered;
++RitsuLibStartupAudit.Measure("godotNodeFactories", (Action)obj14);
++object obj15 = _003C_003EO._003C9_003E__EnsureBuiltInContributorsRegistered;
+ if (obj15 == null)
+ {
+-Action val16 = RitsuGodotNodeFactoryBootstrap.EnsureRegistered;
+-_003C_003EO._003C9_003E__EnsureRegistered = val16;
++Action val16 = ModTypeDiscoveryHub.EnsureBuiltInContributorsRegistered;
++_003C_003EO._003C9_003E__EnsureBuiltInContributorsRegistered = val16;
+ obj15 = (object)val16;
+ }
+-RitsuLibStartupAudit.Measure("godotNodeFactories", (Action)obj15);
+-object obj16 = _003C_003EO._003C10_003E__EnsureBuiltInContributorsRegistered;
++RitsuLibStartupAudit.Measure("modTypeDiscoveryBuiltIns", (Action)obj15);
++object obj16 = _003C_003EO._003C10_003E__Initialize;
+ if (obj16 == null)
+ {
+-Action val17 = ModTypeDiscoveryHub.EnsureBuiltInContributorsRegistered;
+-_003C_003EO._003C10_003E__EnsureBuiltInContributorsRegistered = val17;
++Action val17 = SecondaryResourceLocalizationBootstrap.Initialize;
++_003C_003EO._003C10_003E__Initialize = val17;
+ obj16 = (object)val17;
+ }
+-RitsuLibStartupAudit.Measure("modTypeDiscoveryBuiltIns", (Action)obj16);
++RitsuLibStartupAudit.Measure("secondaryResourceLocalization", (Action)obj16);
+ object obj17 = _003C_003EO._003C11_003E__Initialize;
+ if (obj17 == null)
+ {
+-Action val18 = SecondaryResourceLocalizationBootstrap.Initialize;
++Action val18 = SecondaryResourceCloneBridge.Initialize;
+ _003C_003EO._003C11_003E__Initialize = val18;
+ obj17 = (object)val18;
+ }
+-RitsuLibStartupAudit.Measure("secondaryResourceLocalization", (Action)obj17);
+-object obj18 = _003C_003EO._003C12_003E__Initialize;
+-if (obj18 == null)
+-{
+-Action val19 = SecondaryResourceCloneBridge.Initialize;
+-_003C_003EO._003C12_003E__Initialize = val19;
+-obj18 = (object)val19;
+-}
+-RitsuLibStartupAudit.Measure("secondaryResourceCloneBridge", (Action)obj18);
++RitsuLibStartupAudit.Measure("secondaryResourceCloneBridge", (Action)obj17);
+ };
+-_003C_003Ec._003C_003E9__30_4 = val11;
+-obj10 = (object)val11;
+-}
+-RitsuLibStartupAudit.Measure("frameworkBuiltIns", (Action)obj10);
++_003C_003Ec._003C_003E9__30_4 = val10;
++obj9 = (object)val10;
++}
++RitsuLibStartupAudit.Measure("frameworkBuiltIns", (Action)obj9);
+ RitsuLibFramework.PublishLifecycleEvent<FrameworkInitializingEvent>(new FrameworkInitializingEvent("com.ritsukage.sts2-RitsuLib", "0.6.7", DateTimeOffset.UtcNow), "FrameworkInitializingEvent");
+ try
+ {
+ if (!_frameworkPatchesApplied)
+ {
+ FrameworkPatchersByArea.Clear();
+-object obj11 = _003C_003Ec._003C_003E9__30_6;
+-if (obj11 == null)
+-{
+-Action val12 = delegate
++object obj10 = _003C_003Ec._003C_003E9__30_6;
+...(truncated)

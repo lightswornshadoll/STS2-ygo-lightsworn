@@ -1,0 +1,47 @@
+# 杀戮尖塔2 mod《光道 Lightsworn》
+
+游戏王「光道（ライトロード）」主题角色mod：新角色**光道圣女 密勒瓦** + 专属金色卡池，共 **105张卡**（本家 + 珠泪哀歌族/影依/地天使/刻魔等系列，含初始卡与衍生Token）+ 3遗物 + 1事件。
+
+## 安装
+
+1. **安装依赖 RitsuLib**（创意工坊搜索 RitsuLib 订阅；v0.5.0 起本mod从 BaseLib 迁移到 RitsuLib，无需再装 BaseLib）。
+2. 把本目录 `dist\lightsworn\` 里的三个文件（`Lightsworn.dll`、`Lightsworn.json`、`Lightsworn.pck`）放进：
+
+   ```
+   D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\
+   ```
+
+3. 启动游戏（从Steam正常启动）。右下角显示已加载模组即成功。角色选择界面选 **光道圣女 密勒瓦**。
+4. 如提示是否开启mod，选择"是"（游戏会重启一次）。
+5. **版本兼容**：同一份 dll 同时支持正式版（0.107.1）与 beta（0.111.0）。**v0.5.0 起卡牌内部ID更换格式，旧存档（含进行中的局）不再可用**——请开新局。
+6. mod版存档与原版分开：`C:\Users\<用户>\AppData\Roaming\SlayTheSpire2\steam\<steamid>\` 下把 `profile1` 复制到 `modded` 文件夹即可继承进度（首次游玩可跳过）。
+
+## 核心机制
+
+| 游戏王 | 尖塔2 |
+|---|---|
+| 卡组 | 抽牌堆 |
+| 墓地 | 弃牌堆（洗回抽牌堆，越堆越强） |
+| 除外 | 消耗堆（本场战斗永久移除） |
+
+- **弃光N**（自定义关键词）：从抽牌堆顶部将N张牌弃置——光道的灵魂机制，弃掉的牌喂养墓地收益。
+- **除光N**：从抽牌堆中选择N张牌消耗（本场战斗移出牌库）。
+- **暮光**（自定义关键词）：触发弃光时若抽牌堆不够，消耗2层暮光，把弃牌堆洗回抽牌堆、回复1点能量并补完弃光——纯被动层数资源。
+- **珠泪融合 / 影融**（自定义关键词）：被弃置/主动发动时，用素材融合生成珠泪或神影依Token的系列机制；顶栏有「融合图鉴」按钮查看全部融合卡（本回合/本场已生成的卡置灰）。
+- 标签体系：「光道」本家、「影依」、「珠泪哀歌族」、「地天使」、「刻魔」（供检索/联动判定）。
+
+## 卡表
+
+完整设计（每张卡的尖塔化效果、升级、稀有度、设计说明）见 [design/光道mod设计文档.md](design/光道mod设计文档.md)；
+自动生成的卡牌图鉴见 [design/卡牌图鉴.md](design/卡牌图鉴.md)；v0.5.0 RitsuLib 迁移细节见 [design/ritsulib迁移方案.md](design/ritsulib迁移方案.md)。
+
+## 调试
+
+- 游戏内按 `` ` `` 打开控制台，`card LIGHTSWORN_CARD_RYKO` 加卡、`power LIGHTSWORN_POWER_TWILIGHT 1 0` 上能力（v0.5.0 起 ID 格式=`LIGHTSWORN_{类别}_{类名蛇形}`）。
+- 工程位于 `mod\lightsworn\`，`dotnet build` 编译dll（自动复制到mods），`dotnet build -t:ExportPck` 导出资源包。
+- 需要 .NET SDK 9（已装在 `tools\dotnet`）、Godot 4.5.1 Mono（在 `research\Godot_v4.5.1-stable_mono_win64`）、RitsuLib（创意工坊）。
+
+## 已知说明
+
+- 人物为静态立绘 + 简单动画（无 Spine），商人/休息处等外观借用铁甲战士占位；卡图全部来自 YGOPRODECK 高清裁剪图。
+- 多人模式未测试。

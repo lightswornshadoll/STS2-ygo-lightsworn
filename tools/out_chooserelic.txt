@@ -1,0 +1,19 @@
+MegaCrit.Sts2.Core.AutoSlay\AutoSlayer.cs 94 [typeof(NChooseARelicSelection)] = new ChooseARelicScreenHandler(),
+MegaCrit.Sts2.Core.AutoSlay.Handlers.Screens\ChooseARelicScreenHandler.cs 15 public class ChooseARelicScreenHandler : IScreenHandler, IHandler
+MegaCrit.Sts2.Core.AutoSlay.Handlers.Screens\ChooseARelicScreenHandler.cs 17 public Type ScreenType => typeof(NChooseARelicSelection);
+MegaCrit.Sts2.Core.AutoSlay.Handlers.Screens\ChooseARelicScreenHandler.cs 23 AutoSlayLog.EnterScreen("NChooseARelicSelection");
+MegaCrit.Sts2.Core.AutoSlay.Handlers.Screens\ChooseARelicScreenHandler.cs 24 NChooseARelicSelection currentScreen = AutoSlayer.GetCurrentScreen<NChooseARelicSelection>();
+MegaCrit.Sts2.Core.AutoSlay.Handlers.Screens\ChooseARelicScreenHandler.cs 34 AutoSlayLog.ExitScreen("NChooseARelicSelection");
+MegaCrit.Sts2.Core.Commands\RelicSelectCmd.cs 27 public static async Task<RelicModel?> FromChooseARelicScreen(Player player, IReadOnlyList<RelicModel> relics)
+MegaCrit.Sts2.Core.Commands\RelicSelectCmd.cs 33 NChooseARelicSelection nChooseARelicSelection = NChooseARelicSelection.ShowScreen(relics);
+MegaCrit.Sts2.Core.Commands\RelicSelectCmd.cs 41 relicModel = (await nChooseARelicSelection.RelicsSelected()).FirstOrDefault();
+MegaCrit.Sts2.Core.Nodes.Screens\NChooseARelicSelection.cs 27 [ScriptPath("res://src/Core/Nodes/Screens/NChooseARelicSelection.cs")]
+MegaCrit.Sts2.Core.Nodes.Screens\NChooseARelicSelection.cs 28 public class NChooseARelicSelection : Control, IOverlayScreen, IScreenContext
+MegaCrit.Sts2.Core.Nodes.Screens\NChooseARelicSelection.cs 176 public static NChooseARelicSelection? ShowScreen(IReadOnlyList<RelicModel> relics)
+MegaCrit.Sts2.Core.Nodes.Screens\NChooseARelicSelection.cs 182 NChooseARelicSelection nChooseARelicSelection = PreloadManager.Cache.GetScene(ScenePath).Instantiate<NChooseARelicSelection>(PackedScene.GenEditState.Disabled);
+MegaCrit.Sts2.Core.Nodes.Screens\NChooseARelicSelection.cs 183 nChooseARelicSelection.Name = "NChooseACardSelectionScreen";
+MegaCrit.Sts2.Core.Nodes.Screens\NChooseARelicSelection.cs 184 nChooseARelicSelection._relics = relics;
+MegaCrit.Sts2.Core.Nodes.Screens\NChooseARelicSelection.cs 185 NOverlayStack.Instance.Push(nChooseARelicSelection);
+MegaCrit.Sts2.Core.Nodes.Screens\NChooseARelicSelection.cs 186 return nChooseARelicSelection;
+Properties\AssemblyInfo.cs 411 typeof(NChooseARelicSelection),
+--- 18 hits ---

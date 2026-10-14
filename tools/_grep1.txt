@@ -1,0 +1,9 @@
+Scripts\Cards5.cs:188: public sealed class Havnis : TearFusionCard
+Scripts\Cards5.cs:195: public Havnis() : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy) { }
+Scripts\Cards6.cs:330: LsUtil.ZeroDamageOnce(pick);
+Scripts\Cards6.cs:406: LsUtil.ZeroDamageOnce(pick);
+Scripts\Cards7.cs:204: LsUtil.ZeroDamageOnce(pick);
+Scripts\Cards8.cs:24: public sealed class ElShaddollWinda : ShaddollToken
+Scripts\LightswornContent.cs:78: // 「伤害置0只持续一次」（LsUtil.ZeroDamageOnce：心影依融合/羽影依文蒂/虚影依神子晶/联结之影依化身）：
+Scripts\LsUtil.cs:323: public static void ZeroDamageOnce(CardModel card)
+Scripts\LsUtil.cs:566: ZeroDamageOnce(token);

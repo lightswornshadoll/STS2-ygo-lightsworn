@@ -1,0 +1,10 @@
+{
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.title": "于珍珠世界相逢",
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.INITIAL.description": "浅滩上泛着[purple]珍珠色的微光[/purple]，一阵歌声顺着水面飘来。\n三位人鱼从涟漪中探出头来——[blue]塞壬[/blue]、[blue]梅洛[/blue]和[blue]小美人鱼[/blue]，珠泪哀歌族的三姐妹。\n「哎呀，是陆地的旅人。」塞壬歪着头打量你，「你身上的光……好温暖。」\n「她的眼睛亮晶晶的！」小美人鱼拍起水花，「和我们收集的珍珠一样！」\n梅洛什么也没说，只是从水里捧起一把珍珠，朝你眨了眨眼。",
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.INITIAL.options.JOIN_TEARLAMENTS.title": "与珠泪哀歌族同行",
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.INITIAL.options.JOIN_TEARLAMENTS.description": "[blue]塞壬人鱼[/blue]、[blue]梅洛人鱼[/blue]和[blue]小美人鱼[/blue]加入你的[gold]卡组[/gold]。\n「作为同行的信物——」塞壬把一片[red]腐朽的鳞[/red]按进你的手心，冰凉刺骨。",
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.INITIAL.options.TAKE_PEARLS.title": "收下珍珠，道谢离去",
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.INITIAL.options.TAKE_PEARLS.description": "获得[blue]{Gold}[/blue] [gold]金币[/gold]。",
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.JOIN.description": "「跟我们走……真的吗？」\n三双湿润的眼睛同时亮了起来。\n塞壬将一颗泪珠凝成卡牌的模样，轻轻放进你的卡组；梅洛用珍珠串起卡组的锁链；小美人鱼高兴地唱起了不成调的歌。\n临别时，梅洛又从水底捞起一片[red]腐朽的鳞片[/red]塞进你的卡组，「陆地的路很长，」她轻声说，「疼的时候，就当我们在陪你。」\n「呐——要是难过了，就把我们[red]融合[/red]起来吧。」\n「在眼泪流干之前，我们会一直陪着你的。」",
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.PEARLS.description": "你婉拒了同行的邀请。\n「这样呀……」塞壬的耳朵耷拉了一下，但很快又笑起来，「那，至少带上这些。」\n梅洛把那捧珍珠塞进你手里，冰凉温润，在光下泛着彩虹色的光晕。\n「陆地的路很长，」她轻声说，「别让自己太辛苦。」\n人鱼们向你挥别，沉入珍珠色的水光之中。"
+}

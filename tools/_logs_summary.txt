@@ -1,0 +1,236 @@
+============================== godot.log = 1791913139
+total lines: 998
+    14 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\Lightsworn.json
+    15 [INFO] Looking for mods to load from Steam Workshop mod 3737335127 in D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127 (size 1265191, last modified 1789149503)
+    16 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.json
+    19 [INFO] Looking for mods to load from Steam Workshop mod 3747595039 in D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747595039 (size 529909, last modified 1789493401)
+    20 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747595039\MinionLib\MinionLib.json
+    80 [INFO] Looking for mods to load from Steam Workshop mod 3747644378 in D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747644378 (size 2192983776, last modified 1791909531)
+    81 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747644378\shadowversebydmod.json
+    82 [ERROR] Tried to load mod with id shadowversebydmod, but the current Steam branch public does not lie in the min/max steam branches the mod supports! Max supported: public-beta
+    83 at MegaCrit.Sts2.Core.Modding.ModManager.CheckSteamBranchSupport(PublishedFileId_t workshopItemId, List`1 mods)
+    94 at Steamworks.CallResult`1.OnRunCallResult(IntPtr pvParam, Boolean bFailed, UInt64 hSteamAPICall_)
+   105 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.dll
+   106 [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.pck
+   107 [INFO] Calling initializer method of type BaseLib.BaseLibMain for BaseLib, Version=3.4.7.0, Culture=neutral, PublicKeyToken=null
+   108 [INFO] [BaseLib] Created node factory for Control.
+   109 [INFO] [BaseLib] Created node factory for NCreatureVisuals.
+   110 [INFO] [BaseLib] Created node factory for NRestSiteCharacter.
+   111 [INFO] [BaseLib] Created node factory for NMerchantCharacter.
+   112 [INFO] [BaseLib] Created node factory for NEnergyCounter.
+   113 [INFO] [BaseLib] Created node factory for NCustomTreasureRoomChest.
+   114 [INFO] [BaseLib] Registered config for mod BaseLib
+   115 [INFO] [BaseLib] Performing CustomPile Add patch
+   116 [INFO] [BaseLib] Naive game version: v0.107.1
+   117 [INFO] [BaseLib] Starting PatchAll for assembly BaseLib, Version=3.4.7.0, Culture=neutral, PublicKeyToken=null
+   118 [INFO] [BaseLib] Reading state machine type [MegaCrit.Sts2.Core.Nodes.Combat.NCreature+<AnimDie>d__105]
+   119 [INFO] [BaseLib] Adding new state 5 for method CustomAnimationPatch.WaitCustomAnim before Wait with result type None ()
+   120 [INFO] [BaseLib] Reading state machine type [MegaCrit.Sts2.Core.Hooks.Hook+<AfterCardPlayed>d__16]
+   121 [INFO] [BaseLib] Adding new state 2 for method AfterCardPlayedPatch.BeforeAfterPlayHooks before AfterCardPlayed with result type None ()
+   122 [INFO] [BaseLib] Reading state machine type [MegaCrit.Sts2.Core.Models.CardModel+<SpendResources>d__336]
+   123 [INFO] [BaseLib] Adding new state 2 for method CustomResourcePatches.SpendAdditionalCosts after SpendStars with result type None ()
+   124 [INFO] [BaseLib] Reading state machine type [MegaCrit.Sts2.Core.Hooks.Hook+<AfterEnergyReset>d__30]
+   125 [INFO] [BaseLib] Adding new state 2 for method CustomResourcePatches.BeforeEnergyResetHook before AfterEnergyReset with result type None ()
+   126 [INFO] [BaseLib] No valid target found, skipping beta ExhaustivePatch
+   127 [INFO] [BaseLib] No valid target found, skipping beta PurgePatch
+   128 [INFO] [BaseLib] Skipping potion LargeImagePath patch; does not exist
+   129 [INFO] [BaseLib] Applied 282 patches successfully, 0 failed
+   130 [INFO] Finished mod initialization for 'BaseLib' (BaseLib).
+   131 [ERROR] Tried to load mod with id MinionLib, but its declared min game version 0.110.1 is higher than the current game version v0.107.1
+   132 at MegaCrit.Sts2.Core.Modding.ModManager.TryLoadMod(Mod mod)
+   185 [ERROR] Tried to load mod with id shadowversebydmod, but its declared min game version 0.111.0 is higher than the current game version v0.107.1
+   239 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\lightsworn.dll
+   240 [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\lightsworn.pck
+   241 [INFO] Calling initializer method of type Lightsworn.Entry for Lightsworn, Version=0.4.44.0, Culture=neutral, PublicKeyToken=null
+   242 [INFO] Lightsworn mod initialized!
+   243 [INFO] Finished mod initialization for '光道 Lightsworn' (lightsworn).
+   244 [INFO]  --- RUNNING MODDED! --- Loaded 2 mods (4 total)
+   252 [INFO] [BaseLib] Performing early post-mod init
+   253 [INFO] [BaseLib] Mod lightsworn that modifies gameplay has BaseLib dependency; gameplay modification enabled.
+   254 [INFO] [BaseLib] Patching act types for custom encounters and events | DeprecatedAct | Glory | Hive | Overgrowth | Underdocks
+   255 [INFO] [BaseLib] Generating interop methods and properties
+   257 [INFO] Found loc table from mod: eng card_keywords.json. Merging with base loc table
+   258 [INFO] Found loc table from mod: eng card_selection.json. Merging with base loc table
+   259 [INFO] Found loc table from mod: eng credits.json. Merging with base loc table
+   260 [INFO] Found loc table from mod: eng events.json. Merging with base loc table
+   261 [INFO] Found loc table from mod: eng gameplay_ui.json. Merging with base loc table
+   262 [INFO] Found loc table from mod: eng main_menu_ui.json. Merging with base loc table
+   263 [INFO] Found loc table from mod: eng powers.json. Merging with base loc table
+   264 [INFO] Found loc table from mod: eng settings_ui.json. Merging with base loc table
+   265 [INFO] Found loc table from mod: eng static_hover_tips.json. Merging with base loc table
+   267 [INFO] Found loc table from mod: zhs ancients.json. Merging with base loc table
+   268 [INFO] Found loc table from mod: zhs card_keywords.json. Merging with base loc table
+   270 [INFO] Found loc table from mod: zhs card_selection.json. Merging with base loc table
+   272 [INFO] Found loc table from mod: zhs cards.json. Merging with base loc table
+   273 [INFO] Found loc table from mod: zhs characters.json. Merging with base loc table
+   274 [INFO] Found loc table from mod: zhs events.json. Merging with base loc table
+   275 [INFO] Found loc table from mod: zhs gameplay_ui.json. Merging with base loc table
+   276 [INFO] Found loc table from mod: zhs main_menu_ui.json. Merging with base loc table
+   277 [INFO] Found loc table from mod: zhs powers.json. Merging with base loc table
+   279 [INFO] Found loc table from mod: zhs relics.json. Merging with base loc table
+   280 [INFO] Found loc table from mod: zhs settings_ui.json. Merging with base loc table
+   281 [INFO] Found loc table from mod: zhs static_hover_tips.json. Merging with base loc table
+   283 [INFO] [BaseLib] Starting custom enum generation for 1617 modded types
+   284 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.Entities.Cards.TargetType with starting value 10 | IsFlag: False | Half-Size: 16
+   285 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.Entities.Cards.CardKeyword with starting value 8 | IsFlag: False | Half-Size: 16
+   286 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.Rewards.RewardType with starting value 7 | IsFlag: False | Half-Size: 16
+   287 [INFO] [BaseLib] Registering CustomReward deserializer for BaseLib.Common.Rewards.CardTransformReward
+   288 [INFO] [BaseLib] Registering RewardType CardTransform
+   289 [INFO] [BaseLib] Registering CustomReward deserializer for BaseLib.Common.Rewards.CardUpgradeReward
+   290 [INFO] [BaseLib] Registering RewardType CardUpgrade
+   291 [INFO] [BaseLib] Registering CustomReward deserializer for BaseLib.Common.Rewards.LinkedRewardSet.CustomLinkedRewardSet
+   292 [INFO] [BaseLib] Registering RewardType CustomLinkedRewardType
+   293 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.Entities.Cards.CardTag with starting value 6 | IsFlag: False | Half-Size: 16
+   294 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.HoverTips.StaticHoverTip with starting value 17 | IsFlag: False | Half-Size: 16
+   295 [INFO] [BaseLib] Registering CustomReward deserializer for BaseLib.Common.Rewards.RandomCardUpgradeReward
+   296 [INFO] [BaseLib] Registering RewardType RandomCardUpgrade
+   298 [INFO] [BaseLib] Performing late post-mod init
+   299 [INFO] [BaseLib] Patching type NRewardButton to add nodes.
+   300 [INFO] [BaseLib] Adding postfix static System.Void BaseLib.Utils.IAddedNodes`1<MegaCrit.Sts2.Core.Nodes.Rewards.NRewardButton>::UnconditionalAdd(MegaCrit.Sts2.Core.Nodes.Rewards.NRewardButton __instan
+   301 [INFO] [BaseLib] Found 0 SavedSpireFields.
+   302 [INFO] [BaseLib] Adjusting keys of custom message wrappers.
+   303 [INFO] [BaseLib] Using IDs 128 and 129 for custom message wrappers.
+   304 [INFO] Profile-scoped data path initialized: user://steam/76561198412127695/modded/profile1
+   916 [INFO] [Sentry.NET] Is running modded
+   919 [INFO] [BaseLib] Skipping SentryService shutdown.
+   920 [INFO] [BaseLib] Adding 0 custom acts to act list.
+   921 [INFO] [BaseLib] Result: ACT.OVERGROWTH (44969312),ACT.UNDERDOCKS (2070631),ACT.HIVE (18635683),ACT.GLORY (33503421)
+   955 [INFO] [BaseLib] Registered scene 'res://scenes/creature_visuals/ironclad.tscn' for auto-conversion to NCreatureVisuals
+   956 [INFO] [BaseLib] Registered scene 'res://scenes/rest_site/characters/ironclad_rest_site.tscn' for auto-conversion to NRestSiteCharacter
+   957 [INFO] [BaseLib] Registered scene 'res://scenes/merchant/characters/ironclad_merchant.tscn' for auto-conversion to NMerchantCharacter
+   958 [INFO] [BaseLib] Registered scene 'res://scenes/combat/energy_counters/ironclad_energy_counter.tscn' for auto-conversion to NEnergyCounter
+   963 [INFO] [BaseLib] NGame.Quit(): saving all ModConfigs
+   966 [INFO] Wrote 300 bytes to path=user://steam/76561198412127695/modded/profile1\saves\prefs.save save_dir=user://steam/76561198412127695
+   967 [INFO] Wrote 300 bytes to modded/profile1/saves/prefs.save in steam remote store
+   968 [INFO] Wrote 141688 bytes to path=user://steam/76561198412127695/modded/profile1\saves\progress.save save_dir=user://steam/76561198412127695
+   969 [INFO] Wrote 141688 bytes to modded/profile1/saves/progress.save in steam remote store
+   977 ERROR: 1 RID allocations of type 'N26RendererEnvironmentStorage11EnvironmentE' were leaked at exit.
+   978 ERROR: 5 shaders of type CanvasShaderRD were never freed
+   980 ERROR: 30 RID allocations of type 'N10RendererRD16ParticlesStorage9ParticlesE' were leaked at exit.
+   981 ERROR: 1 shaders of type ParticlesShaderRD were never freed
+   983 ERROR: 30 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+   984 ERROR: 97 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+   985 ERROR: 6 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+   986 ERROR: 27 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.
+   991 ERROR: 360 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+   992 ERROR: 3 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.
+   993 ERROR: 4 RID allocations of type 'PN18TextServerAdvanced27FontAdvancedLinkedVariationE' were leaked at exit.
+   996 ERROR: 66 resources still in use at exit (run with --verbose for details).
+============================== godot2026-10-14T01.37.17.log = 1791913037
+total lines: 998
+    14 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\Lightsworn.json
+    15 [INFO] Looking for mods to load from Steam Workshop mod 3737335127 in D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127 (size 1265191, last modified 1789149503)
+    16 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.json
+    19 [INFO] Looking for mods to load from Steam Workshop mod 3747595039 in D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747595039 (size 529909, last modified 1789493401)
+    20 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747595039\MinionLib\MinionLib.json
+    80 [INFO] Looking for mods to load from Steam Workshop mod 3747644378 in D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747644378 (size 2192983776, last modified 1791909531)
+    81 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747644378\shadowversebydmod.json
+    82 [ERROR] Tried to load mod with id shadowversebydmod, but the current Steam branch public does not lie in the min/max steam branches the mod supports! Max supported: public-beta
+    83 at MegaCrit.Sts2.Core.Modding.ModManager.CheckSteamBranchSupport(PublishedFileId_t workshopItemId, List`1 mods)
+    94 at Steamworks.CallResult`1.OnRunCallResult(IntPtr pvParam, Boolean bFailed, UInt64 hSteamAPICall_)
+   105 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.dll
+   106 [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.pck
+   107 [INFO] Calling initializer method of type BaseLib.BaseLibMain for BaseLib, Version=3.4.7.0, Culture=neutral, PublicKeyToken=null
+   108 [INFO] [BaseLib] Created node factory for Control.
+   109 [INFO] [BaseLib] Created node factory for NCreatureVisuals.
+   110 [INFO] [BaseLib] Created node factory for NRestSiteCharacter.
+   111 [INFO] [BaseLib] Created node factory for NMerchantCharacter.
+   112 [INFO] [BaseLib] Created node factory for NEnergyCounter.
+   113 [INFO] [BaseLib] Created node factory for NCustomTreasureRoomChest.
+   114 [INFO] [BaseLib] Registered config for mod BaseLib
+   115 [INFO] [BaseLib] Performing CustomPile Add patch
+   116 [INFO] [BaseLib] Naive game version: v0.107.1
+   117 [INFO] [BaseLib] Starting PatchAll for assembly BaseLib, Version=3.4.7.0, Culture=neutral, PublicKeyToken=null
+   118 [INFO] [BaseLib] Reading state machine type [MegaCrit.Sts2.Core.Nodes.Combat.NCreature+<AnimDie>d__105]
+   119 [INFO] [BaseLib] Adding new state 5 for method CustomAnimationPatch.WaitCustomAnim before Wait with result type None ()
+   120 [INFO] [BaseLib] Reading state machine type [MegaCrit.Sts2.Core.Hooks.Hook+<AfterCardPlayed>d__16]
+   121 [INFO] [BaseLib] Adding new state 2 for method AfterCardPlayedPatch.BeforeAfterPlayHooks before AfterCardPlayed with result type None ()
+   122 [INFO] [BaseLib] Reading state machine type [MegaCrit.Sts2.Core.Models.CardModel+<SpendResources>d__336]
+   123 [INFO] [BaseLib] Adding new state 2 for method CustomResourcePatches.SpendAdditionalCosts after SpendStars with result type None ()
+   124 [INFO] [BaseLib] Reading state machine type [MegaCrit.Sts2.Core.Hooks.Hook+<AfterEnergyReset>d__30]
+   125 [INFO] [BaseLib] Adding new state 2 for method CustomResourcePatches.BeforeEnergyResetHook before AfterEnergyReset with result type None ()
+   126 [INFO] [BaseLib] No valid target found, skipping beta ExhaustivePatch
+   127 [INFO] [BaseLib] No valid target found, skipping beta PurgePatch
+   128 [INFO] [BaseLib] Skipping potion LargeImagePath patch; does not exist
+   129 [INFO] [BaseLib] Applied 282 patches successfully, 0 failed
+   130 [INFO] Finished mod initialization for 'BaseLib' (BaseLib).
+   131 [ERROR] Tried to load mod with id MinionLib, but its declared min game version 0.110.1 is higher than the current game version v0.107.1
+   132 at MegaCrit.Sts2.Core.Modding.ModManager.TryLoadMod(Mod mod)
+   185 [ERROR] Tried to load mod with id shadowversebydmod, but its declared min game version 0.111.0 is higher than the current game version v0.107.1
+   239 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\lightsworn.dll
+   240 [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\lightsworn.pck
+   241 [INFO] Calling initializer method of type Lightsworn.Entry for Lightsworn, Version=0.4.43.0, Culture=neutral, PublicKeyToken=null
+   242 [INFO] Lightsworn mod initialized!
+   243 [INFO] Finished mod initialization for '光道 Lightsworn' (lightsworn).
+   244 [INFO]  --- RUNNING MODDED! --- Loaded 2 mods (4 total)
+   252 [INFO] [BaseLib] Performing early post-mod init
+   253 [INFO] [BaseLib] Mod lightsworn that modifies gameplay has BaseLib dependency; gameplay modification enabled.
+   254 [INFO] [BaseLib] Patching act types for custom encounters and events | DeprecatedAct | Glory | Hive | Overgrowth | Underdocks
+   255 [INFO] [BaseLib] Generating interop methods and properties
+   257 [INFO] Found loc table from mod: eng card_keywords.json. Merging with base loc table
+   258 [INFO] Found loc table from mod: eng card_selection.json. Merging with base loc table
+   259 [INFO] Found loc table from mod: eng credits.json. Merging with base loc table
+   260 [INFO] Found loc table from mod: eng events.json. Merging with base loc table
+   261 [INFO] Found loc table from mod: eng gameplay_ui.json. Merging with base loc table
+   262 [INFO] Found loc table from mod: eng main_menu_ui.json. Merging with base loc table
+   263 [INFO] Found loc table from mod: eng powers.json. Merging with base loc table
+   264 [INFO] Found loc table from mod: eng settings_ui.json. Merging with base loc table
+   265 [INFO] Found loc table from mod: eng static_hover_tips.json. Merging with base loc table
+   267 [INFO] Found loc table from mod: zhs ancients.json. Merging with base loc table
+   268 [INFO] Found loc table from mod: zhs card_keywords.json. Merging with base loc table
+   270 [INFO] Found loc table from mod: zhs card_selection.json. Merging with base loc table
+   272 [INFO] Found loc table from mod: zhs cards.json. Merging with base loc table
+   273 [INFO] Found loc table from mod: zhs characters.json. Merging with base loc table
+   274 [INFO] Found loc table from mod: zhs events.json. Merging with base loc table
+   275 [INFO] Found loc table from mod: zhs gameplay_ui.json. Merging with base loc table
+   276 [INFO] Found loc table from mod: zhs main_menu_ui.json. Merging with base loc table
+   277 [INFO] Found loc table from mod: zhs powers.json. Merging with base loc table
+   279 [INFO] Found loc table from mod: zhs relics.json. Merging with base loc table
+   280 [INFO] Found loc table from mod: zhs settings_ui.json. Merging with base loc table
+   281 [INFO] Found loc table from mod: zhs static_hover_tips.json. Merging with base loc table
+   283 [INFO] [BaseLib] Starting custom enum generation for 1619 modded types
+   284 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.Entities.Cards.TargetType with starting value 10 | IsFlag: False | Half-Size: 16
+   285 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.Entities.Cards.CardKeyword with starting value 8 | IsFlag: False | Half-Size: 16
+   286 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.Rewards.RewardType with starting value 7 | IsFlag: False | Half-Size: 16
+   287 [INFO] [BaseLib] Registering CustomReward deserializer for BaseLib.Common.Rewards.CardTransformReward
+   288 [INFO] [BaseLib] Registering RewardType CardTransform
+   289 [INFO] [BaseLib] Registering CustomReward deserializer for BaseLib.Common.Rewards.CardUpgradeReward
+   290 [INFO] [BaseLib] Registering RewardType CardUpgrade
+   291 [INFO] [BaseLib] Registering CustomReward deserializer for BaseLib.Common.Rewards.LinkedRewardSet.CustomLinkedRewardSet
+   292 [INFO] [BaseLib] Registering RewardType CustomLinkedRewardType
+   293 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.Entities.Cards.CardTag with starting value 6 | IsFlag: False | Half-Size: 16
+   294 [INFO] [BaseLib] Generated KeyGenerator for enum MegaCrit.Sts2.Core.HoverTips.StaticHoverTip with starting value 17 | IsFlag: False | Half-Size: 16
+   295 [INFO] [BaseLib] Registering CustomReward deserializer for BaseLib.Common.Rewards.RandomCardUpgradeReward
+   296 [INFO] [BaseLib] Registering RewardType RandomCardUpgrade
+   298 [INFO] [BaseLib] Performing late post-mod init
+   299 [INFO] [BaseLib] Patching type NRewardButton to add nodes.
+   300 [INFO] [BaseLib] Adding postfix static System.Void BaseLib.Utils.IAddedNodes`1<MegaCrit.Sts2.Core.Nodes.Rewards.NRewardButton>::UnconditionalAdd(MegaCrit.Sts2.Core.Nodes.Rewards.NRewardButton __instan
+   301 [INFO] [BaseLib] Found 0 SavedSpireFields.
+   302 [INFO] [BaseLib] Adjusting keys of custom message wrappers.
+   303 [INFO] [BaseLib] Using IDs 128 and 129 for custom message wrappers.
+   304 [INFO] Profile-scoped data path initialized: user://steam/76561198412127695/modded/profile1
+   916 [INFO] [Sentry.NET] Is running modded
+   919 [INFO] [BaseLib] Skipping SentryService shutdown.
+   920 [INFO] [BaseLib] Adding 0 custom acts to act list.
+   921 [INFO] [BaseLib] Result: ACT.OVERGROWTH (47577682),ACT.UNDERDOCKS (25545960),ACT.HIVE (28587052),ACT.GLORY (55956879)
+   955 [INFO] [BaseLib] Registered scene 'res://scenes/creature_visuals/ironclad.tscn' for auto-conversion to NCreatureVisuals
+   956 [INFO] [BaseLib] Registered scene 'res://scenes/rest_site/characters/ironclad_rest_site.tscn' for auto-conversion to NRestSiteCharacter
+   957 [INFO] [BaseLib] Registered scene 'res://scenes/merchant/characters/ironclad_merchant.tscn' for auto-conversion to NMerchantCharacter
+   958 [INFO] [BaseLib] Registered scene 'res://scenes/combat/energy_counters/ironclad_energy_counter.tscn' for auto-conversion to NEnergyCounter
+   963 [INFO] [BaseLib] NGame.Quit(): saving all ModConfigs
+   966 [INFO] Wrote 300 bytes to path=user://steam/76561198412127695/modded/profile1\saves\prefs.save save_dir=user://steam/76561198412127695
+   967 [INFO] Wrote 300 bytes to modded/profile1/saves/prefs.save in steam remote store
+   968 [INFO] Wrote 141688 bytes to path=user://steam/76561198412127695/modded/profile1\saves\progress.save save_dir=user://steam/76561198412127695
+   969 [INFO] Wrote 141688 bytes to modded/profile1/saves/progress.save in steam remote store
+   977 ERROR: 1 RID allocations of type 'N26RendererEnvironmentStorage11EnvironmentE' were leaked at exit.
+   978 ERROR: 5 shaders of type CanvasShaderRD were never freed
+   980 ERROR: 30 RID allocations of type 'N10RendererRD16ParticlesStorage9ParticlesE' were leaked at exit.
+   981 ERROR: 1 shaders of type ParticlesShaderRD were never freed
+   983 ERROR: 30 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+   984 ERROR: 97 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+   985 ERROR: 6 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+   986 ERROR: 27 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.
+   991 ERROR: 360 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+   992 ERROR: 3 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.
+   993 ERROR: 4 RID allocations of type 'PN18TextServerAdvanced27FontAdvancedLinkedVariationE' were leaked at exit.
+   996 ERROR: 66 resources still in use at exit (run with --verbose for details).

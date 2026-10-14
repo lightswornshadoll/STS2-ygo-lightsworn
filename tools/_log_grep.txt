@@ -1,0 +1,830 @@
+3:WARNING: PSO caching is not implemented yet in the Direct3D 12 driver.
+83:[ERROR] Tried to load mod with id shadowversebydmod, but the current Steam branch public does not lie in the min/max steam branches the mod supports! Max supported: public-beta
+94:   at MegaCrit.Sts2.Core.Multiplayer.Transport.Steam.SteamCallResult`1.OnCallResult(T result, Boolean ioError)
+132:[ERROR] Tried to load mod with id MinionLib, but its declared min game version 0.110.1 is higher than the current game version v0.107.1
+174:   at MegaCrit.Sts2.Core.Multiplayer.Transport.Steam.SteamCallResult`1.OnCallResult(T result, Boolean ioError)
+186:[ERROR] Tried to load mod with id shadowversebydmod, but its declared min game version 0.111.0 is higher than the current game version v0.107.1
+228:   at MegaCrit.Sts2.Core.Multiplayer.Transport.Steam.SteamCallResult`1.OnCallResult(T result, Boolean ioError)
+247:[WARN] Asset not cached: res://scenes/debug/dev_console.tscn
+249:[WARN] Asset not cached: res://scenes/cards/card.tscn
+250:[WARN] Asset not cached: res://scenes/cards/holders/grid_card_holder.tscn
+304:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[3], Message = Unknown character ID: CHARACTER.SHADOWVERSEBYDMOD-ABYSSCRAFT_CHARACTER, IsFatal = False }
+305:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[4], Message = Unknown character ID: CHARACTER.SHADOWVERSEBYDMOD-RUNECRAFT_CHARACTER, IsFatal = False }
+306:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[5], Message = Unknown character ID: CHARACTER.SHADOWVERSEBYDMOD-PORTALCRAFT_CHARACTER, IsFatal = False }
+307:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[6], Message = Unknown character ID: CHARACTER.SHADOWVERSEBYDMOD-DRAGONCRAFT_CHARACTER, IsFatal = False }
+308:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[7], Message = Unknown character ID: CHARACTER.SHADOWVERSEBYDMOD-FORESTCRAFT_CHARACTER, IsFatal = False }
+309:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[8], Message = Unknown character ID: CHARACTER.SHADOWVERSEBYDMOD-HAVENCRAFT_CHARACTER, IsFatal = False }
+310:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[9], Message = Unknown character ID: CHARACTER.STSVWB_CHARACTER_DREIZEHN_CHARACTER, IsFatal = False }
+311:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[10], Message = Unknown character ID: CHARACTER.STSVWB_CHARACTER_LOVESIGN_CHARACTER, IsFatal = False }
+312:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[11], Message = Unknown character ID: CHARACTER.STSVWB_CHARACTER_MARIE_MALISSE_CHARACTER, IsFatal = False }
+313:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[12], Message = Unknown character ID: CHARACTER.STSVWB_CHARACTER_GALAN_CHARACTER, IsFatal = False }
+314:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[13], Message = Unknown character ID: CHARACTER.STSVWB_CHARACTER_DIAWL_CHARACTER, IsFatal = False }
+315:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CharStats.[14], Message = Unknown character ID: CHARACTER.STSVWB_CHARACTER_ESPERANZA_CHARACTER, IsFatal = False }
+316:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[124], Message = Unknown card ID: CARD.LIGHTSWORN-ENGRAVER, IsFatal = False }
+317:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[125], Message = Unknown card ID: CARD.LIGHTSWORN-LACRIMA, IsFatal = False }
+318:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[126], Message = Unknown card ID: CARD.LIGHTSWORN-HYMN, IsFatal = False }
+319:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[127], Message = Unknown card ID: CARD.LIGHTSWORN-REQUIEM_COFFIN, IsFatal = False }
+320:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[128], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DORO_STRIKE, IsFatal = False }
+321:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[129], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DORO_DEFENSE, IsFatal = False }
+322:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[130], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FORESIGHT, IsFatal = False }
+323:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[131], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BLAZE_DESTROYER, IsFatal = False }
+324:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[132], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-JUNO_VISIONARY_ALCHEMIST, IsFatal = False }
+325:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[133], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-HOMEWORK_TIME, IsFatal = False }
+326:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[134], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DEMONIC_CALL, IsFatal = False }
+327:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[135], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BOTTOMLESS_GLUTTONY, IsFatal = False }
+328:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[136], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-COLLECTIVE_ILLUSION_OF_TRUTH_AND_EXISTENCE, IsFatal = False }
+329:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[137], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ANNE_GREA_MYSTERIAN_DUO, IsFatal = False }
+330:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[138], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DARK_ECLIPSE, IsFatal = False }
+331:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[139], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ZEALOT_OF_TRUTH, IsFatal = False }
+332:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[140], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-KUON_FIVEFOLD_MASTER, IsFatal = False }
+333:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[141], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ARA_DAWNBLOSSOM, IsFatal = False }
+334:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[142], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ALCHEMIC_FLARE, IsFatal = False }
+335:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[143], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-REAVED_ORDER, IsFatal = False }
+336:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[144], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-VELHARIA_HEIR_TO_TRUTH, IsFatal = False }
+337:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[145], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SAGELIGHT_TEACHINGS, IsFatal = False }
+338:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[146], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MYSTERIAN_KNOWLEDGE, IsFatal = False }
+339:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[147], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-METAMORPHOSIS_OF_THE_DAWNBLOSSOM, IsFatal = False }
+340:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[148], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-IMAGINATION_REALIZED, IsFatal = False }
+341:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[149], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MS_MIRANDA_ADORED_ACADEMIC, IsFatal = False }
+342:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[150], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-WITCHS_NEW_BREW, IsFatal = False }
+343:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[151], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CHERU_CHERU_CARNIVAL, IsFatal = False }
+344:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[152], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SLAVE_CALL, IsFatal = False }
+345:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[153], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PENELOPE_POTIONS_PRODIGY, IsFatal = False }
+346:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[154], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-WILLIAM_MYSTERIAN_STUDENT, IsFatal = False }
+347:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[155], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-WHIMS_OF_CHAOS, IsFatal = False }
+348:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[156], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ENRAPTURED_STUDENT, IsFatal = False }
+349:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[157], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-EDELWEISS_SAGELIGHT_WARD, IsFatal = False }
+350:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[158], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-HATSUNE_ESPER_IDOL, IsFatal = False }
+351:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[159], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ACID_GOLEM, IsFatal = False }
+352:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[160], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ADVENT_OF_THE_ELD_CRYSTALS, IsFatal = False }
+353:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[161], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-EMMYLOU_WITCH_OF_WONDER, IsFatal = False }
+354:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[162], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BERGENT_REJECTED_ARTES, IsFatal = False }
+355:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[163], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CRYSTAL_GAZING, IsFatal = False }
+356:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[164], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-EMPEROR_OF_ELEMENTS, IsFatal = False }
+357:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[165], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ENCHANTING_PERFUMER, IsFatal = False }
+358:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[166], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CALGE_DANTHLA_ELD_CRYSTALS, IsFatal = False }
+359:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[167], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LILANTHIM_ANATHEMA_OF_PREDATION, IsFatal = False }
+360:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[168], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ARCANE_ERUPTION, IsFatal = False }
+361:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[169], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SUPPLICANT_OF_TRUTH, IsFatal = False }
+362:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[170], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ILLUSORY_CONJURATION, IsFatal = False }
+363:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[171], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_TRUTH, IsFatal = False }
+364:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[172], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-INSTITUTE_OF_TRUTH, IsFatal = False }
+365:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[173], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SWEET_ENTITY, IsFatal = False }
+366:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[174], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ANNE_MYSTERIAN_PRODIGY, IsFatal = False }
+367:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[175], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PROPHETESS_OF_CREATION, IsFatal = False }
+368:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[176], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RAIO_ELIMINATION_MANIFEST, IsFatal = False }
+369:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[177], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-HERMIT_OF_TRUTH, IsFatal = False }
+370:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[178], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-HAPHAZARD_SNACKING, IsFatal = False }
+371:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[179], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DAINTY_HORROR, IsFatal = False }
+372:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[180], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-YUNI_LITTLE_SAGE, IsFatal = False }
+373:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[181], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GREA_MYSTERIAN_DRAGONESS, IsFatal = False }
+374:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[182], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-YUKI_LEADER_OF_BEAUTY, IsFatal = False }
+375:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[183], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PORTALCRAFT_STRIKE, IsFatal = False }
+376:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[184], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PORTALCRAFT_DEFENSE, IsFatal = False }
+377:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[185], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MECHA_CAVALIER, IsFatal = False }
+378:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[186], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-TELEPORT_SLASH, IsFatal = False }
+379:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[187], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CHEST_PAIN, IsFatal = False }
+380:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[188], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SUPPLICANT_OF_DESTRUCTION, IsFatal = False }
+381:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[189], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ADVENT_OF_THE_ELD_AXE, IsFatal = False }
+382:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[190], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PUPPET_THEATER, IsFatal = False }
+383:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[191], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ELISE_ELECTRIFYING_INVENTOR, IsFatal = False }
+384:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[192], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SUBSTANDARD_PUPPET, IsFatal = False }
+385:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[193], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MYRIAD_DESIGNS, IsFatal = False }
+386:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[194], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SHODDY_PLAYTHING, IsFatal = False }
+387:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[195], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-IRONHEART_HUNTER, IsFatal = False }
+388:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[196], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BULLET_FROM_BEYOND, IsFatal = False }
+389:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[197], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FLASH_BLINK, IsFatal = False }
+390:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[198], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SATAN, IsFatal = False }
+391:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[199], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PURGATIONS_BLADE, IsFatal = False }
+392:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[200], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CHAOS_LEGION, IsFatal = False }
+393:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[201], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PUPPET_LANCER, IsFatal = False }
+394:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[202], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LUNA_STRIKE, IsFatal = False }
+395:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[203], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LUNA_DEFENCE, IsFatal = False }
+396:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[204], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SOUL_PREDATION, IsFatal = False }
+397:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[205], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-NIGHT_FIEND, IsFatal = False }
+398:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[206], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CERES_BLUE_ROSE_MAIDEN, IsFatal = False }
+399:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[207], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_ENTWINING, IsFatal = False }
+400:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[208], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BALTO_DUSK_BOUNTY_HUNTER, IsFatal = False }
+401:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[209], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CHARON_STYGIAN_OARSWOMAN, IsFatal = False }
+402:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[210], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-VASERAGA_UNYIELDING_SCYTHE, IsFatal = False }
+403:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[211], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-REAPERS_DEATHSLASH, IsFatal = False }
+404:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[212], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GARNET_WALTZ, IsFatal = False }
+405:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[213], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ORTHRUS_HELLHOUND_BLADER, IsFatal = False }
+406:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[214], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RIGOR_OF_THE_NIGHTBLOSSOM, IsFatal = False }
+407:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[215], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DEPRIVED_DESTROYER, IsFatal = False }
+408:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[216], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SHAKDOH_NIGHTBLOSSOM, IsFatal = False }
+409:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[217], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GHASTLY_SOIREE, IsFatal = False }
+410:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[218], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ARYLL_MOONSTRUCK_VAMPIRE, IsFatal = False }
+411:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[219], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-NEHAN_DISPENSER_OF_SAMSARA, IsFatal = False }
+412:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[220], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SCREAMING_AND_LOATHING, IsFatal = False }
+413:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[221], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ARAGAVY_ETERNAL_HUNTER, IsFatal = False }
+414:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[222], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DARKSEAL_DEMON, IsFatal = False }
+415:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[223], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CONGREGANT_OF_ENTWINING, IsFatal = False }
+416:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[224], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-NAMELESS_DEMON, IsFatal = False }
+417:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[225], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BERYL_NIGHTMARE_INCARNATE, IsFatal = False }
+418:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[226], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LIFESTEALER, IsFatal = False }
+419:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[227], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-VLAD_IMPALER, IsFatal = False }
+420:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[228], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-VALIANT_EDGE, IsFatal = False }
+421:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[229], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-YEARNFUL_NECROMANCER, IsFatal = False }
+422:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[230], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DEPLETIVE_ELD_SIGHT, IsFatal = False }
+423:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[231], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SPIRITED_GRAVEKEEPER, IsFatal = False }
+424:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[232], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CORRUPTION, IsFatal = False }
+425:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[233], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SHADOWCRYPT_MEMORIAL, IsFatal = False }
+426:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[234], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RULENYE_VALNAREIK, IsFatal = False }
+427:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[235], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ARMES_DEPLETIVE_DEMON, IsFatal = False }
+428:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[236], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ALMEIDA_HEADSTRONG_MINER, IsFatal = False }
+429:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[237], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-VALOR_OF_THE_NIGHTBLOSSOM, IsFatal = False }
+430:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[238], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-YUNA_OCCULT_HUNTER, IsFatal = False }
+431:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[239], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CASTLE_OF_ENTWINING, IsFatal = False }
+432:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[240], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SUPPORT_WOLF, IsFatal = False }
+433:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[241], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BELIAL_ARCHANGEL_OF_CUNNING, IsFatal = False }
+434:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[242], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RAYVN_THE_SILVER_BULLET, IsFatal = False }
+435:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[243], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CRIMSON_SOULMANCER, IsFatal = False }
+436:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[244], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BAAL_ELEMENTAL_RESONANCE, IsFatal = False }
+437:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[245], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-UNDEAD_SOLDIER, IsFatal = False }
+438:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[246], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SHAM_NACHA_HEIR_TO_ENTWINING, IsFatal = False }
+439:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[247], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GHOST_JUGGLER, IsFatal = False }
+440:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[248], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-EXELLA_NOCTURNAL_GENERAL, IsFatal = False }
+441:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[249], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GREATNESS_ASCENDED, IsFatal = False }
+442:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[250], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GILNELISE, IsFatal = False }
+443:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[251], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LAURA_CRUEL_COMMANDER, IsFatal = False }
+444:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[252], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-OMEGOTEP, IsFatal = False }
+445:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[253], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FRIENDLY_BLUE_OGRE, IsFatal = False }
+446:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[254], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BUG_ALERT, IsFatal = False }
+447:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[255], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GOOD_FAIRY_OF_THE_POND, IsFatal = False }
+448:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[256], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SPIRITED_SKIPPER, IsFatal = False }
+449:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[257], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-EWIYAR_WIND_PERSONIFIED, IsFatal = False }
+450:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[258], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-HAMLET_OF_UNKILLING, IsFatal = False }
+451:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[259], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-KINDLY_EXECUTOR, IsFatal = False }
+452:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[260], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-KILLER_RHINOCEROACH, IsFatal = False }
+453:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[261], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LIONEL_ARDENT_ELF, IsFatal = False }
+454:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[262], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RESOLVE_OF_THE_NINE_TAILED_FOX, IsFatal = False }
+455:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[263], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GRACE_OF_THE_SWARMPETAL, IsFatal = False }
+456:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[264], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BAYLE_LUXGLAIVE_WARRIOR, IsFatal = False }
+457:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[265], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GARDEN_ALLURE, IsFatal = False }
+458:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[266], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-INTERTWINED_RESOLVE, IsFatal = False }
+459:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[267], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ERADICATING_ARROW, IsFatal = False }
+460:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[268], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MANAMEL_SUPER_CUTEST, IsFatal = False }
+461:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[269], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FAIRY_CONVOCATION, IsFatal = False }
+462:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[270], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-AMBUSH_FROM_ABOVE, IsFatal = False }
+463:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[271], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ADVENT_OF_THE_ELD_LANCE, IsFatal = False }
+464:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[272], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CONGREGANT_OF_UNKILLING, IsFatal = False }
+465:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[273], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CHLOE_WHAT_A_GAL, IsFatal = False }
+466:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[274], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DWARVEN_MALLETMAN, IsFatal = False }
+467:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[275], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FAIRY_FENCER, IsFatal = False }
+468:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[276], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FLORAL_OFFERING, IsFatal = False }
+469:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[277], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-AERIN_CRYSTALIAN_FROSTWARD, IsFatal = False }
+470:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[278], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GREATWOOD_WARRIOR, IsFatal = False }
+471:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[279], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BEARER_OF_THE_FAIRY_BLADE, IsFatal = False }
+472:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[280], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ALFHEIMR, IsFatal = False }
+473:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[281], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GODWOOD_STAFF, IsFatal = False }
+474:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[282], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GLADE_FRAGRANTWOOD_WARD, IsFatal = False }
+475:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[283], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-QUIET_ENCOURAGEMENT, IsFatal = False }
+476:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[284], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BATTLEDORE_WOODSMAIDEN, IsFatal = False }
+477:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[285], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ROLO_RONE, IsFatal = False }
+478:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[286], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GREAT_HART_OF_THE_GLACIAL_REALM, IsFatal = False }
+479:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[287], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SUPPLICANT_OF_UNKILLING, IsFatal = False }
+480:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[288], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-VIREWIND_FENCER, IsFatal = False }
+481:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[289], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-COMET_DRIVE, IsFatal = False }
+482:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[290], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FAIRY_TAMER, IsFatal = False }
+483:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[291], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MAGNIFIED_MALICE, IsFatal = False }
+484:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[292], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GODDESS_OF_STARLIGHT, IsFatal = False }
+485:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[293], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PRUDENT_TANUKI, IsFatal = False }
+486:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[294], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RINO_CLEANSWEEP_ARCHER, IsFatal = False }
+487:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[295], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CYNTHIA_CHIVALROUS_ELF, IsFatal = False }
+488:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[296], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-STARRY_SKY, IsFatal = False }
+489:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[297], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DEEPWOOD_FAIRY_BEAST, IsFatal = False }
+490:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[298], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LAMBENT_CAIRN, IsFatal = False }
+491:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[299], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MOTHERLY_FORESTDWELLER, IsFatal = False }
+492:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[300], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ALTHENIA_NURTURING_BLOOM, IsFatal = False }
+493:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[301], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-IZUDIA_ANNIHILATION_MANIFEST, IsFatal = False }
+494:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[302], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FRAGRANTWOOD_WHISPERS, IsFatal = False }
+495:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[303], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CUPITAN_IRIDESCENT_ARCHER, IsFatal = False }
+496:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[304], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FLIGHT_OF_THE_SWARMPETAL, IsFatal = False }
+497:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[305], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FLOWERING_FRIENDSHIP, IsFatal = False }
+498:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[306], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-NURTURING_ELD_LANCE, IsFatal = False }
+499:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[307], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BEAST_LOST_TO_THE_DARK, IsFatal = False }
+500:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[308], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MONKEY_OF_PARADISE, IsFatal = False }
+501:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[309], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_UNKILLING, IsFatal = False }
+502:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[310], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LILY_CRYSTALIAN_INNOCENCE, IsFatal = False }
+503:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[311], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BABY_CARBUNCLE, IsFatal = False }
+504:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[312], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MAY_JOURNEY_ELF, IsFatal = False }
+505:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[313], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LOVE_TOUCH_FAIRY, IsFatal = False }
+506:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[314], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-WORKIN_GRASSHOPPER, IsFatal = False }
+507:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[315], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BISHOP_STRIKE, IsFatal = False }
+508:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[316], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BISHOP_DEFEND, IsFatal = False }
+509:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[317], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-IRONFIST_PRIEST, IsFatal = False }
+510:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[318], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-WINGED_STATUE, IsFatal = False }
+511:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[319], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-TRIDENT_OF_ERODING_TIDES, IsFatal = False }
+512:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[320], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PACT_OF_THE_BEAST_PRINCESS, IsFatal = False }
+513:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[321], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FEATHERFALL, IsFatal = False }
+514:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[322], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DRAGON_STRIKE, IsFatal = False }
+515:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[323], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DRAGON_DEFEND, IsFatal = False }
+516:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[324], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DRACONIC_BERSERKER, IsFatal = False }
+517:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[325], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DRAGONSIGN, IsFatal = False }
+518:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[326], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-GOLDENNOTE_MELODY, IsFatal = False }
+519:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[327], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ZOOEY_ALLY_OF_THE_WORLD, IsFatal = False }
+520:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[328], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CALL_OF_THE_MEGALORCA, IsFatal = False }
+521:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[329], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PRIMAL_BEAST_ABSORPTION, IsFatal = False }
+522:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[330], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-KAYA_DRACONINE_BRAWLER, IsFatal = False }
+523:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[331], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-BLADE_OF_THE_CRESTPETAL, IsFatal = False }
+524:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[332], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-WARRIOR_OF_THE_DEEP, IsFatal = False }
+525:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[333], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-OCEAN_RIDER, IsFatal = False }
+526:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[334], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-FAN_OF_OTOHIME, IsFatal = False }
+527:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[335], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CALAMITY_BREATH, IsFatal = False }
+528:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[336], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DRACONIC_CREATION, IsFatal = False }
+529:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[337], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-NATION_OF_DISDAIN, IsFatal = False }
+530:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[338], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RUINBRINGER, IsFatal = False }
+531:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[339], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SEARING_FIRENEWT, IsFatal = False }
+532:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[340], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-IZMIR_FRIGID_FATE, IsFatal = False }
+533:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[341], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-INORI_TIMID_DRAGONMAIDEN, IsFatal = False }
+534:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[342], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-STRIKE_OF_THE_DRAGONEWT, IsFatal = False }
+535:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[343], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ADVENT_OF_THE_ELD_BLADES, IsFatal = False }
+536:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[344], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DECISIVE_SWORDMASTER, IsFatal = False }
+537:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[345], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LAZING_FLAME, IsFatal = False }
+538:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[346], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RESOLUTE_DRAGONEWT, IsFatal = False }
+539:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[347], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_DESTRUCTION, IsFatal = False }
+540:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[348], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LIAM_CRAZED_CREATOR, IsFatal = False }
+541:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[349], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-DOOMWRIGHT_RESURGENCE, IsFatal = False }
+542:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[350], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-UNFEELING_ELD_AXE, IsFatal = False }
+543:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[351], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PUPPET_CAT, IsFatal = False }
+544:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[352], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-VIER_HEART_SLAYER, IsFatal = False }
+545:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[353], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-STREET_RUN, IsFatal = False }
+546:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[354], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-CARNELIA_EMBER_OF_DARKNESS, IsFatal = False }
+547:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[355], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-ANCIENT_CANNON, IsFatal = False }
+548:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[356], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RUKINA_RESISTANCE_LEADER, IsFatal = False }
+549:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[357], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-RALMIA_SONIC_BOOM, IsFatal = False }
+550:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[358], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-PUPPET_SHIELD, IsFatal = False }
+551:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[359], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-LIGHT_OF_THE_DEWDROP, IsFatal = False }
+552:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[360], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-AMETH_DREAM_EMISSARY, IsFatal = False }
+553:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[361], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-SCARLET_ANATHEMA_OF_DISLOCATION, IsFatal = False }
+554:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[362], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-MATO_WARD_OFFICE_STAFF_SAITO, IsFatal = False }
+555:[WARN] Progress parse: ValidationError { Severity = Warning, Path = CardStats.[363], Message = Unknown card ID: CARD.SHADOWVERSEBYDMOD-REBEL_AGAINST_FATE, IsFatal = False }
+556:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.LIGHTSWORN-LACRIMA, IsFatal = False }
+557:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.LIGHTSWORN-ENGRAVER, IsFatal = False }
+558:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.LIGHTSWORN-HYMN, IsFatal = False }
+559:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.LIGHTSWORN-REQUIEM_COFFIN, IsFatal = False }
+560:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DORO_STRIKE, IsFatal = False }
+561:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BLAZE_DESTROYER, IsFatal = False }
+562:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FORESIGHT, IsFatal = False }
+563:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DORO_DEFENSE, IsFatal = False }
+564:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-JUNO_VISIONARY_ALCHEMIST, IsFatal = False }
+565:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SLAVE_CALL, IsFatal = False }
+566:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PENELOPE_POTIONS_PRODIGY, IsFatal = False }
+567:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GUARDIAN_GOLEM, IsFatal = False }
+568:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WITCHS_NEW_BREW, IsFatal = False }
+569:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HOMEWORK_TIME, IsFatal = False }
+570:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WILLIAM_MYSTERIAN_STUDENT, IsFatal = False }
+571:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LOOKING_SMART, IsFatal = False }
+572:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MAGIC_SEDIMENT, IsFatal = False }
+573:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WHIMS_OF_CHAOS, IsFatal = False }
+574:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ENRAPTURED_STUDENT, IsFatal = False }
+575:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEMONIC_CALL, IsFatal = False }
+576:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CRYSTALSPAWN, IsFatal = False }
+577:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEMONIC_SHIKIGAMI, IsFatal = False }
+578:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ALCHEMIC_FLARE, IsFatal = False }
+579:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-EDELWEISS_SAGELIGHT_WARD, IsFatal = False }
+580:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-EVOLUTION_POINT, IsFatal = False }
+581:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BOTTOMLESS_GLUTTONY, IsFatal = False }
+582:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HATSUNE_ESPER_IDOL, IsFatal = False }
+583:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-REAVED_ORDER, IsFatal = False }
+584:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ACID_GOLEM, IsFatal = False }
+585:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-COLLECTIVE_ILLUSION_OF_TRUTH_AND_EXISTENCE, IsFatal = False }
+586:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ADVENT_OF_THE_ELD_CRYSTALS, IsFatal = False }
+587:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ANNE_GREA_MYSTERIAN_DUO, IsFatal = False }
+588:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-EMMYLOU_WITCH_OF_WONDER, IsFatal = False }
+589:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ANNES_SUMMONING, IsFatal = False }
+590:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GREAS_EMBER, IsFatal = False }
+591:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DARK_ECLIPSE, IsFatal = False }
+592:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BERGENT_REJECTED_ARTES, IsFatal = False }
+593:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CRYSTAL_GAZING, IsFatal = False }
+594:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ONION_PATCH, IsFatal = False }
+595:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-EMPEROR_OF_ELEMENTS, IsFatal = False }
+596:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ZEALOT_OF_TRUTH, IsFatal = False }
+597:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ENCHANTING_PERFUMER, IsFatal = False }
+598:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-KUON_FIVEFOLD_MASTER, IsFatal = False }
+599:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PAPER_SHIKIGAMI, IsFatal = False }
+600:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CELESTIAL_SHIKIGAMI, IsFatal = False }
+601:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-NOBLE_SHIKIGAMI, IsFatal = False }
+602:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ARA_DAWNBLOSSOM, IsFatal = False }
+603:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CALGE_DANTHLA_ELD_CRYSTALS, IsFatal = False }
+604:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LILANTHIM_ANATHEMA_OF_PREDATION, IsFatal = False }
+605:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEPTHS_OF_THE_ELD_CRYSTALS, IsFatal = False }
+606:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ARCANE_ERUPTION, IsFatal = False }
+607:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SUPPLICANT_OF_TRUTH, IsFatal = False }
+608:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ILLUSORY_CONJURATION, IsFatal = False }
+609:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-VELHARIA_HEIR_TO_TRUTH, IsFatal = False }
+610:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SATAN, IsFatal = False }
+611:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ASTAROTH, IsFatal = False }
+612:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SERVANT_OF_COCYTUS, IsFatal = False }
+613:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SILENT_RIDER, IsFatal = False }
+614:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEMON_OF_PURGATORY, IsFatal = False }
+615:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_TRUTH, IsFatal = False }
+616:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-INSTITUTE_OF_TRUTH, IsFatal = False }
+617:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SAGELIGHT_TEACHINGS, IsFatal = False }
+618:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SAGELIGHT_OPTION_BLOCK, IsFatal = False }
+619:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SAGELIGHT_OPTION_SIGIL, IsFatal = False }
+620:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SAGELIGHT_OPTION_DAMAGE, IsFatal = False }
+621:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SWEET_ENTITY, IsFatal = False }
+622:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ANNE_MYSTERIAN_PRODIGY, IsFatal = False }
+623:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MYSTERIAN_KNOWLEDGE, IsFatal = False }
+624:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MYSTERIAN_MISSILE, IsFatal = False }
+625:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MYSTERIAN_CIRCLE, IsFatal = False }
+626:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-METAMORPHOSIS_OF_THE_DAWNBLOSSOM, IsFatal = False }
+627:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PROPHETESS_OF_CREATION, IsFatal = False }
+628:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RAIO_ELIMINATION_MANIFEST, IsFatal = False }
+629:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ERSATZ_ELIMINATION, IsFatal = False }
+630:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HERMIT_OF_TRUTH, IsFatal = False }
+631:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HAPHAZARD_SNACKING, IsFatal = False }
+632:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HAPHAZARD_SNACKING_SIGIL_OPTION, IsFatal = False }
+633:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HAPHAZARD_SNACKING_BLOCK_OPTION, IsFatal = False }
+634:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DAINTY_HORROR, IsFatal = False }
+635:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-IMAGINATION_REALIZED, IsFatal = False }
+636:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-YUNI_LITTLE_SAGE, IsFatal = False }
+637:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MS_MIRANDA_ADORED_ACADEMIC, IsFatal = False }
+638:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GREA_MYSTERIAN_DRAGONESS, IsFatal = False }
+639:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-YUKI_LEADER_OF_BEAUTY, IsFatal = False }
+640:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CHERU_CHERU_CARNIVAL, IsFatal = False }
+641:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ANCIENT_ARTIFACT, IsFatal = False }
+642:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PORTALCRAFT_STRIKE, IsFatal = False }
+643:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PORTALCRAFT_DEFENSE, IsFatal = False }
+644:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MECHA_CAVALIER, IsFatal = False }
+645:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ADVENT_OF_THE_ELD_AXE, IsFatal = False }
+646:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-TELEPORT_SLASH, IsFatal = False }
+647:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PUPPET_THEATER, IsFatal = False }
+648:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PUPPET, IsFatal = False }
+649:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CHEST_PAIN, IsFatal = False }
+650:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GEAR_OF_REMEMBRANCE, IsFatal = False }
+651:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-COCO_LEFT_PAW_HELLHOUND, IsFatal = False }
+652:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ELISE_ELECTRIFYING_INVENTOR, IsFatal = False }
+653:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SUBSTANDARD_PUPPET, IsFatal = False }
+654:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MYRIAD_DESIGNS, IsFatal = False }
+655:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SHODDY_PLAYTHING, IsFatal = False }
+656:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LUDICROUS_ORDNANCE, IsFatal = False }
+657:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-IRONHEART_HUNTER, IsFatal = False }
+658:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BULLET_FROM_BEYOND, IsFatal = False }
+659:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FLASH_BLINK, IsFatal = False }
+660:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WINGS_OF_DESIRE, IsFatal = False }
+661:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SUPPLICANT_OF_DESTRUCTION, IsFatal = False }
+662:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PURGATIONS_BLADE, IsFatal = False }
+663:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CHAOS_LEGION, IsFatal = False }
+664:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ONE_TAILED_FOX, IsFatal = False }
+665:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LIAM_CRAZED_CREATOR, IsFatal = False }
+666:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WILD_CASTER, IsFatal = False }
+667:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ENHANCED_PUPPET, IsFatal = False }
+668:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PUPPET_LANCER, IsFatal = False }
+669:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LUNA_STRIKE, IsFatal = False }
+670:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LUNA_DEFENCE, IsFatal = False }
+671:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SOUL_PREDATION, IsFatal = False }
+672:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-NIGHT_FIEND, IsFatal = False }
+673:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CERES_BLUE_ROSE_MAIDEN, IsFatal = False }
+674:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CONGREGANT_OF_ENTWINING, IsFatal = False }
+675:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-NAMELESS_DEMON, IsFatal = False }
+676:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CONGREGANT_OF_ENTWINING_OPTION_STRENGTH_DEXTERITY, IsFatal = False }
+677:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CONGREGANT_OF_ENTWINING_OPTION_DAMAGE, IsFatal = False }
+678:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CONGREGANT_OF_ENTWINING_OPTION_BLOCK, IsFatal = False }
+679:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BAT, IsFatal = False }
+680:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BERYL_NIGHTMARE_INCARNATE, IsFatal = False }
+681:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LIFESTEALER, IsFatal = False }
+682:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_ENTWINING, IsFatal = False }
+683:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SKELETON, IsFatal = False }
+684:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_ENTWINING_AOE_OPTION, IsFatal = False }
+685:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_ENTWINING_TARGET_OPTION, IsFatal = False }
+686:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-VLAD_IMPALER, IsFatal = False }
+687:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEPRIVED_DESTROYER, IsFatal = False }
+688:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-VALIANT_EDGE, IsFatal = False }
+689:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BALTO_DUSK_BOUNTY_HUNTER, IsFatal = False }
+690:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-YEARNFUL_NECROMANCER, IsFatal = False }
+691:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CHARON_STYGIAN_OARSWOMAN, IsFatal = False }
+692:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEPLETIVE_ELD_SIGHT, IsFatal = False }
+693:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SPIRITED_GRAVEKEEPER, IsFatal = False }
+694:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-VASERAGA_UNYIELDING_SCYTHE, IsFatal = False }
+695:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CORRUPTION, IsFatal = False }
+696:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SHADOWCRYPT_MEMORIAL, IsFatal = False }
+697:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GHOST, IsFatal = False }
+698:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ORTHRUS_HELLHOUND_BLADER, IsFatal = False }
+699:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-REAPERS_DEATHSLASH, IsFatal = False }
+700:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RULENYE_VALNAREIK, IsFatal = False }
+701:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ARMES_DEPLETIVE_DEMON, IsFatal = False }
+702:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GARNET_WALTZ, IsFatal = False }
+703:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-URIAS_REVELRY, IsFatal = False }
+704:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MONO_RESOLVE, IsFatal = False }
+705:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SCREAM_DIFFUSION, IsFatal = False }
+706:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SUPER_EVOLUTION_POINT, IsFatal = False }
+707:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ALMEIDA_HEADSTRONG_MINER, IsFatal = False }
+708:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-VALOR_OF_THE_NIGHTBLOSSOM, IsFatal = False }
+709:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-YUNA_OCCULT_HUNTER, IsFatal = False }
+710:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RIGOR_OF_THE_NIGHTBLOSSOM, IsFatal = False }
+711:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CASTLE_OF_ENTWINING, IsFatal = False }
+712:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CASTLE_OF_ENTWINING_DRAW_OPTION, IsFatal = False }
+713:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CASTLE_OF_ENTWINING_STRENGTH_DEXTERITY_OPTION, IsFatal = False }
+714:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SHAKDOH_NIGHTBLOSSOM, IsFatal = False }
+715:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GHASTLY_SOIREE, IsFatal = False }
+716:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ROTTING_ZOMBIE, IsFatal = False }
+717:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SUPPORT_WOLF, IsFatal = False }
+718:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BELIAL_ARCHANGEL_OF_CUNNING, IsFatal = False }
+719:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RAYVN_THE_SILVER_BULLET, IsFatal = False }
+720:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CRIMSON_SOULMANCER, IsFatal = False }
+721:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BAAL_ELEMENTAL_RESONANCE, IsFatal = False }
+722:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ARYLL_MOONSTRUCK_VAMPIRE, IsFatal = False }
+723:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BAAL_ELEMENTAL_RESONANCE_VIGOR_OPTION, IsFatal = False }
+724:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BAAL_ELEMENTAL_RESONANCE_DAMAGE_OPTION, IsFatal = False }
+725:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-UNDEAD_SOLDIER, IsFatal = False }
+726:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-NEHAN_DISPENSER_OF_SAMSARA, IsFatal = False }
+727:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SHAM_NACHA_HEIR_TO_ENTWINING, IsFatal = False }
+728:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SCREAMING_AND_LOATHING, IsFatal = False }
+729:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SCREAMING_AND_LOATHING_POWER_OPTION, IsFatal = False }
+730:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SCREAMING_AND_LOATHING_ATTACK_DRAW_OPTION, IsFatal = False }
+731:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SCREAMING_AND_LOATHING_SKILL_DRAW_OPTION, IsFatal = False }
+732:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SCREAMING_AND_LOATHING_DAMAGE_OPTION, IsFatal = False }
+733:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GHOST_JUGGLER, IsFatal = False }
+734:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ARAGAVY_ETERNAL_HUNTER, IsFatal = False }
+735:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DARKSEAL_DEMON, IsFatal = False }
+736:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-EXELLA_NOCTURNAL_GENERAL, IsFatal = False }
+737:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GREATNESS_ASCENDED, IsFatal = False }
+738:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GILNELISE, IsFatal = False }
+739:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SWEETNESS_OF_VORACITY, IsFatal = False }
+740:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LAURA_CRUEL_COMMANDER, IsFatal = False }
+741:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-OMEGOTEP, IsFatal = False }
+742:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FRIENDLY_BLUE_OGRE, IsFatal = False }
+743:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FOREST_ATTACK, IsFatal = False }
+744:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FOREST_DEFENSE, IsFatal = False }
+745:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BUG_ALERT, IsFatal = False }
+746:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GOOD_FAIRY_OF_THE_POND, IsFatal = False }
+747:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FAIRY, IsFatal = False }
+748:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEEPWOOD_BOUNTY, IsFatal = False }
+749:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SPIRITED_SKIPPER, IsFatal = False }
+750:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MANAMEL_SUPER_CUTEST, IsFatal = False }
+751:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FAIRY_CONVOCATION, IsFatal = False }
+752:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ADVENT_OF_THE_ELD_LANCE, IsFatal = False }
+753:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CONGREGANT_OF_UNKILLING, IsFatal = False }
+754:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-AMBUSH_FROM_ABOVE, IsFatal = False }
+755:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CHLOE_WHAT_A_GAL, IsFatal = False }
+756:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-EWIYAR_WIND_PERSONIFIED, IsFatal = False }
+757:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DWARVEN_MALLETMAN, IsFatal = False }
+758:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FAIRY_FENCER, IsFatal = False }
+759:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HAMLET_OF_UNKILLING, IsFatal = False }
+760:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FLORAL_OFFERING, IsFatal = False }
+761:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-AERIN_CRYSTALIAN_FROSTWARD, IsFatal = False }
+762:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-KINDLY_EXECUTOR, IsFatal = False }
+763:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SPRINGBLOOM_FAIRY, IsFatal = False }
+764:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-KILLER_RHINOCEROACH, IsFatal = False }
+765:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GREATWOOD_WARRIOR, IsFatal = False }
+766:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BEARER_OF_THE_FAIRY_BLADE, IsFatal = False }
+767:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ALFHEIMR, IsFatal = False }
+768:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GRACE_OF_THE_SWARMPETAL, IsFatal = False }
+769:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GODWOOD_STAFF, IsFatal = False }
+770:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ALFHEIMR_DRAW_AND_TEMPORARY_HEALTH_OPTION, IsFatal = False }
+771:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ALFHEIMR_STRENGTH_OPTION, IsFatal = False }
+772:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ALFHEIMR_DEXTERITY_OPTION, IsFatal = False }
+773:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GLADE_FRAGRANTWOOD_WARD, IsFatal = False }
+774:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LIONEL_ARDENT_ELF, IsFatal = False }
+775:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BABY_CARBUNCLE, IsFatal = False }
+776:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-QUIET_ENCOURAGEMENT, IsFatal = False }
+777:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RESOLVE_OF_THE_NINE_TAILED_FOX, IsFatal = False }
+778:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BATTLEDORE_WOODSMAIDEN, IsFatal = False }
+779:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ROLO_RONE, IsFatal = False }
+780:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-INTERTWINED_RESOLVE, IsFatal = False }
+781:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GREAT_HART_OF_THE_GLACIAL_REALM, IsFatal = False }
+782:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SOWING_OF_SALVATION, IsFatal = False }
+783:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ARIA_LADY_OF_THE_WOODS, IsFatal = False }
+784:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MIROKU_SWARMPETAL, IsFatal = False }
+785:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SWARMPETAL_MIROKU_OPTION_FAIRY, IsFatal = False }
+786:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SWARMPETAL_MIROKU_OPTION_ENERGY, IsFatal = False }
+787:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SWARMPETAL_MIROKU_OPTION_DAMAGE, IsFatal = False }
+788:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SUPPLICANT_OF_UNKILLING, IsFatal = False }
+789:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-VIREWIND_FENCER, IsFatal = False }
+790:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-COMET_DRIVE, IsFatal = False }
+791:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MONKEY_OF_PARADISE, IsFatal = False }
+792:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-IZUDIA_ANNIHILATION_MANIFEST, IsFatal = False }
+793:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FAIRY_TAMER, IsFatal = False }
+794:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MAGNIFIED_MALICE, IsFatal = False }
+795:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GODDESS_OF_STARLIGHT, IsFatal = False }
+796:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MINIMIZED_ANXIETY, IsFatal = False }
+797:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PRUDENT_TANUKI, IsFatal = False }
+798:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RINO_CLEANSWEEP_ARCHER, IsFatal = False }
+799:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CYNTHIA_CHIVALROUS_ELF, IsFatal = False }
+800:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-AMATAZ_ORIGIN_BLADER, IsFatal = False }
+801:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-STARRY_SKY, IsFatal = False }
+802:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BAYLE_LUXGLAIVE_WARRIOR, IsFatal = False }
+803:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ERADICATING_ARROW, IsFatal = False }
+804:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LAMBENT_CAIRN, IsFatal = False }
+805:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEEPWOOD_FAIRY_BEAST, IsFatal = False }
+806:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FLOWERING_FRIENDSHIP, IsFatal = False }
+807:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MOTHERLY_FORESTDWELLER, IsFatal = False }
+808:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WOODWALKERS, IsFatal = False }
+809:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FLIGHT_OF_THE_SWARMPETAL, IsFatal = False }
+810:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GENTLE_TREANT, IsFatal = False }
+811:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WORKIN_GRASSHOPPER, IsFatal = False }
+812:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ALTHENIA_NURTURING_BLOOM, IsFatal = False }
+813:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ANNIHILATING_ONSLAUGHT, IsFatal = False }
+814:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GARDEN_ALLURE, IsFatal = False }
+815:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FRAGRANTWOOD_WHISPERS, IsFatal = False }
+816:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CUPITAN_IRIDESCENT_ARCHER, IsFatal = False }
+817:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ELDER_SAGEBRUSH, IsFatal = False }
+818:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CASTELLE_BUDDING_MAGE, IsFatal = False }
+819:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-VERDANT_PRAYER, IsFatal = False }
+820:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-NURTURING_ELD_LANCE, IsFatal = False }
+821:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BEAST_LOST_TO_THE_DARK, IsFatal = False }
+822:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-NURTURING_ELD_LANCE_WEAK_OPTION, IsFatal = False }
+823:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-NURTURING_ELD_LANCE_FAIRY_OPTION, IsFatal = False }
+824:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEVASTATING_SOPRANO, IsFatal = False }
+825:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WHITE_PSALM_NEW_REVELATION, IsFatal = False }
+826:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_UNKILLING, IsFatal = False }
+827:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LILY_CRYSTALIAN_INNOCENCE, IsFatal = False }
+828:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MAY_JOURNEY_ELF, IsFatal = False }
+829:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LOVE_TOUCH_FAIRY, IsFatal = False }
+830:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BISHOP_DEFEND, IsFatal = False }
+831:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BISHOP_STRIKE, IsFatal = False }
+832:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-IRONFIST_PRIEST, IsFatal = False }
+833:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WINGED_STATUE, IsFatal = False }
+834:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PACT_OF_THE_BEAST_PRINCESS, IsFatal = False }
+835:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-TRIDENT_OF_ERODING_TIDES, IsFatal = False }
+836:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FEATHERFALL, IsFatal = False }
+837:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HOLY_FALCON, IsFatal = False }
+838:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-HOLYFLAME_TIGER, IsFatal = False }
+839:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DRAGON_STRIKE, IsFatal = False }
+840:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DRAGON_DEFEND, IsFatal = False }
+841:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DRACONIC_BERSERKER, IsFatal = False }
+842:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DRAGONSIGN, IsFatal = False }
+843:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DRAGONSIGN_OPTION_AWAKENING, IsFatal = False }
+844:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DRAGONSIGN_OPTION_DRAW, IsFatal = False }
+845:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-WARRIOR_OF_THE_DEEP, IsFatal = False }
+846:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-OCEAN_RIDER, IsFatal = False }
+847:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GOLDENNOTE_MELODY, IsFatal = False }
+848:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MAJESTIC_MEGALORCA, IsFatal = False }
+849:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FAN_OF_OTOHIME, IsFatal = False }
+850:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ZOOEY_ALLY_OF_THE_WORLD, IsFatal = False }
+851:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CALAMITY_BREATH, IsFatal = False }
+852:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DRACONIC_CREATION, IsFatal = False }
+853:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-NATION_OF_DISDAIN, IsFatal = False }
+854:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RUINBRINGER, IsFatal = False }
+855:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CALL_OF_THE_MEGALORCA, IsFatal = False }
+856:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SEARING_FIRENEWT, IsFatal = False }
+857:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-IZMIR_FRIGID_FATE, IsFatal = False }
+858:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-INORI_TIMID_DRAGONMAIDEN, IsFatal = False }
+859:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-STRIKE_OF_THE_DRAGONEWT, IsFatal = False }
+860:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PRIMAL_BEAST_ABSORPTION, IsFatal = False }
+861:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ADVENT_OF_THE_ELD_BLADES, IsFatal = False }
+862:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-KAYA_DRACONINE_BRAWLER, IsFatal = False }
+863:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DECISIVE_SWORDMASTER, IsFatal = False }
+864:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LAZING_FLAME, IsFatal = False }
+865:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BLADE_OF_THE_CRESTPETAL, IsFatal = False }
+866:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RESOLUTE_DRAGONEWT, IsFatal = False }
+867:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEMONIC_SALVATION_APOCALYPSE_DAWN, IsFatal = False }
+868:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DEVOTEE_OF_DESTRUCTION, IsFatal = False }
+869:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DOOMWRIGHT_RESURGENCE, IsFatal = False }
+870:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-GEAR_OF_AMBITION, IsFatal = False }
+871:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FORTIFIER_ARTIFACT, IsFatal = False }
+872:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-UNFEELING_ELD_AXE, IsFatal = False }
+873:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PUPPET_CAT, IsFatal = False }
+874:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ANALYZING_ARTIFACT, IsFatal = False }
+875:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MIMI_RIGHT_PAW_HELLHOUND, IsFatal = False }
+876:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-BRAMBLE_BURST, IsFatal = False }
+877:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-STRIKER_ARTIFACT, IsFatal = False }
+878:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-STREET_RUN, IsFatal = False }
+879:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-VIER_HEART_SLAYER, IsFatal = False }
+880:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-DOLL_SLAYER, IsFatal = False }
+881:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-CARNELIA_EMBER_OF_DARKNESS, IsFatal = False }
+882:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-ANCIENT_CANNON, IsFatal = False }
+883:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RUKINA_RESISTANCE_LEADER, IsFatal = False }
+884:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RED_BEAN_BUN_HOLIDAY_TIME, IsFatal = False }
+885:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-RALMIA_SONIC_BOOM, IsFatal = False }
+886:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-PUPPET_SHIELD, IsFatal = False }
+887:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-LIGHT_OF_THE_DEWDROP, IsFatal = False }
+888:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-AMETH_DREAM_EMISSARY, IsFatal = False }
+889:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-OMINOUS_ARTIFACT_ALPHA, IsFatal = False }
+890:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MATO_WARD_OFFICE_STAFF_SAITO, IsFatal = False }
+891:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-SCARLET_ANATHEMA_OF_DISLOCATION, IsFatal = False }
+892:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-REBEL_AGAINST_FATE, IsFatal = False }
+893:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MATO_WARD_OPTION_FLAME_JUTSU, IsFatal = False }
+894:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MATO_WARD_OPTION_EXHAUST, IsFatal = False }
+895:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-MATO_WARD_OPTION_CYCLE, IsFatal = False }
+896:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.SHADOWVERSEBYDMOD-FLAME_JUTSU_CERTIFICATION_CLASS_A, IsFatal = False }
+897:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredCards, Message = Unknown CardModel ID: CARD.STSVWB_CARD_CHAOS_CYCLONE, IsFatal = False }
+898:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredRelics, Message = Unknown RelicModel ID: RELIC.SHADOWVERSEBYDMOD-WITCH_HAT, IsFatal = False }
+899:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredRelics, Message = Unknown RelicModel ID: RELIC.SHADOWVERSEBYDMOD-PORTALCRAFT_STARTING_RELIC, IsFatal = False }
+900:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredRelics, Message = Unknown RelicModel ID: RELIC.SHADOWVERSEBYDMOD-ELD_SIGHT, IsFatal = False }
+901:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredRelics, Message = Unknown RelicModel ID: RELIC.SHADOWVERSEBYDMOD-FORESTCRAFT_STARTING_RELIC, IsFatal = False }
+902:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredRelics, Message = Unknown RelicModel ID: RELIC.SHADOWVERSEBYDMOD-VESSEL_RELIC, IsFatal = False }
+903:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredRelics, Message = Unknown RelicModel ID: RELIC.SHADOWVERSEBYDMOD-BISHOP_STARTER_RELIC, IsFatal = False }
+904:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredRelics, Message = Unknown RelicModel ID: RELIC.SHADOWVERSEBYDMOD-GALANS_SANDBAG, IsFatal = False }
+905:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredRelics, Message = Unknown RelicModel ID: RELIC.STSVWB_RELIC_AVATAR_CURSE, IsFatal = False }
+906:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-ANCIENT_CRYSTAL, IsFatal = False }
+907:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-NURTURING_ELD_LANCE, IsFatal = False }
+908:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-RUINS_OF_TRUTH, IsFatal = False }
+909:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-WEISS_ENCOUNTER, IsFatal = False }
+910:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-IDOL_SUPPLICANT, IsFatal = False }
+911:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-CAUSELESS_CYCLE, IsFatal = False }
+912:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-DRAGONSTRING_TRIAL, IsFatal = False }
+913:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-FORBIDDEN_SANCTUARY, IsFatal = False }
+914:[WARN] Progress parse: ValidationError { Severity = Warning, Path = DiscoveredEvents, Message = Unknown EventModel ID: EVENT.SHADOWVERSEBYDMOD-FOREST_WARDEN_TEACHING, IsFatal = False }
+940:[WARN] Asset not cached: res://debug_audio/SOTE_Logo_Echoing_ShortTail.mp3
+961:[WARN] Asset not cached: res://scenes/screens/singleplayer_submenu.tscn
+994:[WARN] Asset not cached: res://scenes/screens/choose_a_relic_selection_screen.tscn
+995:[WARN] Asset not cached: res://scenes/relics/relic_basic_holder.tscn
+997:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+998:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+999:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1000:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1001:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1002:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1003:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1004:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1005:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1006:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1007:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1008:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1009:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1010:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1011:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1012:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1013:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1014:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1015:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1016:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1017:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1018:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1019:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1020:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1021:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1022:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1023:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1024:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1025:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1026:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1027:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1028:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1029:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1030:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1031:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1032:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1033:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1034:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1035:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1036:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1037:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1038:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1039:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1040:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1041:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1042:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1043:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1044:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1045:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1046:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1047:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1048:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1049:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1050:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1051:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1052:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1053:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1054:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1055:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1056:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1057:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1058:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1059:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1060:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1061:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1062:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1063:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1064:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1065:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1066:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1067:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1068:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1069:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1070:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1071:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1072:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1073:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1074:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1075:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1076:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1077:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1078:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1079:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1080:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1081:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1082:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1083:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1084:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1085:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1086:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1087:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1088:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1089:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1090:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1091:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1092:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1093:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1094:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1095:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1096:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1097:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1098:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1099:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1100:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1101:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1102:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1103:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1104:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1105:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1106:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1107:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1108:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1109:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1110:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1111:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1112:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1113:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1114:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1115:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1116:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1118:[WARN] Asset not cached: res://scenes/events/ancient_dialogue_line.tscn
+1119:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1120:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1121:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1122:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1123:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1124:[WARN] Asset not cached: res://scenes/ui/card_hover_tip.tscn
+1128:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1129:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1130:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1131:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1132:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1145:[WARN] Asset not cached: res://themes/kreon_bold_shared.tres
+1146:[INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_BEAST (targeting 缩小甲虫 (index 1))
+1150:[WARN] Asset not cached: res://images/powers/shrink_power.png
+1152:[INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_SQUAMATA (targeting 缩小甲虫 (index 1))
+1153:[WARN] Asset not cached: res://images/powers/weak_power.png
+1161:[WARN] Asset not cached: res://images/powers/vigor_power.png
+1163:[WARN] Warning: Packet writer is growing from 1024 bytes to 2048 bytes!
+1164:[WARN] Warning: Packet writer is growing from 2048 bytes to 4096 bytes!
+1174:[WARN] Asset not cached: res://images/packed/card_template/card_frame_sdf.exr
+1188:[WARN] Asset not cached: res://themes/kreon_bold_shared.tres
+1193:[WARN] Asset not cached: res://images/powers/vigor_power.png
+1200:[INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_HEDGEHOG (targeting 小啃兽 (index 1))
+1203:[INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_HEDGEHOG]
+1204:[INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_HEDGEHOG (targeting 小啃兽 (index 1))
+1209:[WARN] Asset not cached: res://images/powers/strength_power.png
+1221:[WARN] Asset not cached: res://images/packed/card_template/card_frame_sdf.exr
+1225:[WARN] Asset not cached: res://scenes/ui/card_hover_tip.tscn
+1235:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1236:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1237:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1238:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1239:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1240:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1241:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1242:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1243:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1244:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1245:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1246:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1247:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1248:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1249:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1250:[WARN] Asset not cached: res://scenes/ui/card_hover_tip.tscn
+1251:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1252:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1253:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1254:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1255:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1256:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1257:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1258:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1259:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1260:[WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1271:[WARN] Asset not cached: res://themes/kreon_bold_shared.tres
+1272:[WARN] Asset not cached: res://scenes/ui/card_hover_tip.tscn
+1274:[WARN] Asset not cached: res://images/powers/strength_power.png
+1275:[WARN] Asset not cached: res://images/powers/frail_power.png
+1279:[WARN] Asset not cached: res://images/powers/vigor_power.png
+1284:[INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_BEAST]
+1285:[INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_BEAST (targeting 毛绒伏地虫 (index 1))
+1286:[INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_SQUAMATA]
+1287:[INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_BEAST]
+1288:[INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_FUSION (no target)
+1289:[INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_ZEFRANAGA,LIGHTSWORN-LIGHT_BLADE]
+1294:[INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_BEAST]
+1295:[INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_BEAST (targeting 毛绒伏地虫 (index 1))
+1308:[WARN] Asset not cached: res://images/packed/card_template/card_frame_sdf.exr
+1315:[WARN] Asset not cached: res://scenes/screens/main_menu.tscn
+1332:WARNING: 944 RIDs of type "CanvasItem" were leaked.
+1334:ERROR: 1 RID allocations of type 'N26RendererEnvironmentStorage11EnvironmentE' were leaked at exit.
+1335:ERROR: 6 shaders of type CanvasShaderRD were never freed
+1337:ERROR: 26 RID allocations of type 'N10RendererRD16ParticlesStorage9ParticlesE' were leaked at exit.
+1338:ERROR: 1 shaders of type ParticlesShaderRD were never freed
+1340:ERROR: 26 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+1341:ERROR: 37 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+1342:ERROR: 7 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+1343:ERROR: 244 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.
+1344:WARNING: 67 RIDs of type "UniformBuffer" were leaked.
+1346:WARNING: 484 RIDs of type "Texture" were leaked.
+1348:ERROR: 491 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+1349:ERROR: 8 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.
+1350:WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+1352:ERROR: 257 resources still in use at exit (run with --verbose for details).

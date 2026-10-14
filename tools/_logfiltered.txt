@@ -1,0 +1,242 @@
+15: [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\Lightsworn.json
+240: [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\lightsworn.dll
+241: [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\lightsworn.pck
+242: [INFO] Calling initializer method of type Lightsworn.Entry for Lightsworn, Version=0.4.23.0, Culture=neutral, PublicKeyToken=null
+243: [INFO] Lightsworn mod initialized!
+244: [INFO] Finished mod initialization for '光道 Lightsworn' (lightsworn).
+254: [INFO] [BaseLib] Mod lightsworn that modifies gameplay has BaseLib dependency; gameplay modification enabled.
+966: [INFO] [StartRunLobby (1)] CHARACTER.LIGHTSWORN-LIGHTSWORN_CHARACTER ascension set to preferred: 4
+969: [INFO] Embarking on a singleplayer LIGHTSWORN-LIGHTSWORN_CHARACTER run. Ascension: 4 Seed: CDUDBVL19P
+970: [INFO] Preloading 'characters=LIGHTSWORN-LIGHTSWORN_CHARACTER' assets... count=38 vfx=6
+971: [INFO] Preloading 'characters=LIGHTSWORN-LIGHTSWORN_CHARACTER' Complete: assets=44 time_elapsed=351ms
+997: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+998: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+999: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1000: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1001: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1002: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1003: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1004: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1005: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1006: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1007: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1008: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1009: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1010: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1011: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1012: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1013: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1014: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1015: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1016: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1017: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1018: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1019: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1020: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1021: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1022: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1023: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1024: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1025: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1026: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1027: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1028: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1029: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1030: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1031: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1032: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1033: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1034: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1035: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1036: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1037: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1038: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1039: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1040: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1041: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1042: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1043: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1044: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1045: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1046: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1047: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1048: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1049: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1050: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1051: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1052: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1053: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1054: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1055: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1056: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1057: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1058: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1059: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1060: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1061: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1062: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1063: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1064: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1065: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1066: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1067: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1068: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1069: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1070: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1071: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1072: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1073: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1074: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1075: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1076: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1077: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1078: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1079: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1080: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1081: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1082: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1083: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1084: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1085: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1086: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1087: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1088: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1089: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1090: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1091: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1092: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1093: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1094: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1095: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1096: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1097: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1098: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1099: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1100: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1101: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1102: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1103: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1104: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1105: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1106: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1107: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1108: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1109: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1110: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1111: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1112: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1113: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1114: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1115: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1116: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1119: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1120: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1121: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1122: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1123: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1128: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1129: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1130: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1131: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1132: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1146: [INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_BEAST (targeting 缩小甲虫 (index 1))
+1147: [INFO] Player 1 chose cards [LIGHTSWORN-LIGHT_WARD]
+1148: [INFO] Player 1 playing card LIGHTSWORN-JAIN (targeting 缩小甲虫 (index 1))
+1151: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_WARD (no target)
+1152: [INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_SQUAMATA (targeting 缩小甲虫 (index 1))
+1154: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_BLADE (targeting 缩小甲虫 (index 1))
+1156: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_BLADE (targeting 缩小甲虫 (index 1))
+1157: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_WARD (no target)
+1158: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_WARD (no target)
+1160: [INFO] Player 1 playing card LIGHTSWORN-SABRE (no target)
+1162: [INFO] Player 1 playing card LIGHTSWORN-WULF (targeting 缩小甲虫 (index 1))
+1163: [WARN] Warning: Packet writer is growing from 1024 bytes to 2048 bytes!
+1164: [WARN] Warning: Packet writer is growing from 2048 bytes to 4096 bytes!
+1167: [INFO] CHARACTER.LIGHTSWORN-LIGHTSWORN_CHARACTER has won against encounter ENCOUNTER.SHRINKER_BEETLE_WEAK. That's 7 wins
+1168: [INFO] CHARACTER.LIGHTSWORN-LIGHTSWORN_CHARACTER has killed a MONSTER.SHRINKER_BEETLE. That's 9 kills
+1177: [INFO] Player 1 obtained CARD.LIGHTSWORN-SABRE from card reward
+1189: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_WARD (no target)
+1190: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_WARD (no target)
+1191: [INFO] Player 1 playing card LIGHTSWORN-EHREN (targeting 小啃兽 (index 1))
+1192: [INFO] Player 1 playing card LIGHTSWORN-SABRE (no target)
+1194: [INFO] Player 1 playing card LIGHTSWORN-SABRE (no target)
+1196: [INFO] Player 1 playing card LIGHTSWORN-JAIN (targeting 小啃兽 (index 1))
+1197: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_WARD (no target)
+1198: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_BLADE (targeting 小啃兽 (index 1))
+1200: [INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_HEDGEHOG (targeting 小啃兽 (index 1))
+1201: [INFO] Player 1 chose cards [LIGHTSWORN-PURUSHADDOLL_AEON]
+1202: [INFO] Player 1 playing card LIGHTSWORN-RESH_SHADDOLL_INCARNATION (no target)
+1203: [INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_HEDGEHOG]
+1204: [INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_HEDGEHOG (targeting 小啃兽 (index 1))
+1205: [INFO] Player 1 chose cards [LIGHTSWORN-PURUSHADDOLL_AEON]
+1206: [INFO] Player 1 playing card LIGHTSWORN-PURUSHADDOLL_AEON (no target)
+1207: [INFO] Player 1 chose cards [LIGHTSWORN-PURUSHADDOLL_AEON]
+1210: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_BLADE (targeting 小啃兽 (index 1))
+1211: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_BLADE (targeting 小啃兽 (index 1))
+1214: [INFO] CHARACTER.LIGHTSWORN-LIGHTSWORN_CHARACTER has won against encounter ENCOUNTER.NIBBITS_WEAK. That's 9 wins
+1215: [INFO] CHARACTER.LIGHTSWORN-LIGHTSWORN_CHARACTER has killed a MONSTER.NIBBIT. That's 11 kills
+1226: [INFO] Player 1 obtained CARD.LIGHTSWORN-LIGHTSWORN_DRAGON from card reward
+1235: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1236: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1237: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1238: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1239: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1240: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1241: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1242: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1243: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1244: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1245: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1246: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1247: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1248: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1249: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1251: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1252: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1253: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1254: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1255: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1256: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.titleObject' not found in table 'characters'
+1257: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.possessiveAdjective' not found in table 'characters'
+1258: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounObject' not found in table 'characters'
+1259: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounPossessive' not found in table 'characters'
+1260: [WARN] [BaseLib] GetRawText: Key 'LIGHTSWORN-LIGHTSWORN_CHARACTER.pronounSubject' not found in table 'characters'
+1273: [INFO] Player 1 playing card LIGHTSWORN-LYLA (targeting 毛绒伏地虫 (index 1))
+1276: [INFO] Player 1 playing card LIGHTSWORN-LIGHTSWORN_DRAGON (targeting 毛绒伏地虫 (index 1))
+1277: [INFO] Player 1 chose cards [LIGHTSWORN-SABRE]
+1278: [INFO] Player 1 playing card LIGHTSWORN-SABRE (no target)
+1280: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_BLADE (targeting 毛绒伏地虫 (index 1))
+1282: [INFO] Player 1 playing card LIGHTSWORN-HAND_DESTRUCTION (no target)
+1283: [INFO] Player 1 playing card LIGHTSWORN-RESH_SHADDOLL_INCARNATION (no target)
+1284: [INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_BEAST]
+1285: [INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_BEAST (targeting 毛绒伏地虫 (index 1))
+1286: [INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_SQUAMATA]
+1287: [INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_BEAST]
+1288: [INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_FUSION (no target)
+1289: [INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_ZEFRANAGA,LIGHTSWORN-LIGHT_BLADE]
+1290: [INFO] Player 1 chose cards [LIGHTSWORN-EL_SHADDOLL_GRYSTA]
+1291: [INFO] Player 1 playing card LIGHTSWORN-EL_SHADDOLL_GRYSTA (targeting 毛绒伏地虫 (index 1))
+1292: [INFO] Player 1 chose cards [LIGHTSWORN-RESH_SHADDOLL_INCARNATION]
+1293: [INFO] Player 1 playing card LIGHTSWORN-RESH_SHADDOLL_INCARNATION (no target)
+1294: [INFO] Player 1 chose cards [LIGHTSWORN-SHADDOLL_BEAST]
+1295: [INFO] Player 1 playing card LIGHTSWORN-SHADDOLL_BEAST (targeting 毛绒伏地虫 (index 1))
+1296: [INFO] Player 1 chose cards [LIGHTSWORN-HAVNIS]
+1298: [INFO] Player 1 playing card LIGHTSWORN-LIGHT_BLADE (targeting 毛绒伏地虫 (index 1))
+1301: [INFO] CHARACTER.LIGHTSWORN-LIGHTSWORN_CHARACTER has won against encounter ENCOUNTER.FUZZY_WURM_CRAWLER_WEAK. That's 9 wins
+1302: [INFO] CHARACTER.LIGHTSWORN-LIGHTSWORN_CHARACTER has killed a MONSTER.FUZZY_WURM_CRAWLER. That's 11 kills
+1312: [INFO] Player 1 obtained CARD.LIGHTSWORN-HELSHADDOLL_HOLLOW from card reward
+1332: WARNING: 944 RIDs of type "CanvasItem" were leaked.
+1334: ERROR: 1 RID allocations of type 'N26RendererEnvironmentStorage11EnvironmentE' were leaked at exit.
+1335: ERROR: 6 shaders of type CanvasShaderRD were never freed
+1337: ERROR: 26 RID allocations of type 'N10RendererRD16ParticlesStorage9ParticlesE' were leaked at exit.
+1338: ERROR: 1 shaders of type ParticlesShaderRD were never freed
+1340: ERROR: 26 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+1341: ERROR: 37 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+1342: ERROR: 7 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+1343: ERROR: 244 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.
+1344: WARNING: 67 RIDs of type "UniformBuffer" were leaked.
+1346: WARNING: 484 RIDs of type "Texture" were leaked.
+1348: ERROR: 491 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+1349: ERROR: 8 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.
+1350: WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+1352: ERROR: 257 resources still in use at exit (run with --verbose for details).

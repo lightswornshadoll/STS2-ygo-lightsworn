@@ -1,0 +1,77 @@
+=== files: 17
+=== using BaseLib.* namespaces ===
+    12  BaseLib.Patches.Content
+     8  BaseLib.Utils
+     7  BaseLib.Commands
+     4  BaseLib.Abstracts
+     1  BaseLib.Patches.UI
+=== symbol occurrences ===
+   109  Pool
+    20  MultiPileCardSelect
+    19  AbstractModel
+    15  HoverTipFactory
+     3  ITranscendenceCard
+     3  CustomEventModel
+     3  RelicImageOverridePatch
+     3  RelicIconData
+     2  CustomEnergyCounter
+     1  ArchaicToothTranscendenceUpgradesPatch
+     1  NModListButton
+     1  PlaceholderCharacterModel
+     1  CustomTemporaryPowerModelWrapper
+=== sample lines per symbol ===
+--- Pool
+    Scripts\Cards1.cs:21: [Pool(typeof(LightswornCardPool))]
+    Scripts\Cards1.cs:39: [Pool(typeof(LightswornCardPool))]
+    Scripts\Cards1.cs:58: [Pool(typeof(LightswornCardPool))]
+    Scripts\Cards1.cs:78: [Pool(typeof(LightswornCardPool))]
+    Scripts\Cards1.cs:105: [Pool(typeof(LightswornCardPool))]
+    Scripts\Cards1.cs:137: [Pool(typeof(LightswornCardPool))]
+--- AbstractModel
+    Scripts\Cards1.cs:190: public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy
+    Scripts\Cards1.cs:245: public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy
+    Scripts\Cards1.cs:432: public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy
+    Scripts\Cards2.cs:181: public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy
+    Scripts\Cards2.cs:260: public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy
+    Scripts\Cards2.cs:420: public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy
+--- HoverTipFactory
+    Scripts\Cards1.cs:216: HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>()
+    Scripts\Cards1.cs:217: .Concat(HoverTipFactory.FromCardWithCardHoverTips<PunishDragon>());
+    Scripts\Cards2.cs:213: HoverTipFactory.FromCardWithCardHoverTips<LightswornDragon>()
+    Scripts\Cards2.cs:214: .Concat(HoverTipFactory.FromCardWithCardHoverTips<Gragonith>())
+    Scripts\Cards2.cs:215: .Concat(HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>());
+    Scripts\Cards3.cs:290: HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>()
+--- MultiPileCardSelect
+    Scripts\Cards1.cs:231: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+    Scripts\Cards5.cs:132: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+    Scripts\Cards5.cs:160: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, handAttacks)).ToList()
+    Scripts\Cards5.cs:238: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+    Scripts\Cards5.cs:268: List<CardModel> chosen = (await MultiPileCardSelect.Select(new BlockingPlayerChoiceContext(), Owner,
+    Scripts\Cards5.cs:328: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+--- ITranscendenceCard
+    Scripts\Cards1.cs:287: // 光道防护罩（初始卡。本批反馈问题28：作为「古老牙齿」的转化源——BaseLib ITranscendenceCard 钩子
+    Scripts\Cards1.cs:292: public class Barrier : LsCard, ITranscendenceCard
+    Scripts\Cards2.cs:437: // ITranscendenceCard 钩子）；因是 TranscendenceCard，达弗尘封魔典不会给到（原版规则）。
+--- ArchaicToothTranscendenceUpgradesPatch
+    Scripts\Cards1.cs:289: // ArchaicToothTranscendenceUpgradesPatch 会自动收集所有实现该接口的 mod 卡；达弗尘封魔典排除
+--- CustomEventModel
+    Scripts\Entry.cs:19: // 自定义事件（CustomEventModel 在构造时自动加入共享事件池；BaseLib 不会反射实例化事件类）
+    Scripts\Events.cs:19: // 机制：CustomEventModel 构造时自动注册进共享事件池（Entry.Init 里 new）；
+    Scripts\Events.cs:23: public sealed class PearlWorldEncounter : CustomEventModel
+--- NModListButton
+    Scripts\FusionCodex.cs:30: // （BaseLib NModListButton 同款做法：ctor 建子节点、_Ready 调 ConnectSignals），
+--- RelicImageOverridePatch
+    Scripts\LightswornContent.cs:106: RelicImageOverridePatch.AddOverride<LightswornSigil>(new RelicIconData(
+    Scripts\LightswornContent.cs:148: RelicImageOverridePatch.AddOverride<MustPlayYugioh>(new RelicIconData(
+    Scripts\LightswornContent.cs:215: RelicImageOverridePatch.AddOverride<CatsAndDogs>(new RelicIconData(
+--- RelicIconData
+    Scripts\LightswornContent.cs:106: RelicImageOverridePatch.AddOverride<LightswornSigil>(new RelicIconData(
+    Scripts\LightswornContent.cs:148: RelicImageOverridePatch.AddOverride<MustPlayYugioh>(new RelicIconData(
+    Scripts\LightswornContent.cs:215: RelicImageOverridePatch.AddOverride<CatsAndDogs>(new RelicIconData(
+--- PlaceholderCharacterModel
+    Scripts\LightswornContent.cs:238: public class LightswornCharacter : PlaceholderCharacterModel
+--- CustomEnergyCounter
+    Scripts\LightswornContent.cs:372: public override CustomEnergyCounter? CustomEnergyCounter => new(
+    Scripts\LightswornContent.cs:372: public override CustomEnergyCounter? CustomEnergyCounter => new(
+--- CustomTemporaryPowerModelWrapper
+    Scripts\Powers.cs:411: public class LaydenTempStrengthPower : CustomTemporaryPowerModelWrapper<Layden, StrengthPower> { }

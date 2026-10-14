@@ -1,0 +1,9 @@
+{
+  "LIGHTSWORN-JANICE_POWER.title": "光道祭仪",
+  "LIGHTSWORN-JANICE_POWER.description": "本回合若发动过弃光，回合结束时回复{Amount}点生命，并对随机一名敌人造成{Amount}点伤害。",
+  "LIGHTSWORN-JANICE_POWER.smartDescription": "本回合若发动过弃光，回合结束时回复[blue]{Amount}[/blue]点生命，并对随机一名敌人造成[blue]{Amount}[/blue]点伤害。",
+  "LIGHTSWORN-JUSTICE_WORLD_POWER.description": "每当有牌从抽牌堆弃置到弃牌堆时，获得1层光指示物（不限「光道」牌）。你造成攻击伤害时，消耗全部光指示物，本次攻击的每段伤害增加消耗的层数。",
+  "LIGHTSWORN-JUSTICE_WORLD_POWER.smartDescription": "每当有牌从抽牌堆弃置到弃牌堆时，获得1层光指示物（不限「光道」牌）。你造成攻击伤害时，消耗全部光指示物，本次攻击的每段伤害增加消耗的层数。（当前[blue]{Amount}[/blue]层）",
+  "LIGHTSWORN-LIGHT_BOUNCE_POWER.description": "每当有牌从抽牌堆弃置到弃牌堆时，对所有敌人施加{Amount}层灾厄（不限「光道」牌）。",
+  "LIGHTSWORN-LIGHT_BOUNCE_POWER.smartDescription": "每当有牌从抽牌堆弃置到弃牌堆时，对所有敌人施加[blue]{Amount}[/blue]层灾厄（不限「光道」牌）。"
+}

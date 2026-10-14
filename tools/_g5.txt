@@ -1,0 +1,16 @@
+MegaCrit.Sts2.Core.Combat\CombatManager.cs 700 GameAction runningAction = RunManager.Instance.ActionExecutor.CurrentlyRunningAction;
+MegaCrit.Sts2.Core.Combat\CombatManager.cs 1120 GameAction currentlyRunningAction = RunManager.Instance.ActionExecutor.CurrentlyRunningAction;
+MegaCrit.Sts2.Core.Combat\CombatManager.cs 1122 if (currentlyRunningAction != null && ActionQueueSet.IsGameActionPlayerDriven(currentlyRunningAction))
+MegaCrit.Sts2.Core.GameActions\ActionExecutor.cs 50 public GameAction? CurrentlyRunningAction { get; private set; }
+MegaCrit.Sts2.Core.GameActions\ActionExecutor.cs 142 CurrentlyRunningAction = readyAction;
+MegaCrit.Sts2.Core.GameActions\ActionExecutor.cs 148 CurrentlyRunningAction = readyAction;
+MegaCrit.Sts2.Core.GameActions\ActionExecutor.cs 201 if (CurrentlyRunningAction != action)
+MegaCrit.Sts2.Core.GameActions\ActionExecutor.cs 203 Log.Error($"Currently running action {CurrentlyRunningAction} did not match finishing action {action}!");
+MegaCrit.Sts2.Core.GameActions\ActionExecutor.cs 213 if (CurrentlyRunningAction != action)
+MegaCrit.Sts2.Core.GameActions\ActionExecutor.cs 215 Log.Error($"Currently running action {CurrentlyRunningAction} did not match recently finished action {action}!");
+MegaCrit.Sts2.Core.GameActions\ActionExecutor.cs 223 CurrentlyRunningAction = null;
+MegaCrit.Sts2.Core.GameActions.Multiplayer\GameActionPlayerChoiceContext.cs 20 if (RunManager.Instance.ActionExecutor.CurrentlyRunningAction != Action)
+MegaCrit.Sts2.Core.GameActions.Multiplayer\GameActionPlayerChoiceContext.cs 22 Log.Error($"Tried to interrupt shared queue action {RunManager.Instance.ActionExecutor.CurrentlyRunningAction} with a player choice context with action {Action}!");
+MegaCrit.Sts2.Core.GameActions.Multiplayer\HookPlayerChoiceContext.cs 150 if (ActionExecutor.CurrentlyRunningAction != _gameAction)
+MegaCrit.Sts2.Core.GameActions.Multiplayer\HookPlayerChoiceContext.cs 152 Log.Error($"Tried to interrupt action {_gameAction} but the currently running action is {ActionExecutor.CurrentlyRunningAction}!");
+--- 15 hits ---

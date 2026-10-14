@@ -1,0 +1,14 @@
+{
+  "LIGHTSWORN-FLASH_FANTASY.title": "闪光之幻想",
+  "LIGHTSWORN-FLASH_FANTASY.description": "将弃牌堆中1张「光道」牌加入手牌，其本回合费用变为0。弃光{Mill:diff()}。",
+  "LIGHTSWORN-SOLAR_EXCHANGE.title": "太阳交换",
+  "LIGHTSWORN-SOLAR_EXCHANGE.description": "将手牌中1张「光道」牌弃置（若有）。抽{Cards:diff()}张牌。弃光{Mill:diff()}。",
+  "LIGHTSWORN-TWILIGHT_ERASURE.title": "黄昏之抹杀",
+  "LIGHTSWORN-TWILIGHT_ERASURE.description": "消耗弃牌堆中最多2张「光道」牌，每消耗1张移除目标敌人1个随机增益。\n[gold]从卡组被弃置时[/gold]手牌中随机1张「光道」牌本回合费用变为0（敲后2张）。",
+  "LIGHTSWORN-TWIN_TWILIGHT_DRAGON.title": "黄昏之双龙",
+  "LIGHTSWORN-TWIN_TWILIGHT_DRAGON.description": "若手牌中有「惩戒之龙」：将弃牌堆中1张「裁决之龙」加入手牌，然后弃光{Mill:diff()}。\n否则：将1张虚无的「裁决之龙」和1张虚无的「惩戒之龙」置入弃牌堆。\n[gold]从卡组被弃置时[/gold]将弃牌堆中1张「惩戒之龙」加入手牌（没有则无事发生），然后除光4。敲后：除光6。",
+  "LIGHTSWORN-JUSTICE_WORLD.title": "正义世界",
+  "LIGHTSWORN-JUSTICE_WORLD.description": "每当有牌从抽牌堆弃置到弃牌堆时，获得1层光指示物。你造成攻击伤害时，消耗所有光指示物，每层使该次伤害+1。",
+  "LIGHTSWORN-LIGHT_BOUNCE.title": "光之回弹",
+  "LIGHTSWORN-LIGHT_BOUNCE.description": "每当有牌从抽牌堆弃置到弃牌堆时，所有敌人各获得等同于该次弃置牌数的「灾厄」层数。"
+}

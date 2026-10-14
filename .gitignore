@@ -1,0 +1,30 @@
+# ===== 开发资料（不进仓库）=====
+# 反编译游戏源码 / Godot 编辑器 / 第三方库源码（约 450MB）
+research/
+
+# 构建工具（dotnet SDK / ILSpy / 临时脚本产物，约 760MB）
+tools/dotnet/
+tools/ilspy9/
+tools/tools/
+tools/package/
+tools/_decomp/
+tools/__pycache__/
+tools/preview_static_char/
+
+# ===== Godot 生成物 =====
+mod/lightsworn/.godot/
+mod/lightsworn/.mono/
+*.uid
+
+# ===== C# 构建产物 =====
+mod/lightsworn/bin/
+mod/lightsworn/obj/
+*.user
+
+# ===== 本地备份压缩包 =====
+*.zip
+
+# ===== 系统文件 =====
+Thumbs.db
+desktop.ini
+.DS_Store

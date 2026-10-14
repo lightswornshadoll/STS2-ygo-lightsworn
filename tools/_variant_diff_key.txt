@@ -1,0 +1,386 @@
+==========================================================================================
+FILE: STS2RitsuLib.Cards.DynamicVars/ModCardVars.cs
+--- 
++++ 
+@@ -529,12 +529,12 @@
+ }
+ /// <summary>
+ ///     <para xml:lang="en">
+-///         Creates a computed damage variable whose previews pass through <see cref="M:MegaCrit.Sts2.Core.Hooks.Hook.ModifyDamage(MegaCrit.Sts2.Core.Runs.IRunState,MegaCrit.Sts2.Core.Combat.ICombatState,MegaCrit.Sts2.Core.Entities.Creatures.Creature,MegaCrit.Sts2.Core.Entities.Creatures.Creature,System.Decimal,MegaCrit.Sts2.Core.ValueProps.ValueProp,MegaCrit.Sts2.Core.Models.CardModel,MegaCrit.Sts2.Core.Hooks.ModifyDamageHookType,MegaCrit.Sts2.Core.Entities.Cards.CardPreviewMode,System.Collections.Generic.IEnumerable{MegaCrit.Sts2.Core.Models.AbstractModel}@)" /> when
++///         Creates a computed damage variable whose previews pass through <see cref="M:MegaCrit.Sts2.Core.Hooks.Hook.ModifyDamage(MegaCrit.Sts2.Core.Runs.IRunState,MegaCrit.Sts2.Core.Combat.ICombatState,MegaCrit.Sts2.Core.Entities.Creatures.Creature,MegaCrit.Sts2.Core.Entities.Creatures.Creature,System.Decimal,MegaCrit.Sts2.Core.ValueProps.ValueProp,MegaCrit.Sts2.Core.Models.CardModel,MegaCrit.Sts2.Core.Entities.Cards.CardPlay,MegaCrit.Sts2.Core.Hooks.ModifyDamageHookType,MegaCrit.Sts2.Core.Entities.Cards.CardPreviewMode,System.Collections.Generic.IEnumerable{MegaCrit.Sts2.Core.Models.AbstractModel}@)" /> when
+ ///         global hooks are enabled and run and combat context are available.
+ ///     </para>
+ ///     <para xml:lang="zh-CN">
+ ///         创建计算型伤害变量；启用全局钩子且存在一局游戏与战斗上下文时，预览值会经过
+-///         <see cref="M:MegaCrit.Sts2.Core.Hooks.Hook.ModifyDamage(MegaCrit.Sts2.Core.Runs.IRunState,MegaCrit.Sts2.Core.Combat.ICombatState,MegaCrit.Sts2.Core.Entities.Creatures.Creature,MegaCrit.Sts2.Core.Entities.Creatures.Creature,System.Decimal,MegaCrit.Sts2.Core.ValueProps.ValueProp,MegaCrit.Sts2.Core.Models.CardModel,MegaCrit.Sts2.Core.Hooks.ModifyDamageHookType,MegaCrit.Sts2.Core.Entities.Cards.CardPreviewMode,System.Collections.Generic.IEnumerable{MegaCrit.Sts2.Core.Models.AbstractModel}@)" />。
++///         <see cref="M:MegaCrit.Sts2.Core.Hooks.Hook.ModifyDamage(MegaCrit.Sts2.Core.Runs.IRunState,MegaCrit.Sts2.Core.Combat.ICombatState,MegaCrit.Sts2.Core.Entities.Creatures.Creature,MegaCrit.Sts2.Core.Entities.Creatures.Creature,System.Decimal,MegaCrit.Sts2.Core.ValueProps.ValueProp,MegaCrit.Sts2.Core.Models.CardModel,MegaCrit.Sts2.Core.Entities.Cards.CardPlay,MegaCrit.Sts2.Core.Hooks.ModifyDamageHookType,MegaCrit.Sts2.Core.Entities.Cards.CardPreviewMode,System.Collections.Generic.IEnumerable{MegaCrit.Sts2.Core.Models.AbstractModel}@)" />。
+ ///     </para>
+ /// </summary>
+ public static ComputedDynamicVar ComputedDamage(string name, decimal baseValue, Func<CardModel?, Creature?, decimal> currentValueFactory, ValueProp props = (ValueProp)8)
+@@ -754,10 +754,10 @@
+ private static decimal CalculateDamagePreview(CardModel? card, CardPreviewMode previewMode, Creature? target, bool runGlobalHooks, Func<CardModel?, CardPreviewMode, Creature?, bool, decimal> previewBaseValueFactory, Func<CardModel, Creature?> dealerFactory, ValueProp props)
+ {
+ //IL_0003: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0080: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0090: Unknown result type (might be due to invalid IL or missing references)
++//IL_0081: Unknown result type (might be due to invalid IL or missing references)
++//IL_0091: Unknown result type (might be due to invalid IL or missing references)
+ //IL_004f: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0054: Unknown result type (might be due to invalid IL or missing references)
++//IL_0055: Unknown result type (might be due to invalid IL or missing references)
+ decimal num = previewBaseValueFactory.Invoke(card, previewMode, target, runGlobalHooks);
+ if (card == null)
+ {
+@@ -770,7 +770,7 @@
+ {
+ ICombatState val = card.CombatState ?? card.Owner.Creature.CombatState;
+ System.Collections.Generic.IEnumerable<AbstractModel> enumerable = default(System.Collections.Generic.IEnumerable<AbstractModel>);
+-return Math.Max(Hook.ModifyDamage(runState, val, target, dealerFactory.Invoke(card), num, props, card, (ModifyDamageHookType)14, previewMode, ref enumerable), 0m);
++return Math.Max(Hook.ModifyDamage(runState, val, target, dealerFactory.Invoke(card), num, props, card, (CardPlay)null, (ModifyDamageHookType)14, previewMode, ref enumerable), 0m);
+ }
+ }
+ EnchantmentModel enchantment = card.Enchantment;
+@@ -789,7 +789,7 @@
+ //IL_003e: Unknown result type (might be due to invalid IL or missing references)
+ //IL_004d: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00ab: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00af: Unknown result type (might be due to invalid IL or missing references)
++//IL_00b0: Unknown result type (might be due to invalid IL or missing references)
+ CardPreviewMode? previewMode = context.PreviewMode;
+ if (previewMode.HasValue)
+ 
+==========================================================================================
+FILE: STS2RitsuLib.Cards.Patches/CardOnPlayHookPatch.cs
+--- 
++++ 
+@@ -21,14 +21,14 @@
+ }
+ public static System.Collections.Generic.IEnumerable<CodeInstruction> Transpiler(System.Collections.Generic.IEnumerable<CodeInstruction> instructions)
+ {
+-MethodInfo fromMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(CardModel), "OnPlay", new System.Type[2]
++MethodInfo onPlayMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(CardModel), "OnPlay", new System.Type[2]
+ {
+ typeof(PlayerChoiceContext),
+ typeof(CardPlay)
+ }, (System.Type[])null), "[CardOnPlayHook] OnPlayWrapper injection");
+ MethodInfo wrapperMethod = HarmonyIl.RequireMethod(AccessTools.Method(typeof(CardOnPlayHook), "RunCardOnPlayHooks", (System.Type[])null, (System.Type[])null), "[CardOnPlayHook] OnPlayWrapper injection");
+ HarmonyIlRewriter harmonyIlRewriter = HarmonyIlRewriter.From(instructions);
+-HarmonyIlRewriteReport report = HarmonyAsyncIl.RedirectAwaitedCalls(harmonyIlRewriter, "[CardOnPlayHook] OnPlayWrapper injection", fromMethod, wrapperMethod, (System.Collections.Generic.IReadOnlyList<CodeInstruction> code) => Enumerable.Any<CodeInstruction>((System.Collections.Generic.IEnumerable<CodeInstruction>)code, HarmonyIl.IsCall(wrapperMethod)));
++HarmonyIlRewriteReport report = harmonyIlRewriter.RedirectCalls("[CardOnPlayHook] OnPlayWrapper injection", (MethodInfo called) => (!(called == onPlayMethod)) ? null : wrapperMethod, (System.Collections.Generic.IReadOnlyList<CodeInstruction> code) => Enumerable.Any<CodeInstruction>((System.Collections.Generic.IEnumerable<CodeInstruction>)code, HarmonyIl.IsCall(wrapperMethod)));
+ return (System.Collections.Generic.IEnumerable<CodeInstruction>)harmonyIlRewriter.InstructionsChecked(report);
+ }
+ }
+==========================================================================================
+FILE: STS2RitsuLib.Compat/Sts2ModManagerCompat.cs
+--- 
++++ 
+@@ -56,7 +56,7 @@
+ try
+ {
+ ModManifest val2 = ReadManifest.Invoke(current);
+-string text = ((val2 == null) ? null : ReadManifestId.Invoke(val2));
++string text = ((val2 == (ModManifest)null) ? null : ReadManifestId.Invoke(val2));
+ Assembly val3 = ReadAssembly.Invoke(current);
+ if (!string.IsNullOrWhiteSpace(text) && !(val3 == (Assembly)null))
+ {
+@@ -87,7 +87,7 @@
+ try
+ {
+ ModManifest val2 = ReadManifest.Invoke(current);
+-string text = ((val2 == null) ? null : ReadManifestId.Invoke(val2));
++string text = ((val2 == (ModManifest)null) ? null : ReadManifestId.Invoke(val2));
+ Assembly[] array = Enumerable.ToArray<Assembly>(Enumerable.Distinct<Assembly>(Enumerable.Where<Assembly>((System.Collections.Generic.IEnumerable<Assembly>)ReadAssemblies.Invoke(current), (Func<Assembly, bool>)((Assembly assembly) => assembly != (Assembly)null))));
+ if (!string.IsNullOrWhiteSpace(text) && array.Length != 0)
+ {
+@@ -127,7 +127,7 @@
+ continue;
+ }
+ ModManifest val = ReadManifest.Invoke(current);
+-return val == null || ReadManifestAffectsGameplay.Invoke(val);
++return val == (ModManifest)null || ReadManifestAffectsGameplay.Invoke(val);
+ }
+ catch (System.Exception ex)
+ {
+@@ -158,7 +158,7 @@
+ continue;
+ }
+ ModManifest val = ReadManifest.Invoke(current);
+-modId = ((val == null) ? "" : (ReadManifestId.Invoke(val) ?? ""));
++modId = ((val == (ModManifest)null) ? "" : (ReadManifestId.Invoke(val) ?? ""));
+ return !string.IsNullOrWhiteSpace(modId);
+ }
+ catch (System.Exception ex)
+@@ -187,7 +187,7 @@
+ try
+ {
+ ModManifest val = ReadManifest.Invoke(current);
+-if (val == null || !string.Equals(ReadManifestId.Invoke(val), modId, (StringComparison)4))
++if (val == (ModManifest)null || !string.Equals(ReadManifestId.Invoke(val), modId, (StringComparison)4))
+ {
+ continue;
+ }
+@@ -252,7 +252,7 @@
+ continue;
+ }
+ ModManifest val = ReadManifest.Invoke(current);
+-modId = ((val == null) ? string.Empty : (ReadManifestId.Invoke(val) ?? string.Empty));
++modId = ((val == (ModManifest)null) ? string.Empty : (ReadManifestId.Invoke(val) ?? string.Empty));
+ return !string.IsNullOrWhiteSpace(modId);
+ }
+ catch
+@@ -368,7 +368,7 @@
+ AssemblyName val2 = ResolveAssemblyName(ReadAssembly.Invoke(mod));
+ System.Collections.Generic.IReadOnlyList<LocString> readOnlyList = ReadErrors.Invoke(mod);
+ string text = ((val2 != null) ? val2.Name : null) ?? "<unknown>";
+-return new Sts2ModInventoryEntry((val == null) ? text : (ReadManifestId.Invoke(val) ?? text), (val == null) ? text : (ReadManifestName.Invoke(val) ?? text), (val == null) ? null : ReadManifestVersion.Invoke(val), ReadLoadState.Invoke(mod, ((System.Collections.Generic.IReadOnlyCollection<LocString>)readOnlyList).Count), ReadSource.Invoke(mod), val == null || ReadManifestAffectsGameplay.Invoke(val), (val2 != null) ? val2.Name : null, (val2 == null) ? null : ((object)val2.Version)?.ToString(), readOnlyList, TryGetWorkshopItemId(mod));
++return new Sts2ModInventoryEntry((val == (ModManifest)null) ? text : (ReadManifestId.Invoke(val) ?? text), (val == (ModManifest)null) ? text : (ReadManifestName.Invoke(val) ?? text), (val == (ModManifest)null) ? null : ReadManifestVersion.Invoke(val), ReadLoadState.Invoke(mod, ((System.Collections.Generic.IReadOnlyCollection<LocString>)readOnlyList).Count), ReadSource.Invoke(mod), val == (ModManifest)null || ReadManifestAffectsGameplay.Invoke(val), (val2 != null) ? val2.Name : null, (val2 == null) ? null : ((object)val2.Version)?.ToString(), readOnlyList, TryGetWorkshopItemId(mod));
+ }
+ catch (System.Exception ex)
+ {
+@@ -388,10 +388,10 @@
+ }
+ AssemblyName? obj = ResolveAssemblyName(Enumerable.FirstOrDefault<Assembly>((System.Collections.Generic.IEnumerable<Assembly>)array));
+ string text = ((obj != null) ? obj.Name : null) ?? "<unknown>";
+-string id = ((manifest == null) ? text : (ReadManifestId.Invoke(manifest) ?? text));
+-string name = ((manifest == null) ? text : (ReadManifestName.Invoke(manifest) ?? text));
++string id = ((manifest == (ModManifest)null) ? text : (ReadManifestId.Invoke(manifest) ?? text));
++string name = ((manifest == (ModManifest)null) ? text : (ReadManifestName.Invoke(manifest) ?? text));
+ List<Sts2LoadedModAssemblyEntry> obj2 = new List<Sts2LoadedModAssemblyEntry>();
+-obj2.AddRange(Enumerable.Select<Assembly, Sts2LoadedModAssemblyEntry>((System.Collections.Generic.IEnumerable<Assembly>)array, (Func<Assembly, Sts2LoadedModAssemblyEntry>)((Assembly assembly) => new Sts2LoadedModAssemblyEntry(id, name, (manifest == null) ? null : ReadManifestVersion.Invoke(manifest), assembly))));
++obj2.AddRange(Enumerable.Select<Assembly, Sts2LoadedModAssemblyEntry>((System.Collections.Generic.IEnumerable<Assembly>)array, (Func<Assembly, Sts2LoadedModAssemblyEntry>)((Assembly assembly) => new Sts2LoadedModAssemblyEntry(id, name, (manifest == (ModManifest)null) ? null : ReadManifestVersion.Invoke(manifest), assembly))));
+ return new _003C_003Ez__ReadOnlyList<Sts2LoadedModAssemblyEntry>(obj2);
+ }
+ catch (System.Exception ex)
+@@ -
+==========================================================================================
+FILE: STS2RitsuLib.Content/ModContentRegistry.cs
+--- 
++++ 
+@@ -1902,9 +1902,9 @@
+ }
+ /// <summary>
+ ///     <para xml:lang="en">
+-///         Warms all resolved-model caches after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" />.
+-///     </para>
+-///     <para xml:lang="zh-CN">在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init" /> 后预热所有已解析模型缓存。</para>
++///         Warms all resolved-model caches after <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" />.
++///     </para>
++///     <para xml:lang="zh-CN">在 <see cref="M:MegaCrit.Sts2.Core.Models.ModelDb.Init(System.Type[])" /> 后预热所有已解析模型缓存。</para>
+ /// </summary>
+ internal static void WarmResolvedModelCaches()
+ {
+@@ -3922,7 +3922,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex NonAlphaNumericRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__NonAlphaNumericRegex_0.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__NonAlphaNumericRegex_0.Instance;
+ }
+ /// <remarks>
+ /// Pattern:<br />
+@@ -3940,7 +3940,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex AcronymBoundaryRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__AcronymBoundaryRegex_1.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__AcronymBoundaryRegex_1.Instance;
+ }
+ /// <remarks>
+ /// Pattern:<br />
+@@ -3957,7 +3957,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex CamelBoundaryRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__CamelBoundaryRegex_2.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__CamelBoundaryRegex_2.Instance;
+ }
+ /// <remarks>
+ /// Pattern:<br />
+@@ -3971,7 +3971,7 @@
+ [GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.14.31522")]
+ private static Regex RepeatedUnderscoreRegex()
+ {
+-return (Regex)(object)_003CRegexGenerator_g_003EF7B57BD22AB7E62EF6965344320073452610DA2C3D5BC9213103664CF172A62D5__RepeatedUnderscoreRegex_3.Instance;
++return (Regex)(object)_003CRegexGenerator_g_003EF7AC72EA52FD5C3CDDE25D0E47A97A9B75F66414328BA9269E88B019BB7C9F783__RepeatedUnderscoreRegex_3.Instance;
+ }
+ private void RememberOwner(System.Type type)
+ {
+==========================================================================================
+FILE: STS2RitsuLib.Scaffolding.Characters/ModCharacterTemplate.cs
+--- 
++++ 
+@@ -290,11 +290,11 @@
+ /// <summary>
+ ///     <para xml:lang="en">
+ ///         Creates a Spine <see cref="T:MegaCrit.Sts2.Core.Animation.CreatureAnimator" />, or returns <see langword="null" /> to use
+-///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite)" />.
++///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite,MegaCrit.Sts2.Core.Entities.Creatures.Creature)" />.
+ ///     </para>
+ ///     <para xml:lang="zh-CN">
+ ///         创建 Spine <see cref="T:MegaCrit.Sts2.Core.Animation.CreatureAnimator" />；返回 <see langword="null" /> 时使用
+-///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite)" />。
++///         <see cref="M:MegaCrit.Sts2.Core.Models.CharacterModel.GenerateAnimator(MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite,MegaCrit.Sts2.Core.Entities.Creatures.Creature)" />。
+ ///     </para>
+ /// </summary>
+ /// <param name="controller">
+==========================================================================================
+FILE: STS2RitsuLib.Scaffolding.Godot.NodeFactories/RitsuNCreatureVisualsNodeFactory.cs
+--- 
++++ 
+@@ -42,10 +42,11 @@
+ ///     </para>
+ /// </summary>
+ public RitsuNCreatureVisualsNodeFactory()
+-: base((System.Collections.Generic.IEnumerable<IRitsuGodotNodeSlot>)new _003C_003Ez__ReadOnlyArray<IRitsuGodotNodeSlot>(new IRitsuGodotNodeSlot[7]
++: base((System.Collections.Generic.IEnumerable<IRitsuGodotNodeSlot>)new _003C_003Ez__ReadOnlyArray<IRitsuGodotNodeSlot>(new IRitsuGodotNodeSlot[8]
+ {
+ new RitsuGodotNodeSlot<Node2D>("%Visuals"),
+ new RitsuGodotNodeSlot<Node2D>("%PhobiaModeVisuals"),
++new RitsuGodotNodeSlot<Control>("%FormVfx"),
+ new RitsuGodotNodeSlot<Control>("Bounds"),
+ new RitsuGodotNodeSlot<Marker2D>("%CenterPos"),
+ new RitsuGodotNodeSlot<Marker2D>("IntentPos"),
+@@ -76,6 +77,33 @@
+ }
+ internal static void EnsureFormVfxHolder(NCreatureVisuals visuals)
+ {
++//IL_0099: Unknown result type (might be due to invalid IL or missing references)
++//IL_009e: Unknown result type (might be due to invalid IL or missing references)
++//IL_009f: Unknown result type (might be due to invalid IL or missing references)
++//IL_00aa: Expected O, but got Unknown
++//IL_0093: Unknown result type (might be due to invalid IL or missing references)
++if (((Node)visuals).GetNodeOrNull<Control>(NodePath.op_Implicit("%FormVfx")) != null)
++{
++return;
++}
++Node nodeOrNull = ((Node)visuals).GetNodeOrNull(NodePath.op_Implicit("FormVfx"));
++Control val = (Control)(object)((nodeOrNull is Control) ? nodeOrNull : null);
++if (val != null)
++{
++((Node)val).UniqueNameInOwner = true;
++((Node)val).Owner = (Node)(object)visuals;
++return;
++}
++if (nodeOrNull != null)
++{
++throw new InvalidOperationException($"NCreatureVisuals child 'FormVfx' must be a {"Control"}, but was {((MemberInfo)((object)nodeOrNull).GetType()).Name}.");
++}
++Control val2 = new Control
++{
++Position = Vector2.Zero
++};
++((Node)(object)visuals).AddUniqueChild((Node)(object)val2, "FormVfx");
++((Node)visuals).MoveChild((Node)(object)val2, 0);
+ }
+ protected override NCreatureVisuals CreateBareFromResourceImpl(object resource)
+ {
+@@ -129,29 +157,31 @@
+ }
+ protected override void GenerateNode(NCreatureVisuals target, IRitsuGodotNodeSlot required)
+ {
+-//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0047: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0052: Unknown result type (might be due to invalid IL or missing references)
+-//IL_005c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0067: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0072: Expected O, but got Unknown
+-//IL_0090: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0096: Expected O, but got Unknown
++//IL_0056: Unknown result type (might be due to invalid IL or missing references)
++//IL_005b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0066: Unknown result type (might be due to invalid IL or missing references)
++//IL_0070: Unknown result type (might be due to invalid IL or missing references)
++//IL_007b: Unknown result type (might be due to invalid IL or missing references)
++//IL_0086: Expected O, but got Unknown
+ //IL_00a4: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00b9: Unknown result type (might be due to invalid IL or missing references)
++//IL_00aa: Expected O, but got Unknown
++//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00be: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00c3: Unknown result type (might be due to invalid IL or missing references)
++//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d2: Unknown result type (might be due to invalid IL or missing references)
+ //IL_00d7: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
+-//IL_00fb: Expected O, but got Unknown
+-//IL_010c: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0113: Unknown result type (might be due to invalid IL or missing references)
+-//IL_0122: Unknown result type (might be due to invalid IL or missing references)
++//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
++//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
++//IL_0108: Unknown result type (might be due to invalid IL or missing references)
++//IL_010f: Expected O, but got Unknown
++//IL_0120: Unknown result type (might be due to invalid IL or missing references)
+ //IL_0127: Unknown result type (might be due to invalid IL or missing references)
+-//IL_012c: Unknown result type (might be due to invalid IL or missing references)
++//IL_0136: Unknown result type (might be due to invalid IL or mi
+==========================================================================================
+FILE: STS2RitsuLib.Scaffolding.Visuals.StateMachine.Backends/SpineAnimationBackend.cs
+--- 
++++ 
+@@ -174,8 +174,10 @@
+ /// <inheritdoc />
+ public void Play(string id, bool loop)
+ {
+-if (HasAnimation(id))
+-{
++if (!HasAnimation(id))
++{
++return;
++}
+ _currentId = id;
+ MegaAnimationState animationState = _controller.GetAnimationState();
+ if (_paused)
+@@ -183,23 +185,38 @@
+ animationState.SetTimeScale(1f);
+ _paused = false;
+ }
+-MegaTrackEntry val = animationState.SetAnimation(id, loop, 0);
+-if (val != null && loop)
++animationState.SetAnimation(id, loop, 0);
++MegaTrackEntry current = animationState.GetCurrent(0);
++try
++{
++if (current != null && loop)
++{
++OffsetLoopingAnimation(current);
++}
++}
++finally
++{
++((System.IDisposable)current)?.Dispose();
++}
++}
++/// <inheritdoc />
++public void Queue(string id, bool loop)
++{
++if (!HasAnimation(id))
++{
++return;
++}
++MegaTrackEntry val = _controller.GetAnimationState().AddAnimationTracked(id, 0f, loop, 0);
++try
++{
++if (loop)
+ {
+ OffsetLoopingAnimation(val);
+ }
+ }
+-}
+-/// <inheritdoc />
+-public void Queue(string id, bool loop)
+-{
+-if (HasAnimation(id))
+-{
+-MegaTrackEntry track = _controller.GetAnimationState().AddAnimation(id, 0f, loop, 0);
+-if (loop)
+-{
+-OffsetLoopingAnimation(track);
+-}
++finally
++{
++((System.IDisposable)val)?.Dispose();
+ }
+ }
+ /// <inheritdoc />

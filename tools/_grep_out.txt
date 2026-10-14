@@ -1,0 +1,17 @@
+MegaCrit.Sts2.Core.Models\PowerModel.cs 85 protected virtual string RemoteDescriptionLocKey => base.Id.Entry + ".remoteDescription";
+MegaCrit.Sts2.Core.Models\PowerModel.cs 87 protected virtual string SmartDescriptionLocKey => base.Id.Entry + ".smartDescription";
+MegaCrit.Sts2.Core.Models\PowerModel.cs 167 protected virtual bool IsVisibleInternal => true;
+MegaCrit.Sts2.Core.Models\PowerModel.cs 174 public virtual bool ShouldPlayVfx
+MegaCrit.Sts2.Core.Models\PowerModel.cs 238 public virtual bool AllowNegative => false;
+MegaCrit.Sts2.Core.Models\PowerModel.cs 342 public virtual bool ShouldScaleInMultiplayer => false;
+MegaCrit.Sts2.Core.Models\PowerModel.cs 344 protected virtual IEnumerable<DynamicVar> CanonicalVars => Array.Empty<DynamicVar>();
+MegaCrit.Sts2.Core.Models\PowerModel.cs 348 protected virtual IEnumerable<IHoverTip> ExtraHoverTips => Array.Empty<IHoverTip>();
+MegaCrit.Sts2.Core.Models\PowerModel.cs 428 public virtual bool OwnerIsSecondaryEnemy => false;
+MegaCrit.Sts2.Core.Models\PowerModel.cs 503 public virtual decimal GetScaledAmountForMultiplayer(ICombatState combatState, Creature? applier, decimal amount, Creature target, CardModel? cardSource)
+MegaCrit.Sts2.Core.Models\PowerModel.cs 512 protected virtual object? InitInternalData()
+MegaCrit.Sts2.Core.Models\PowerModel.cs 608 public virtual Task BeforeApplied(Creature target, decimal amount, Creature? applier, CardModel? cardSource)
+MegaCrit.Sts2.Core.Models\PowerModel.cs 619 public virtual Task AfterApplied(Creature? applier, CardModel? cardSource)
+MegaCrit.Sts2.Core.Models\PowerModel.cs 628 public virtual Task AfterRemoved(Creature oldOwner)
+MegaCrit.Sts2.Core.Models\PowerModel.cs 637 public virtual bool ShouldPowerBeRemovedAfterOwnerDeath()
+MegaCrit.Sts2.Core.Models\PowerModel.cs 646 public virtual bool ShouldOwnerDeathTriggerFatal()
+--- 16 hits ---

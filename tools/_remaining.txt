@@ -1,0 +1,298 @@
+========================= using-BaseLib
+  Cards1.cs:1: using BaseLib.Abstracts;
+  Cards1.cs:2: using BaseLib.Commands;
+  Cards1.cs:3: using BaseLib.Patches.Content;
+  Cards1.cs:4: using BaseLib.Utils;
+  Cards2.cs:1: using BaseLib.Patches.Content;
+  Cards2.cs:2: using BaseLib.Utils;
+  Cards3.cs:1: using BaseLib.Patches.Content;
+  Cards3.cs:2: using BaseLib.Utils;
+  Cards4.cs:1: using BaseLib.Patches.Content;
+  Cards4.cs:2: using BaseLib.Utils;
+  Cards5.cs:1: using BaseLib.Patches.Content;
+  Cards5.cs:2: using BaseLib.Commands;
+  Cards5.cs:3: using BaseLib.Utils;
+  Cards6.cs:1: using BaseLib.Patches.Content;
+  Cards6.cs:2: using BaseLib.Commands;
+  Cards6.cs:3: using BaseLib.Utils;
+  Cards7.cs:1: using BaseLib.Patches.Content;
+  Cards7.cs:2: using BaseLib.Commands;
+  Cards7.cs:3: using BaseLib.Utils;
+  Cards8.cs:1: using BaseLib.Patches.Content;
+  Cards8.cs:2: using BaseLib.Commands;
+  Cards8.cs:3: using BaseLib.Utils;
+  Powers.cs:1: using BaseLib.Abstracts;
+  Powers.cs:2: using BaseLib.Commands;
+  Powers.cs:3: using BaseLib.Patches.Content;
+========================= Pool-attr
+  Cards1.cs:21: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:39: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:58: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:78: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:105: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:137: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:164: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:205: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:271: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:291: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:319: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:337: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:366: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:393: [Pool(typeof(LightswornCardPool))]
+  Cards1.cs:448: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:21: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:42: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:72: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:107: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:129: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:156: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:199: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:273: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:293: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:325: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:368: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:405: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:439: [Pool(typeof(LightswornCardPool))]
+  Cards2.cs:476: [Pool(typeof(LightswornCardPool))]
+  Cards3.cs:21: [Pool(typeof(LightswornCardPool))]
+  Cards3.cs:61: [Pool(typeof(LightswornCardPool))]
+  Cards3.cs:95: [Pool(typeof(LightswornCardPool))]
+  Cards3.cs:125: [Pool(typeof(LightswornCardPool))]
+  Cards3.cs:164: [Pool(typeof(LightswornCardPool))]
+  Cards3.cs:202: [Pool(typeof(LightswornCardPool))]
+  Cards3.cs:232: [Pool(typeof(LightswornCardPool))]
+  Cards3.cs:276: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:24: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:42: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:71: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:120: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:162: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:179: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:195: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:237: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:273: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:316: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:369: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:396: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:424: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:460: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:496: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:528: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:558: [Pool(typeof(LightswornCardPool))]
+  Cards4.cs:575: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:72: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:102: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:120: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:144: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:173: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:198: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:221: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:285: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:312: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:367: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:394: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:443: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:474: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:497: [Pool(typeof(LightswornCardPool))]
+  Cards5.cs:526: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:22: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:56: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:89: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:127: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:158: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:187: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:218: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:269: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:297: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:353: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:385: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:428: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:467: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:499: [Pool(typeof(LightswornCardPool))]
+  Cards6.cs:518: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:21: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:43: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:60: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:78: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:120: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:144: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:174: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:195: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:218: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:234: [Pool(typeof(LightswornCardPool))]
+  Cards7.cs:249: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:24: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:49: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:88: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:111: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:152: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:186: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:213: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:253: [Pool(typeof(LightswornCardPool))]
+  Cards8.cs:290: [Pool(typeof(LightswornCardPool))]
+========================= BaseLib.Utils.Pool
+========================= FromCard
+  Cards1.cs:31: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards1.cs:92: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards1.cs:156: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards1.cs:178: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards1.cs:236: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards1.cs:385: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards2.cs:59: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards2.cs:89: AttackCommand attack = await DamageCmd.Attack(DynamicVars.Damage.BaseValue + bonus).FromCard(this)
+  Cards2.cs:354: await DamageCmd.Attack(damage).FromCard(this)
+  Cards2.cs:383: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards3.cs:104: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards3.cs:155: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards3.cs:222: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards3.cs:261: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards3.cs:306: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards4.cs:301: AttackCommand attack = await DamageCmd.Attack(damage).FromCard(this)
+  Cards4.cs:381: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards4.cs:414: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards5.cs:84: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards5.cs:153: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards5.cs:182: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards5.cs:210: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards5.cs:233: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards5.cs:466: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards5.cs:486: await DamageCmd.Attack(damage).FromCard(this).Targeting(cardPlay.Target!).Execute(choiceContext);
+  Cards5.cs:508: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards5.cs:537: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:31: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:66: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:99: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:136: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:197: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:280: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:362: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:396: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards6.cs:439: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards8.cs:33: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards8.cs:62: await DamageCmd.Attack(damage).FromCard(this)
+  Cards8.cs:120: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards8.cs:195: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards8.cs:223: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+  Cards8.cs:262: await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+========================= CustomPowerModel
+  Powers.cs:23: public class TwilightPower : CustomPowerModel
+  Powers.cs:64: public class GarothPower : CustomPowerModel
+  Powers.cs:100: public class SanctuaryPower : CustomPowerModel
+  Powers.cs:129: public class JanicePower : CustomPowerModel
+  Powers.cs:172: public class JusticeWorldPower : CustomPowerModel
+  Powers.cs:194: public class LightBouncePower : CustomPowerModel
+  Powers.cs:212: public class LightOfDestructionPower : CustomPowerModel
+  Powers.cs:233: public class PearlWorldPower : CustomPowerModel
+  Powers.cs:253: public class PrimevalScreamPower : CustomPowerModel
+  Powers.cs:270: public class ShaddollSchismPower : CustomPowerModel
+  Powers.cs:297: public class PurushaddollAeonPower : CustomPowerModel
+  Powers.cs:318: public class HonestPower : CustomPowerModel
+  Powers.cs:342: public class SinisterShadowGamesPower : CustomPowerModel
+  Powers.cs:351: public class CurseShadowPrisonPower : CustomPowerModel
+  Powers.cs:370: public class ShaddollHoundPower : CustomPowerModel
+  Powers.cs:400: public class WendikurhuPower : CustomPowerModel
+  Powers.cs:416: public class ShaddollZefracorePower : CustomPowerModel
+  Powers.cs:434: public class ShaddollZefranagaPower : CustomPowerModel
+========================= CustomPackedIconPath
+  Powers.cs:29: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/twilight.png";
+  Powers.cs:68: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/garoth.png";
+  Powers.cs:104: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/sanctuary.png";
+  Powers.cs:135: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/janice.png";
+  Powers.cs:176: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/justice.png";
+  Powers.cs:198: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/bounce.png";
+  Powers.cs:216: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/lightofdestruction.png";
+  Powers.cs:237: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/pearlworld.png";
+  Powers.cs:257: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/primevalscream.png";
+  Powers.cs:274: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/shaddollschism.png";
+  Powers.cs:301: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/purushaddollaeon.png";
+  Powers.cs:322: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/honest.png";
+  Powers.cs:346: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/sinistershadowgames.png";
+  Powers.cs:355: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/curseshadowprison.png";
+  Powers.cs:374: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/shaddollhound.png";
+  Powers.cs:404: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/wendikurhu.png";
+  Powers.cs:420: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/zefracore.png";
+  Powers.cs:438: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/zefranaga.png";
+  Powers.cs:454: public override string? CustomPackedIconPath => "res://lightsworn/images/powers/twilightgarb.png";
+========================= CustomBigIconPath
+  Powers.cs:30: public override string? CustomBigIconPath => "res://lightsworn/images/powers/twilight_big.png";
+  Powers.cs:69: public override string? CustomBigIconPath => "res://lightsworn/images/powers/garoth_big.png";
+  Powers.cs:105: public override string? CustomBigIconPath => "res://lightsworn/images/powers/sanctuary_big.png";
+  Powers.cs:136: public override string? CustomBigIconPath => "res://lightsworn/images/powers/janice_big.png";
+  Powers.cs:177: public override string? CustomBigIconPath => "res://lightsworn/images/powers/justice_big.png";
+  Powers.cs:199: public override string? CustomBigIconPath => "res://lightsworn/images/powers/bounce_big.png";
+  Powers.cs:217: public override string? CustomBigIconPath => "res://lightsworn/images/powers/lightofdestruction_big.png";
+  Powers.cs:238: public override string? CustomBigIconPath => "res://lightsworn/images/powers/pearlworld_big.png";
+  Powers.cs:258: public override string? CustomBigIconPath => "res://lightsworn/images/powers/primevalscream_big.png";
+  Powers.cs:275: public override string? CustomBigIconPath => "res://lightsworn/images/powers/shaddollschism_big.png";
+  Powers.cs:302: public override string? CustomBigIconPath => "res://lightsworn/images/powers/purushaddollaeon_big.png";
+  Powers.cs:323: public override string? CustomBigIconPath => "res://lightsworn/images/powers/honest_big.png";
+  Powers.cs:347: public override string? CustomBigIconPath => "res://lightsworn/images/powers/sinistershadowgames_big.png";
+  Powers.cs:356: public override string? CustomBigIconPath => "res://lightsworn/images/powers/curseshadowprison_big.png";
+  Powers.cs:375: public override string? CustomBigIconPath => "res://lightsworn/images/powers/shaddollhound_big.png";
+  Powers.cs:405: public override string? CustomBigIconPath => "res://lightsworn/images/powers/wendikurhu_big.png";
+  Powers.cs:421: public override string? CustomBigIconPath => "res://lightsworn/images/powers/zefracore_big.png";
+  Powers.cs:439: public override string? CustomBigIconPath => "res://lightsworn/images/powers/zefranaga_big.png";
+  Powers.cs:455: public override string? CustomBigIconPath => "res://lightsworn/images/powers/twilightgarb_big.png";
+========================= TemporaryWrapper
+  Powers.cs:411: public class LaydenTempStrengthPower : CustomTemporaryPowerModelWrapper<Layden, StrengthPower> { }
+========================= ITranscendence
+  Cards1.cs:287: // 光道防护罩（初始卡。本批反馈问题28：作为「古老牙齿」的转化源——BaseLib ITranscendenceCard 钩子
+  Cards1.cs:292: public class Barrier : LsCard, ITranscendenceCard
+  Cards2.cs:437: // ITranscendenceCard 钩子）；因是 TranscendenceCard，达弗尘封魔典不会给到（原版规则）。
+========================= CustomCardModel
+========================= HoverTipFactory
+  Cards1.cs:216: HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>()
+  Cards1.cs:217: .Concat(HoverTipFactory.FromCardWithCardHoverTips<PunishDragon>());
+  Cards2.cs:213: HoverTipFactory.FromCardWithCardHoverTips<LightswornDragon>()
+  Cards2.cs:214: .Concat(HoverTipFactory.FromCardWithCardHoverTips<Gragonith>())
+  Cards2.cs:215: .Concat(HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>());
+  Cards3.cs:290: HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>()
+  Cards3.cs:291: .Concat(HoverTipFactory.FromCardWithCardHoverTips<PunishDragon>());
+  Cards4.cs:359: HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>()
+  Cards4.cs:360: .Concat(HoverTipFactory.FromCardWithCardHoverTips<PunishDragon>());
+  Cards4.cs:375: HoverTipFactory.FromCardWithCardHoverTips<SnowSpirit>();
+  Cards6.cs:304: HoverTipFactory.FromCardWithCardHoverTips<ElShaddollConstruct>();
+  Events.cs:41: mermaidTips.AddRange(HoverTipFactory.FromCardWithCardHoverTips<Suliek>());
+  Events.cs:42: mermaidTips.AddRange(HoverTipFactory.FromCardWithCardHoverTips<Havnis>());
+  Events.cs:43: mermaidTips.AddRange(HoverTipFactory.FromCardWithCardHoverTips<Merrli>());
+  Events.cs:44: mermaidTips.AddRange(HoverTipFactory.FromCardWithCardHoverTips<Decay>());   // 问题1：附带的诅咒「腐朽」
+========================= AddChildSafely
+========================= CustomEventModel
+========================= MultiPileCardSelect
+  Cards1.cs:231: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+  Cards5.cs:132: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+  Cards5.cs:160: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, handAttacks)).ToList();
+  Cards5.cs:238: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+  Cards5.cs:268: List<CardModel> chosen = (await MultiPileCardSelect.Select(new BlockingPlayerChoiceContext(), Owner,
+  Cards5.cs:328: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+  Cards6.cs:39: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, hand)).ToList();
+  Cards6.cs:111: List<CardModel> chosen = (await MultiPileCardSelect.Select(ctx, Owner, prefs, candidates,
+  Cards6.cs:336: List<CardModel> chosen = (await MultiPileCardSelect.Select(ctx, Owner, prefs, handAttacks)).ToList();
+  Cards6.cs:403: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+  Cards7.cs:112: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, hand)).ToList();
+  Cards8.cs:70: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, candidates,
+  Cards8.cs:128: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, handShaddoll)).ToList();
+  Cards8.cs:167: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, handShaddoll)).ToList();
+  Cards8.cs:239: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, Owner, prefs, hand)).ToList();
+  LsUtil.cs:146: // 从任意候选列表中选count张（BaseLib MultiPileCardSelect：选择界面只显示候选牌，杜绝误选）
+  LsUtil.cs:152: return (await MultiPileCardSelect.Select(ctx, player, prefs, candidates)).ToList();
+  LsUtil.cs:161: return (await MultiPileCardSelect.Select(ctx, player, prefs, candidates)).ToList();
+  LsUtil.cs:199: List<CardModel> sel = (await MultiPileCardSelect.Select(ctx, source.Owner, prefs, candidates, pileTypes)).ToList();
+  Powers.cs:115: List<CardModel> chosen = (await MultiPileCardSelect.Select(choiceContext, player, prefs, lsInHand)).ToList();
+========================= CustomEnergyCounter
+  LightswornContent.cs:355: // 数字描边深棕、爆发金色——同 v0.4.x 的 BaseLib legacy CustomEnergyCounter 观感）。
+  LightswornContent.cs:356: // 此处不再给 CustomEnergyCounterPath（null=不用游戏场景路径，交给自建补丁）。 ----------
+========================= LoseBlock
+  Cards1.cs:155: await CreatureCmd.LoseBlock(target, target.Block);
+========================= ModifyDamageMultiplicative
+  Entry.cs:26: patcher.RegisterPatch<HonestPowerLegacyPatch>();              // 欧尼斯特：0.107.x 五参 ModifyDamageMultiplicative
+  Powers.cs:325: public override decimal ModifyDamageMultiplicative(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel?
+========================= RelicImageOverride
+  LightswornContent.cs:103: // 商店价走 Rarity 默认 MerchantCost=225。图标=RelicAssetProfile（原 BaseLib RelicImageOverridePatch 的替代）。
+========================= PlaceholderCharacter
+  LightswornContent.cs:228: // v0.5.0：BaseLib PlaceholderCharacterModel → RitsuLib ModCharacterTemplate（PlaceholderCharacterId="ironclad"，
+========================= NModListButton-NButton
+  FusionCodex.cs:19: // v0.5.0：按钮从"自 patch NTopBar + 自建 NButton 子类"改为 RitsuLib ModTopBarButtonRegistry
+========================= KeywordProps
+  Ls.cs:5: // 自定义标签与关键词（v0.5.0 RitsuLib 迁移：BaseLib 的 [CustomEnum] 特性 → ModCardTagRegistry/ModKeywordRegistry 铸造）
+  Ls.cs:58: // BaseLib 的 [KeywordProperties(AutoKeywordPosition.Before)]（关键词行自动插到卡面描述前）。

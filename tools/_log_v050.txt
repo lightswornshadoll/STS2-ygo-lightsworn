@@ -1,0 +1,123 @@
+LOG: godot.log lines: 3551
+   10 [INFO] Registered 22 migrations
+   11 [INFO] Current save versions: PrefsSave v2; ProfileSave v2; SerializableProgress v24; RunHistory v10; SerializableRun v20; SettingsSave v8
+   12 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\Lightsworn.json
+   14 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747602295\mod_manifest.json
+   16 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.json
+   18 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747595039\MinionLib\MinionLib.json
+   20 [INFO] Found mod manifest file D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747644378\shadowversebydmod.json
+   52 version: 32.0.16.0
+   54 version: 31.0.101.0
+   60 version: 10.0.26100.0
+   81 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.dll
+   82 [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.pck
+   90 [INFO] [BaseLib] Registered config for mod BaseLib
+   92 [INFO] [BaseLib] Naive game version: v0.111.0
+  105 [INFO] [BaseLib] Applied 282 patches successfully, 0 failed
+  107 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747595039\MinionLib\MinionLib.dll
+  108 [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747595039\MinionLib\MinionLib.pck
+  111 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747602295\STS2-RitsuLib.dll
+  112 [INFO] Calling initializer method of type STS2RitsuLib.Loader.Bootstrap for STS2-RitsuLib.Loader, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  113 [INFO] [RitsuLib.Loader] Host=v0.111.0; runtime=0.111.0.
+  114 [INFO] Associated assembly STS2-RitsuLib.Shared, Version=0.6.7.0, Culture=neutral, PublicKeyToken=null with mod STS2-RitsuLib
+  115 [INFO] Associated assembly STS2-RitsuLib.Ui, Version=0.6.7.0, Culture=neutral, PublicKeyToken=null with mod STS2-RitsuLib
+  116 [INFO] Associated assembly STS2-RitsuLib.Settings, Version=0.6.7.0, Culture=neutral, PublicKeyToken=null with mod STS2-RitsuLib
+  117 [INFO] Associated assembly STS2-RitsuLib.Runtime, Version=0.6.7.0, Culture=neutral, PublicKeyToken=null with mod STS2-RitsuLib
+  118 [INFO] Associated assembly STS2-RitsuLib, Version=0.6.7.0, Culture=neutral, PublicKeyToken=null with mod STS2-RitsuLib
+  119 [INFO] [com.ritsukage.sts2-RitsuLib] Framework ID: com.ritsukage.sts2-RitsuLib
+  120 [INFO] [com.ritsukage.sts2-RitsuLib] Framework Name: RitsuLib
+  121 [INFO] [com.ritsukage.sts2-RitsuLib] Version: 0.6.7 [compat branch: 0.111.0]
+  122 [INFO] [com.ritsukage.sts2-RitsuLib] Initializing shared framework...
+  123 [INFO] [com.ritsukage.sts2-RitsuLib] [HarmonyInitSetterCompat] Installed on 2 reflection importer entry point(s).
+  124 [INFO] [com.ritsukage.sts2-RitsuLib] [Config] Debug compatibility master is enabled. Sub-flags (only when master on): LocTable=True, UnlockEpoch=True, AncientArchitect=True. Mod Steam cloud mirror: disabled. Config file: user://st
+  125 [INFO] [com.ritsukage.sts2-RitsuLib] [RitsuLib-ModSettings] Loaded translations: language='zhs', fallback='eng', entries=1663, local=1663, fallbackEntries=0, sources=2 (local=1, fallback=1)
+  126 [INFO] [com.ritsukage.sts2-RitsuLib] [DebugLogViewer] Local debug log viewer listening at http://127.0.0.1:18742/?token=4f07899f1f49a7bd6fe9a6f9051f3f9e
+  127 [INFO] [com.ritsukage.sts2-RitsuLib] [Godot] RitsuGodot node factories initialized.
+  128 [INFO] [com.ritsukage.sts2-RitsuLib] [SmartFormat] Registered Source: STS2RitsuLib.Combat.SecondaryResources.SecondaryResourceLocStringSource (order=0).
+  129 [INFO] [com.ritsukage.sts2-RitsuLib] [SmartFormat] Registered Formatter: STS2RitsuLib.Combat.SecondaryResources.SecondaryResourceIconsFormatter (order=0).
+  130 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Applying 432 patches...
+  131 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Patch application complete: 432 applied, 0 ignored, 0 failed, 432 total
+  132 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] All patches applied successfully
+  133 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - settings ui] Applying 18 patches...
+  134 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - settings ui] Patch application complete: 18 applied, 0 ignored, 0 failed, 18 total
+  135 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - settings ui] All patches applied successfully
+  136 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content assets] Applying 120 patches...
+  137 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content assets] Patch application complete: 120 applied, 0 ignored, 0 failed, 120 total
+  138 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content assets] All patches applied successfully
+  139 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - character assets] Applying 53 patches...
+  140 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - character assets] Patch application complete: 53 applied, 0 ignored, 0 failed, 53 total
+  141 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - character assets] All patches applied successfully
+  142 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] Applying 31 patches...
+  143 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] Patch application complete: 31 applied, 0 ignored, 0 failed, 31 total
+  144 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] All patches applied successfully
+  145 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - persistence] Applying 3 patches...
+  146 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - persistence] Patch application complete: 3 applied, 0 ignored, 0 failed, 3 total
+  147 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - persistence] All patches applied successfully
+  148 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - unlocks] Applying 22 patches...
+  149 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - unlocks] Patch application complete: 22 applied, 0 ignored, 0 failed, 22 total
+  150 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - unlocks] All patches applied successfully
+  151 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Applying 3 dynamic patch(es)...
+  152 [INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Dynamic patch application complete: 3/3 succeeded
+  153 [INFO] [com.ritsukage.sts2-RitsuLib] [RuntimeHotkey] Registered 'Ctrl+Shift+F9' for RitsuLib mod settings
+  154 [INFO] [com.ritsukage.sts2-RitsuLib] [RuntimeHotkey] Registered 'Ctrl+Shift+F10' for RitsuLib developer tools
+  155 [INFO] [com.ritsukage.sts2-RitsuLib] [RuntimeHotkey] Registered 'Ctrl+Shift+F11' for RitsuLib combat creature picker
+  156 [INFO] [com.ritsukage.sts2-RitsuLib] [Graphics] 2D texture filter applied: linear_mipmap.
+  157 [INFO] [com.ritsukage.sts2-RitsuLib] [SteamWorkshopUpdate] Coordinator initialized.
+  158 [INFO] [com.ritsukage.sts2-RitsuLib] Shared framework initialization complete.
+  159 [INFO] Finished mod initialization for 'RitsuLib' (STS2-RitsuLib).
+  160 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747644378\shadowversebydmod.dll
+  161 [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\workshop\content\2868840\3747644378\shadowversebydmod.pck
+  164 [INFO] [shadowversebydmod] [TopBar] Registered top-bar button: SHADOWVERSEBYDMOD_TOPBARBUTTON_CARD_ARCHETYPES (Order=20)
+  165 [INFO] [com.ritsukage.sts2-RitsuLib] [Telemetry] Registered contribution 'shadowversebydmod/card_archetype_pool' (RunHistory, PrivateToApplicant).
+  166 [INFO] [com.ritsukage.sts2-RitsuLib] [Telemetry] Registered applicant 'shadowversebydmod' -> https://telemetry.shadowversebydmod.cc/batch/ (5 request(s)).
+  169 [INFO] Loading assembly DLL D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\lightsworn.dll
+  170 [INFO] Loading Godot PCK D:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\mods\Lightsworn\lightsworn.pck
+  171 [INFO] Calling initializer method of type Lightsworn.Entry for Lightsworn, Version=0.5.0.0, Culture=neutral, PublicKeyToken=null
+  172 [INFO] [lightsworn] [CardTags] Registered tag: LIGHTSWORN_CARDTAG_LIGHTSWORN (CardTag=0x7294A3DA)
+  173 [INFO] [lightsworn] [CardTags] Registered tag: LIGHTSWORN_CARDTAG_EARTH_ANGEL (CardTag=0x46C08086)
+  174 [INFO] [lightsworn] [CardTags] Registered tag: LIGHTSWORN_CARDTAG_FIENDSMITH (CardTag=0x540C8DEC)
+  175 [INFO] [lightsworn] [CardTags] Registered tag: LIGHTSWORN_CARDTAG_TEARLAMENTS (CardTag=0x69F027CB)
+  176 [INFO] [lightsworn] [CardTags] Registered tag: LIGHTSWORN_CARDTAG_SHADDOLL (CardTag=0x5C4B2B0F)
+  177 [INFO] [lightsworn] [Keywords] Registered keyword: LIGHTSWORN_KEYWORD_MILL (CardKeyword=0x5F427536)
+  178 [INFO] [lightsworn] [Keywords] Registered keyword: LIGHTSWORN_KEYWORD_BANISH (CardKeyword=0x79FCBF07)
+  179 [INFO] [lightsworn] [Keywords] Registered keyword: LIGHTSWORN_KEYWORD_TWILIGHT (CardKeyword=0x7602A4E4)
+  180 [INFO] [lightsworn] [Keywords] Registered keyword: LIGHTSWORN_KEYWORD_TEARFUSION (CardKeyword=0x55935F94)
+  181 [INFO] [lightsworn] [Keywords] Registered keyword: LIGHTSWORN_KEYWORD_SHADDOLLFUSION (CardKeyword=0x7FB9B58E)
+  182 [INFO] [lightsworn] [TopBar] Registered top-bar button: LIGHTSWORN_FUSION_CODEX (Order=100)
+  183 [INFO] [lightsworn] [Patcher - core] Applying 4 patches...
+  186 [INFO] [lightsworn] [Patcher - core] All required patches applied; 1 optional patch target(s) were ignored
+  187 [INFO] Lightsworn mod initialized!
+  188 [INFO] Finished mod initialization for '光道 Lightsworn' (lightsworn).
+  189 [INFO] [com.ritsukage.sts2-RitsuLib]
+  190 === RitsuLib Mod Debug Information ===
+  192 RitsuLib Version: 0.6.7 [compat branch: 0.111.0]
+  195 Registered Mods: 5
+  199 * RitsuLib [STS2-RitsuLib] (0.6.7) workshopId=3747602295
+  201 * 光道 Lightsworn [lightsworn] (0.5.0)
+  208 [INFO] [com.ritsukage.sts2-RitsuLib] [UpdateCheck] Automatic scheduler started: essential initialization starting.
+  209 [INFO] [com.ritsukage.sts2-RitsuLib] [SteamWorkshopUpdate] Auto check requested.
+  210 [INFO] [com.ritsukage.sts2-RitsuLib] [SteamWorkshopUpdate] Starting Auto check. SteamInitialized=True.
+  211 [INFO] [com.ritsukage.sts2-RitsuLib] [SteamWorkshopUpdate] Steamworks Workshop binding initialized.
+  215 [INFO] [com.ritsukage.sts2-RitsuLib] [SteamWorkshopUpdate] Scanning subscribed Workshop items. Reported=4, Returned=4.
+  218 [INFO] [lightsworn] [Content] Registered card: Aegis (id=LIGHTSWORN_CARD_AEGIS) -> LightswornCardPool
+  219 [INFO] [lightsworn] [Content] Registered card: Agido (id=LIGHTSWORN_CARD_AGIDO) -> LightswornCardPool
+  220 [INFO] [lightsworn] [Content] Registered card: Barrier (id=LIGHTSWORN_CARD_BARRIER) -> LightswornCardPool
+  221 [INFO] [lightsworn] [Content] Registered relic: CatsAndDogs (id=LIGHTSWORN_RELIC_CATS_AND_DOGS) -> LightswornRelicPool
+  222 [INFO] [lightsworn] [Content] Registered card: Celestia (id=LIGHTSWORN_CARD_CELESTIA) -> LightswornCardPool
+  223 [INFO] [lightsworn] [Content] Registered card: CurseShadowPrison (id=LIGHTSWORN_CARD_CURSE_SHADOW_PRISON) -> LightswornCardPool
+  224 [INFO] [lightsworn] [Content] Registered card: DarkMarch (id=LIGHTSWORN_CARD_DARK_MARCH) -> LightswornCardPool
+  225 [INFO] [lightsworn] [Content] Registered card: Decree (id=LIGHTSWORN_CARD_DECREE) -> LightswornCardPool
+  226 [INFO] [lightsworn] [Content] Registered card: Dragostapelia (id=LIGHTSWORN_CARD_DRAGOSTAPELIA) -> LightswornCardPool
+  227 [INFO] [lightsworn] [Content] Registered card: Ehren (id=LIGHTSWORN_CARD_EHREN) -> LightswornCardPool
+  228 [INFO] [lightsworn] [Content] Registered card: ElShaddollAnoyatyllis (id=LIGHTSWORN_CARD_EL_SHADDOLL_ANOYATYLLIS) -> LightswornCardPool
+  229 [INFO] [lightsworn] [Content] Registered card: ElShaddollApkallone (id=LIGHTSWORN_CARD_EL_SHADDOLL_APKALLONE) -> LightswornCardPool
+  230 [INFO] [lightsworn] [Content] Registered card: ElShaddollConstruct (id=LIGHTSWORN_CARD_EL_SHADDOLL_CONSTRUCT) -> LightswornCardPool
+  231 [INFO] [lightsworn] [Content] Registered card: ElShaddollFusion (id=LIGHTSWORN_CARD_EL_SHADDOLL_FUSION) -> LightswornCardPool
+  232 [INFO] [lightsworn] [Content] Registered card: ElShaddollGrysta (id=LIGHTSWORN_CARD_EL_SHADDOLL_GRYSTA) -> LightswornCardPool
+  233 [INFO] [lightsworn] [Content] Registered card: ElShaddollMeshahrail (id=LIGHTSWORN_CARD_EL_SHADDOLL_MESHAHRAIL) -> LightswornCardPool
+  234 [INFO] [lightsworn] [Content] Registered card: ElShaddollShekhinaga (id=LIGHTSWORN_CARD_EL_SHADDOLL_SHEKHINAGA) -> LightswornCardPool
+  235 [INFO] [lightsworn] [Content] Registered card: ElShaddollWendigo (id=LIGHTSWORN_CARD_EL_SHADDOLL_WENDIGO) -> LightswornCardPool
+  236 [INFO] [lightsworn] [Content] Registered card: ElShaddollWinda (id=LIGHTSWORN_CARD_EL_SHADDOLL_WINDA) -> LightswornCardPool
+  237 [INFO] [lightsworn] [Content] Registered card: Felis (id=LIGHTSWORN_CARD_FELIS) -> LightswornCardPool
+  238 [INFO] [lightsworn] [Content] Registered card: FlashFantasy (id=LIGHTSWORN_CARD_FLASH_FANTASY) -> LightswornCardPool
+...truncated

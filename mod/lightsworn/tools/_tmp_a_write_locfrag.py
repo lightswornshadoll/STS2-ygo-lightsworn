@@ -1,0 +1,33 @@
+# -*- coding: utf-8 -*-
+import os, json
+
+fragment = {
+    "LIGHTSWORN-LYLA.title": "光道魔术师 丽拉",
+    "LIGHTSWORN-LYLA.description": "弃光{Mill:diff()}。目标敌人失去{Debuff:diff()}点力量和敏捷。",
+    "LIGHTSWORN-EHREN.title": "光道武僧 艾琳",
+    "LIGHTSWORN-EHREN.description": "弃光{Mill:diff()}。造成{Damage:diff()}点伤害。若目标有格挡，则不造成伤害，改为清除其所有格挡。",
+    "LIGHTSWORN-LIGHTSWORN_DRAGON.title": "光道之龙",
+    "LIGHTSWORN-LIGHTSWORN_DRAGON.description": "弃牌堆中存在「光道」牌时才能打出。从手牌或抽牌堆中选择{Dump:diff()}张「光道」牌弃置，然后造成{Damage:diff()}点伤害。\n[gold]从卡组被弃置时[/gold]：若抽牌堆中有「裁决之龙」或「惩戒之龙」，选择1张加入手牌。",
+    "LIGHTSWORN-JANICE.title": "光道祭司 珍妮丝",
+    "LIGHTSWORN-JANICE.description": "本回合若发动过弃光，回合结束时回复{Amount:diff()}点生命，并对随机一名敌人造成{Amount:diff()}点伤害。",
+    "LIGHTSWORN-FELIS.title": "光道弓手 费莉丝",
+    "LIGHTSWORN-FELIS.description": "弃光{Mill:diff()}。获得{Block:diff()}点格挡。随机一名敌人获得1层易伤。\n[gold]从卡组被弃置时[/gold]自动加入手牌。只有通过抽牌以外的方式入手时才能打出。",
+}
+
+out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "locfrag")
+os.makedirs(out_dir, exist_ok=True)
+out_path = os.path.join(out_dir, "cards_A.json")
+
+# 若已存在（并行/重跑），合并而不是覆盖
+existing = {}
+if os.path.exists(out_path):
+    with open(out_path, "r", encoding="utf-8") as f:
+        existing = json.load(f)
+existing.update(fragment)
+
+with open(out_path, "w", encoding="utf-8") as f:
+    json.dump(existing, f, ensure_ascii=False, indent=2)
+    f.write("\n")
+
+print("written:", out_path)
+print("entries:", len(existing))

@@ -1,0 +1,12 @@
+{
+  "LIGHTSWORN_KEYWORD_MILL.title": "弃光",
+  "LIGHTSWORN_KEYWORD_MILL.description": "弃光N：从抽牌堆顶部将N张牌弃置。弃牌堆即墓地——弃掉的牌会喂养墓地收益。抽牌堆不足时只弃现有部分，不会自动把弃牌堆洗回。",
+  "LIGHTSWORN_KEYWORD_BANISH.title": "除光",
+  "LIGHTSWORN_KEYWORD_BANISH.description": "除光N：从抽牌堆中选择N张牌消耗（不足时全部消耗）。被除光的牌本场战斗移出牌库，无法再次使用。",
+  "LIGHTSWORN_KEYWORD_TWILIGHT.title": "暮光",
+  "LIGHTSWORN_KEYWORD_TWILIGHT.description": "暮光：触发弃光时，若抽牌堆的牌不够弃光数量，消耗2层暮光，将弃牌堆洗回抽牌堆，回复1点能量，并补完剩余弃光。",
+  "LIGHTSWORN_KEYWORD_TEARFUSION.title": "珠泪融合",
+  "LIGHTSWORN_KEYWORD_TEARFUSION.description": "珠泪融合：拥有此效果的卡被弃置时发动——从弃牌堆选择1~2张其他珠泪攻击牌或影依牌（触发珠泪融合的卡本身自动作为素材）放回抽牌堆（融合卡被选做素材时改为消耗），然后从满足融合条件的融合卡中选择1张加入手牌（触发卡已升级则融合出强化版）。同一回合每张融合卡只能生成1次；融合卡离开弃牌堆时消耗（回手牌/回卡组都消耗），被效果从消耗堆加入手牌则保留。素材数量须与融合条件严格一致，各融合卡的条件见其卡面说明。",
+  "LIGHTSWORN_KEYWORD_SHADDOLLFUSION.title": "影融",
+  "LIGHTSWORN_KEYWORD_SHADDOLLFUSION.description": "影融：弃置手牌中2~3张牌作为素材（神影依也可作素材），从满足融合条件的神影依中选择1张加入手牌（0费）。素材的「被弃置时」效果照常触发；神影依每回合各只能生成1次；神影依离开弃牌堆时消耗（回手牌/回卡组都消耗），被效果从消耗堆加入手牌则保留。素材数量须与融合条件严格一致，各融合卡的条件见其卡面说明。"
+}

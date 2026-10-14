@@ -1,0 +1,954 @@
+# 杀戮尖塔2 mod《光道》设计文档 v1.1
+
+> v1.1（mod v0.3.0）：根据首轮试玩反馈调整——修复选取bug（改用MultiPileCardSelect，选择界面只显示候选牌）；白雪重做为本体+雪之化身令牌；裁决/惩戒之龙改0费条件打出（墓地≥4种光道，同华丽收场机制）；沃尔夫/费莉丝改0费"非抽牌入手才能打出+被弃光自动跳进手牌"；光道细剑增加被弃光自动入手且当回合0费。
+
+> 主题：游戏王「光道（ライトロード / Lightsworn）」 archetype
+> 平台：杀戮尖塔2（Slay the Spire 2，v0.107.1，Godot 4.5.1 Mono）
+> 基础库：BaseLib v3.4.7
+> mod形式：新增角色「光道召唤师」+ 专属卡池（占位人物模型，使用原版资源兜底）
+
+## 一、机制映射总则
+
+| 游戏王 | 杀戮尖塔2 | 说明 |
+|---|---|---|
+| 卡组 | 抽牌堆 | — |
+| 墓地 | 弃牌堆 | 弃牌堆循环洗回抽牌堆（尖塔规则），所以「堆墓」在尖塔里是**加速循环、喂养墓地收益**，越堆越强 |
+| 除外 | 消耗堆 | 「除外」=将卡牌移入消耗堆。本mod描述里统一写「消耗」，消耗即除外 |
+| 上级召唤/同调/超量/连接 | 高费稀有卡 | 本家怪兽按星级映射费用：1~4星→0~1费，5~6星→1~2费，同调/超量/连接→2~3费 |
+| 攻击力 | 伤害 | 约 700 ATK ≈ 9 伤害 |
+| 结束阶段堆墓 | 卡牌效果的「弃光」 | 打出即结算，不再按回合 |
+
+### 自定义关键词
+
+- **弃光 N**：从抽牌堆顶部将 N 张牌弃置。这是光道的灵魂机制：弃掉的牌进入弃牌堆（墓地），成为各种收益的燃料。
+- **消耗（除外）**：将一张牌移入消耗堆。「消耗弃牌堆中的1张牌」即"除外墓地里的卡"，那场战斗中它不会再回来。
+- **「光道」**：本家43张共有的标签（tag）。能力与卡牌效果里"打出/弃置「光道」牌"都以此判定。
+- **「地天使」**：现世与冥界四件套（阿基多/凯尔柏克/凯尔多/姆多拉）的标签。
+- **「刻魔」**：刻魔系列卡的标签。
+- **暮光**：暮光道萨满给予的可叠加能力，见卡片设计。
+
+> 弃牌堆=墓地的深意：尖塔2里弃牌堆不会消失、会重新洗回抽牌堆，所以**弃光是赚不是亏**；真正的代价（真正让牌离场）用「消耗」承担，这正是暮光道系列的"除外"玩法。堆墓轴的强度以「卡组里光道浓度」和「墓地收益卡的稀有度」来平衡。
+
+## 二、初始卡组（10张）
+
+| 卡名 | 类型 | 费用 | 效果 | 升级 |
+|---|---|---|---|---|
+| 光刃×5 | 攻击 | 1 | 造成6点伤害。 | +3 |
+| 光盾×4 | 技能 | 1 | 获得5点格挡。 | +3 |
+| 光之援军 | 技能 | 1 | **从抽牌堆**将1张「光道」牌加入手牌（本回合费用为0）。 | 费用1→0 |
+
+## 三、本家43张
+
+### 怪兽（26张）
+
+**通用（Common）**
+
+1. **光道猎犬 雷光**（Ryko，反转：破坏1张卡+堆3）
+   技能 1费：**弃光3**。移除目标敌人的1个随机增益。
+   ＋：改为移除2个随机增益。
+
+2. **光道圣骑士 简**（Jain，战斗时+300攻+堆2）
+   攻击 1费：造成9点伤害。**弃光2**。
+   ＋：+4伤害。
+
+3. **光道魔术师 丽拉**（Lyla，破坏魔陷+堆3）
+   技能 1费：**弃光3**。抽1张牌。
+   ＋：抽2张牌。
+
+4. **光道武僧 艾琳**（Ehren，弹回守备怪兽+堆3）
+   攻击 1费：造成6点伤害。**弃光3**。若弃置的牌中有「光道」牌，抽1张牌。
+   ＋：+4伤害。
+
+5. **光道兽 沃尔夫**（Wulf，被堆墓即免费上场的大打点）
+   攻击 1费：造成12点伤害。**弃光3**。
+   ＋：+4伤害。
+
+6. **光道之龙**（新支援龙，墓地有光道就强化）
+   攻击 1费：造成9点伤害。**弃光3**。若弃牌堆中存在「光道」牌，此牌伤害+3。
+   ＋：+4伤害（含加成的+3→+7）。
+
+7. **光道祭司 珍妮丝**（光道被堆墓的回合回血奶）
+   技能 1费：**弃光3**。每弃置1张「光道」牌，回复3点生命。
+   ＋：改为回复4点。
+
+8. **光道防护罩**（堆2无效一次攻击）
+   技能 1费：**弃光2**。获得10点格挡。
+   ＋：+3格挡。
+
+9. **光道贼猫 雷喵**（反转：墓地光道回卡组+抽1）
+   技能 1费：将弃牌堆中最多2张「光道」牌洗回抽牌堆，抽1张牌。
+   ＋：改为最多3张。
+
+10. **光道暗杀者 莱登**（Link4，堆2+光道则加攻）
+    攻击 1费：造成8点伤害。**弃光2**。若弃置了「光道」牌，此牌伤害+4。
+    ＋：+4伤害。
+
+11. **光道弓手 费莉丝**（被堆墓自动上场；解放点杀+堆3）
+    攻击 1费：造成8点伤害。**弃光3**。若弃置了「光道」牌，再造成6点伤害。
+    ＋：+4伤害。
+
+**非通用（Uncommon）**
+
+12. **光道战士 加洛斯**（Garoth，其他光道堆墓时跟进堆2并补牌）
+    能力 2费：每当你打出其他「光道」牌，**弃光2**。
+    ＋：弃光2→3。
+
+13. **光道召唤师 露米娜丝**（Lumina，丢1复活光道；核心引擎）→ 稀有（见下）
+
+14. **光道天使 塞勒斯特 基路伯**（Celestia，解放→堆4炸2）
+    攻击 2费：对目标造成12点伤害，对所有其他敌人造成6点伤害。**弃光4**。
+    ＋：16 / 9。
+
+15. **光道龙 格拉古尼斯**（Gragonith，墓地光道种类×300攻）
+    攻击 2费：造成14点伤害，弃牌堆中每有1张「光道」牌额外+2点。**弃光3**。
+    ＋：基础14→18。
+
+16. **光道圣灵 夏尔**（Shire，墓地光道×300攻的守壁）
+    技能 1费：获得10点格挡，弃牌堆中每有1张「光道」牌额外+1点。
+    ＋：基础10→14。
+
+17. **光道德鲁伊 奥库斯**（Orcus，保护光道的结界兽）
+    能力 2费：每回合开始时，**弃光2**并获得6点格挡。
+    ＋：改为8点格挡。
+
+18. **光道恶魔 魏丝**（Weiss，手卡光道回卡组顶特招）
+    技能 1费：将手牌中最多2张「光道」牌洗回抽牌堆，然后抽2张牌。
+    ＋：抽2→3。
+
+19. **光道少女 密涅瓦**（Link3少女，检索龙族）
+    技能 1费：将抽牌堆中1张「光道」牌加入手牌。**弃光2**。
+    ＋：弃光2→3。
+
+20. **暮光道斗犬 雷光**（除1光道→除外场上1卡）
+    技能 1费：**消耗弃牌堆中的1张「光道」牌**。移除目标敌人2个随机增益。
+    ＋：改为3个。
+
+21. **暮光道巫师 丽拉**（除1光道→破坏魔陷）
+    技能 1费：**消耗弃牌堆中的1张「光道」牌**。抽2张牌。
+    ＋：抽2→3。
+
+22. **暮光道将军 简**（除1光道→降攻降守）
+    攻击 1费：**消耗弃牌堆中的1张「光道」牌**。造成16点伤害。
+    ＋：+6伤害。
+
+23. **光道宰制者 基里奥斯**（Link3，连接成功堆1卡；离开时回收）
+    攻击 2费：造成20点伤害。**弃光3**。将弃置的1张「光道」牌加入手牌。
+    ＋：+4伤害。
+
+24. **光道的裁决**（被光道堆墓时检索裁决之龙）
+    技能 1费：**弃光3**。将「裁决之龙」加入手牌（从抽牌堆或弃牌堆找，找不到则抽1张牌）。
+    ＋：弃光3→4。
+
+### 稀有（Rare）
+
+25. **光道召唤师 露米娜丝**（Lumina，光道引擎本体）
+    技能 1费：**弃光3**。将弃牌堆中1张「光道」牌加入手牌，其费用在本回合内变为0。
+    ＋：改为将2张加入手牌（均变为0费）。
+
+26. **暮光道萨满 露米娜丝**（Twilight Lumina，**按用户指定设计**）
+    技能 1费：**消耗弃牌堆中的1张「光道」牌**，将消耗堆中的1张「光道」牌加入手牌，其费用变为0。获得1层**暮光**。
+    能力「暮光」（可叠加）：当你打出「光道」牌时，**弃光3**，然后层数-1。
+    ＋：获得2层暮光。
+
+27. **光道主·大天使 米迦勒**（同调7，支付1000除外场上1卡）
+    攻击 2费：造成24点伤害。**消耗弃牌堆中的1张「光道」牌**。
+    ＋：+8伤害。
+
+28. **光道雅典娜 密涅瓦**（同调8，按同调素材数量堆墓；除外墓地光道→等量堆墓）
+    能力 3费：每回合开始时，**弃光4**，每弃置1张「光道」牌抽1张牌。
+    ＋：弃光4→6。
+
+29. **光道圣女 密涅瓦**（超量4，取素材堆3，堆到光道就抽等量）
+    技能 1费：**弃光3**，每弃置1张「光道」牌抽1张牌。
+    ＋：弃光3→4。
+
+30. **裁决之龙**（3000打点核弹，烧1000清场）
+    攻击 3费：对所有敌人造成26点伤害。**弃光4**。
+    ＋：+8伤害。
+
+31. **惩戒之龙**（除外4种以上才能召唤；双方墓地全部回卡组）
+    攻击 2费：**消耗弃牌堆中最多4张牌**，每消耗1张，对所有敌人造成5点伤害。
+    ＋：每张7点。
+
+### 魔法·陷阱（本家，5张）
+
+32. **光道的神域**（场地：丢光道→回收；光指示物保护）
+    能力 2费：每回合开始时，**弃光2**，并从弃牌堆将1张「光道」牌洗回抽牌堆。
+    ＋：改为洗回2张。
+
+33. **光道细剑**（装备+700；被堆墓时自动装备）
+    技能 1费：本回合你打出的攻击牌伤害+4。**弃光2**。
+    ＋：+4→6。
+
+34. **光道埃癸斯盾**（按场上光道数无效对方效果）
+    能力 2费：每当你打出「光道」牌，获得4点格挡。
+    ＋：4→6。
+
+35. **光之援军**（堆3检索4星以下光道）
+    技能 1费：**弃光3**。若其中有「光道」牌，将其中1张加入手牌。
+    ＋：弃光3→4。
+
+36. **太阳交换**（丢光道抽2+堆2）
+    技能 1费：将手牌中1张「光道」牌弃置。抽2张牌。**弃光2**。
+    ＋：抽2→3。
+
+37. **暗之进军**（墓地光道回手，再按等级除外卡组顶）
+    技能 1费：将弃牌堆中1张「光道」牌加入手牌。**弃光2**。
+    ＋：该牌本回合费用变为0。
+
+38. **正义世界**（场地，堆墓就叠光指示物加攻）
+    能力 1费：每当你弃置1张「光道」牌，获得1点格挡（每回合至多6次）。
+    ＋：上限6→10。
+
+39. **光之回弹**（光道堆墓→除外对方卡组）
+    能力 2费：每当你弃置1张「光道」牌，获得1点力量（每回合至多5次）。
+    ＋：上限5→8。
+
+40. **黄昏之抹杀**（除外墓地2光道→除外场上2卡）
+    技能 1费：**消耗弃牌堆中的2张「光道」牌**。移除目标敌人的2个随机增益，抽1张牌。
+    ＋：改为3个增益。
+
+41. **黄昏之交衣**（除外墓地光道→加攻加守）
+    技能 1费：**消耗弃牌堆中任意数量的「光道」牌**，每消耗1张获得3点格挡。
+    ＋：3→4。
+
+42. **闪光之幻想**（墓地光道特招）
+    技能 1费：将弃牌堆中1张「光道」牌置于抽牌堆顶。**弃光2**。
+    ＋：弃光2→3。
+
+43. **黄昏之双龙**（裁决/惩戒双检索）
+    技能 1费：**弃光3**。将弃牌堆中1张「裁决之龙」或「惩戒之龙」加入手牌（没有则抽1张牌）。
+    ＋：该牌本回合费用变为0。
+
+> 注：光之援军/太阳交换等支援卡在游戏王里不属于「光道」字段，但本mod里43张全部打上「光道」标签（它们都被光道构筑使用，且都围绕堆墓），符合用户"本家43张"的定义。
+
+## 四、非本家卡（12张）
+
+### 地天使·现世与冥界四件套（标签「地天使」）
+
+44. **古卫兵 阿基多**（对方墓地动→自特招；被堆墓→双方各堆5）
+    技能 1费：**弃光5**。若其中有「光道」牌，抽1张牌。
+    ＋：弃光5→7。
+
+45. **古尖兵 凯尔柏克**（被堆墓→双方各堆5，可盖陷阱）
+    技能 1费：**弃光5**。若其中有「光道」牌，获得8点格挡。
+    ＋：弃光5→7。
+
+46. **宿神像 凯尔多**（丢地天使→自特招检索现冥；除外自己→洗回墓地）
+    技能 0费：将弃牌堆中1张「光道」牌洗回抽牌堆，抽1张牌。
+    ＋：改为2张。
+
+47. **剑神官 姆多拉**（丢地天使→自特招盖陷阱）
+    攻击 1费：造成9点伤害。**弃光3**。若弃置了「地天使」牌，此牌伤害+5。
+    ＋：+4伤害。
+
+### 其他常用外挂
+
+48. **妖精传姬-白雪**（除外7张→墓地复活；反制怪兽）
+    技能 1费：**消耗弃牌堆中的3张牌**（任意牌）。造成10点伤害。
+    ＋：+4伤害。
+
+49. **邻家割草**（把卡组堆到和对方一样多）
+    技能 1费：**弃光**（抽牌堆牌数的一半，向下取整）。
+    ＋：改为弃光后抽1张牌。
+
+50. **欧尼斯特**（光属性战斗要塞，老光道必带）
+    技能 0费（消耗）：本回合你的下一次攻击伤害翻倍。
+    ＋：改为下两次攻击。
+
+### 刻魔系列（标签「刻魔」）
+
+51. **刻印群魔的刻魔锻冶师**（丢自己→检索刻魔魔陷）
+    技能 1费：**弃光2**。将弃牌堆中1张「刻魔」牌加入手牌。
+    ＋：弃光2→3。
+
+52. **刻魔 落泪之日**（融合怪兽，登场回收+烧1200）
+    攻击 1费：造成8点伤害。**消耗弃牌堆中的1张「刻魔」牌**（若有），此牌伤害+8。
+    ＋：+4伤害。
+
+53. **刻魔的咏圣**（检索刻魔→丢1张手卡）
+    技能 1费：将抽牌堆中1张「刻魔」牌加入手牌，然后弃置1张手牌（任意）。
+    ＋：改为从抽牌堆或弃牌堆中找。
+
+54. **刻魔的镇魂棺**（自解放→特招刻魔+装备+600）
+    技能 1费：**消耗弃牌堆中的1张「刻魔」牌**（若有）。本回合获得4点力量。
+    ＋：4→6。
+
+55. **刻魔的怜歌**（战斗保护；除外墓地→融合）
+    技能 1费：**消耗弃牌堆中的2张牌**（任意牌）。获得10点格挡。
+    ＋：+4格挡。
+
+## 五、稀有度分布
+
+- 通用（Common）15张：雷光、圣骑士简、魔术师丽拉、武僧艾琳、沃尔夫、光道之龙、珍妮丝、防护罩、贼猫雷喵、暗杀者莱登、弓手费莉丝、光之援军、太阳交换、闪光之幻想、宿神像凯尔多、欧尼斯特、刻魔的咏圣、刻魔的怜歌（+初始光刃/光盾/光之援军）
+- 非通用（Uncommon）17张：加洛斯、基路伯、格拉古尼斯、夏尔、奥库斯、魏丝、少女密涅瓦、暮雷光、暮丽拉、暮简、基里奥斯、光道的裁决、埃癸斯盾、暗之进军、正义世界、黄昏之抹杀、黄昏之交衣、黄昏之双龙、阿基多、凯尔柏克、剑神官姆多拉、妖精传姬白雪、邻家割草、刻魔锻冶师、落泪之日、镇魂棺
+- 稀有（Rare）9张：露米娜丝、暮萨满、米迦勒、雅典娜密涅瓦、圣女密涅瓦、裁决之龙、惩戒之龙、神域、光之回弹
+
+## 六、平衡设计说明
+
+1. **弃光是收益引擎，不是代价**：尖塔里弃牌堆会洗回抽牌堆，弃光本质是"定向过滤+喂养墓地收益"。强度阀门：光道浓度（55张里~70%是光道tag）与墓地收益卡的稀有度。
+2. **消耗（除外）是真正代价**：暮光道/黄昏系列/惩戒之龙把墓地燃料烧成即战力，烧掉的就没了——与堆墓轴形成"存 vs 烧"的资源张力。
+3. **单卡数值对齐原版**：1费普通攻击≈9~12（打击6、原版普通攻击卡8~12），2费≈16~24，3费≈26+；格挡1费≈8~12。与尖塔2首发数值（打击/防御体系）同档。
+4. **每回合触发类能力都设上限或资源门**（正义世界≤6/回合、光之回弹≤5/回合、雅典娜密涅瓦固定弃光4），避免无上限滚雪球。
+5. **暮光**严格按用户指定：打出光道牌→弃光3→层数-1；提供"自动堆墓"的节奏引擎，层数用尽即消失。
+
+## 七、实现备注（开发用）
+
+### 实现版与设计的少量差异（以游戏内实际为准）
+
+- 欧尼斯特：实现为"下一次攻击伤害翻倍"（更贴近原卡），升级为两次。
+- 光之放逐：额外附加虚弱层数（2/升级3）。
+- 白雪：伤害=4+2×消耗牌数（最多3张，即最高10，升级基础+4）。
+- 刻魔的怜歌：格挡=4+3×消耗牌数（最多2张，升级6+4×）。
+- 黄昏之交衣：自动消耗最多4张（无选取界面）。
+- 暮光道萨满的"暮光"严格按指定设计实现。
+- 人物名本地化经 `characters.json` 注入；遗物轮廓图复用主图。
+
+### 开发环境
+
+- 工程目录：`mod\lightsworn\`（Godot.NET.Sdk 4.5.1 / net9.0）
+- .NET SDK 9：`tools\dotnet`（用户级安装）；Godot 4.5.1 Mono：`research\Godot_v4.5.1-stable_mono_win64`
+- BaseLib：编译引用Steam工坊版3.3.0（与运行时一致，避免程序集版本混载）
+- 卡图：YGOPRODeck `images/cards_cropped`（624×624）居中裁剪为250×190
+- 反编译参考：`research\sts2src`（ILSpy导出的sts2.dll源码，v0.107.1）
+- 注意：本机沙箱对 D:\Program Files 的写入对其他进程有延迟可见性，部署mod文件务必使用无沙箱模式（robocopy）后重启游戏。
+> v1.2（mod v0.3.1）：第二轮试玩反馈调整——神域改为回合开始可选发动（弃1张手牌光道→从弃牌堆拿光道，升级拿2张）；光之援军改为从抽牌堆检索（升级0费）；沃尔夫去掉弃光3（伤害12→18，升级+6）；光道之龙改为条件选弃工具+被弃置时检索裁决/惩戒之龙；魏丝改为弃光2+手牌光道压卡组顶（被弃置时回收其他光道并临时0费，升级回2张）；少女密涅瓦改0费、按弃牌堆光道种类阶梯检索龙（4/6/8种→之龙/格拉古尼斯/裁决之龙，升级阈值-1，被弃置时追加弃光1）；艾琳增加对格挡目标的特化（无伤害清全部格挡+自身回卡组顶）。
+> v1.3（mod v0.3.2，按用户"已知问题"清单修复）：修复雷光/暮雷光移除敌方增益时的NRE死锁（原代码用creature.Player取RNG，敌人身上为null，改用玩家RunState）；**修复标签体系缺失bug**——此前仅光刃/光盾/雪之化身带「光道」标签，其余40张全没打标（选择器只见初始牌的根因），现按问题5规则重做：仅中文名含「光道」的29张卡自动带标（LsCard.Tags重写+Ls.LightswornNamed白名单）；光刃/光盾改CardRarity.Basic（不进战斗选牌奖励、不带光道标）；加洛斯能力改为"光道牌弃光后弃光2"（LsUtil.Mill卡牌来源统一触发，强化版GarothPowerPlus追加按光道数抽牌，圣徽弃光不触发）；少女密涅瓦改为从已达挡位的龙中自选；光道之龙加回9点伤害且弃置来源扩为手牌+抽牌堆；露米娜丝追加丢弃1张手牌+从弃牌堆拿任意牌变0费；费莉丝(守2000>攻1100)与姆多拉(守1800>攻1500)伤害转格挡；艾琳去掉回牌堆顶；雷光/雷喵升级改0费；魏丝改为先回卡组顶再弃光2；援军加弃光3、检索源扩为卡组+弃牌堆。
+
+> v1.4（mod v0.3.3，第四轮反馈25条，design\已知问题.txt）：初始牌组打击5→4+加入光道暗杀者莱登；**删除刻魔系列5张**（锻冶师/落泪之日/咏圣/镇魂棺/怜歌及孤儿能力，卡池52张）；艾琳去掉抽卡；光道之龙升级改+4伤害（9→13）；费莉丝去掉弃光道加格挡、基础格挡8→10、新增随机敌人1层易伤；珍妮丝改为能力牌「光道祭司」（本回合发动过弃光→回合结束回Amount血+对随机敌人Amount伤害，5/敲后8，JanicePower由LsUtil.Mill通知计数）；丽拉抽牌改目标敌人-1力-1敏（敲后-2-2，目标Self→AnyEnemy）；闪光之幻想改从弃牌堆拿1张光道当回合0费+弃光2（敲后3）；太阳交换敲后0费；基里奥斯新增从卡组弃1张（LsUtil.MillSelected）+墓地拿卡不限光道；光道的裁决改0费置于抽牌堆顶+被从卡组弃置时生成虚无·消耗的裁决之龙Token（敲后2张，LsUtil.CreateToken）；奥库斯改1费技能弃光2+1层人工制品（敲弃光3，OrcusPower删除）；**新增关键词除光**（抽牌堆顶N张消耗，LsUtil.Banish/LsKeywords.Banish，不触发加洛斯/弃光钩子），暗之进军弃光全部改除光；黄昏之抹杀去抽牌+被光道卡从卡组弃掉时随机1张（敲2张）手牌光道0费（LsCard.OnMilledByLsCard钩子）；黄昏之双龙重做（手牌有惩戒之龙→弃牌堆拿裁决之龙+弃光4，否则生成虚无裁决/惩戒Token；被光道卡弃掉→拿惩戒之龙+除光4，敲后除光6）；暮光道斗犬消除buff改1+1层暮光（敲0费）；暮光道巫师改消耗弃牌堆1张光道→目标-1力-1敏+1层暮光（敲-2-2，目标Self→AnyEnemy）；正义世界重做（牌从抽牌堆弃到弃牌堆+1光指示物，攻击伤害时消耗全部每层+1，ModifyDamageAdditive+AfterAttack SetAmount(0)，敲后固有）；埃癸斯盾改1费（敲后AegisPower量+1）；光之回弹改1费重做（每次弃牌→所有敌人各+等同弃牌数的**灾厄**=原版死灵法师DoomPower，不筛光道无上限）；裁决之龙条件改弃牌堆4种不同光道（DistinctLsInDiscard）；米迦勒去掉消耗光道→弃牌堆光道全部洗回卡组每张3格挡；雅典娜改攻击牌（弃2张不同名光道+可选消耗墓地光道≤4张x→弃光x+9伤害，敲+5=14）；露米娜丝拿牌限光道（敲0费）；圣女加敌人意图为攻击时再弃光3、每张光道给1层虚弱。
+
+> v1.5（mod v0.4.0，自定义角色形象）：新增独立角色视觉「光道圣女」，替换原铁甲战士占位模型。技术路线：BaseLib CustomCharacterModel 全套 Custom* 路径接线；战斗/商人/休息处骨骼复用原版 Silent（女性体型，Spine 4.2.43），贴图用 tools\make_saint_assets.py 按部件重上色（绿袍→白袍/绷带→米白/白发→橙金发/深肤→浅肤/青匕首→金光刃/兽骨徽记→白金圣徽），spatlas(JSON) 的 source_path 改指本 mod、页贴图按「目录+页名」解析到重上色 PNG；商人/休息处用纯核心节点脚手架场景 + NodeFactory.RegisterSceneType 转换后注入运行时构建的 SpineSprite（避免编辑器导 pck 需要 spine 扩展）；能量球/卡牌拖尾/选人转场/地图标记复用原版黄金角色 Regent 资源；选人图标/顶栏图标用重上色立绘，选人背景用本地 ygopro 高清「光道圣女 密涅瓦」(30100551) 卡图金化合成；音效/多人手势沿用 Silent（女声）。角色名改为「光道圣女」。版本 0.3.3→0.4.0。
+
+> v1.6（mod v0.4.1，回滚）：按用户要求把角色形象**回滚为默认铁甲战士占位**（v0.4.0 的「光道圣女」自定义形象移除），角色名恢复「光道召唤师」，pck 中圣女资源（visuals/、images/character/）已删除，export include_filter 回退。原因：用户主动要求回退（视觉效果未达预期）。**方案与素材管线完整保留备查**：贴图重上色生成器 tools\make_saint_assets.py、pck 解包器 tools\pck.py、研究材料 research\pck_dump、开发手册 §5「角色外观」（运行时 Spine 注入做法）均未删除，随时可恢复或改造成豆包分层素材+自建骨骼的新方案。版本 0.4.0→0.4.1。
+> v1.7（mod v0.4.2，第五轮反馈4条，design\已知问题.txt）：①光之援军检索源改回只从卡组（LsUtil.PickFromDraw，符合原版「增援部队」效果）；②**修复光道细剑不触发「光道的甲铠」**——Ls.LightswornNamed 白名单漏了 nameof(Sabre)，补上（光道卡 29→30 张），带标后 AegisPower 判定生效；③金卡强度调整（AI拍板，未降稀有度）：露米娜丝拿取数 1→2（升级仍0费）、暮光道萨满露米娜丝暮光 1/2→2/3（改 {Twilight:diff()} 变量）；④光之回弹重做为按**弃牌次数**触发：每次弃牌事件对所有敌人施加固定2层灾厄（敲后3，{Doom:diff()}），不再按张数计——LightBouncePower 用 ActionExecutor.CurrentlyRunningAction 做「同一次结算只触发1次」批处理（无动作环境时按回合同侧兜底键），Amount=每次弃牌的灾厄层数，多张叠加。版本 0.4.1→0.4.2。
+> v1.7（mod v0.4.3，按用户第六轮"已知问题"9条修复）：①修复第三层boss后见建筑师无对话卡住——根因是Architect事件只认角色专属对话（AgnosticDialogues为空+allowAnyCharacterDialogues:false），mod角色无对话时NextItem(空列表)异常；新增本地化zhs/ancients.json（THE_ARCHITECT.talk.LIGHTSWORN-LIGHTSWORN_CHARACTER.0-*-r键，BaseLib AddAncientDialogues patch在PopulateLocKeys时自动挂载，日志已确认"Found 1 additional dialogues"）。②小龙重做：0费；弃置对象只从抽牌堆选（走MillSelected触发弃光钩子+加洛斯）；检索双龙条件从"仅从卡组被弃置"扩为任意弃置（AfterCardChangedPiles管弃光+新增AfterCardDiscarded管手牌弃置/窥探，打出不走该钩子不会误触发）。③神域2费→1费。④雅典娜3费→2费，伤害9→18（敲后23）。⑤惩戒之龙重做：打出条件改为消耗堆4种以上光道（新增LsUtil.DistinctLsInExhaust）；效果改为将弃牌堆+消耗堆所有非光道卡返回卡组、每有一张全体敌人随机1层负面状态（新LsUtil.ApplyRandomDebuffs：易伤/虚弱/脆弱/中毒/灾厄五选一，玩家侧RNG，均为PowerType.Debuff故人工制品可抵挡），伤害26+暮光1，敲后34。⑥雪之化身追加18伤害（改Attack/AnyEnemy，先伤害后消耗7张）。⑦光刃/光盾改名打击/防御并打CardTag.Strike/Defend标签（IsBasicStrikeOrDefend判定、打击/防御联动类遗物事件生效）。⑧8个自定义能力图标改为对应卡牌卡图中心裁圆（tools\make_power_icons.py，64/256两档）。⑨细剑{nosp}占位符修复——{TempStr}不是注册动态变量，改用PowerVar<SabrePower>（var名=类名，同原版SetupStrike的{StrengthPower}写法），描述同步{SabrePower:diff()}。
+> v1.8（mod v0.4.4，卡牌图鉴核对发现的5处文案/预览问题修复）：①凯尔多：强化后洗回2张此前文案未体现——新增 Picks 动态变量（1→2），描述改 {Picks:diff()}，升级预览与文案自动正确；②欧尼斯特：强化后翻倍2次此前文案未体现——新增 Times 动态变量（1→2），描述改"你的下{Times:diff()}次攻击伤害翻倍"；③邻家割草：强化后追加抽1张牌此前文案未体现——描述追加"强化后：追加抽1张牌。"（纯文案，代码原本就有）；④光之放逐：虚弱 2→3 原写在 OnPlay 内联（IsUpgraded?1:0），升级预览不显示——改为 OnUpgrade DynamicVars["Weak"].UpgradeValueBy(1)；⑤黄昏之交衣：每张格挡 3→4 同样内联——改为 OnUpgrade DynamicVars["BlockPerBurn"].UpgradeValueBy(1)。另新增 tools\gen_card_doc.py 卡牌图鉴生成器（解析Cards1-4.cs数值+OnUpgrade增量套cards.json文案 → design\卡牌图鉴.md，53张含基础/敲后双版本+升级变化摘要，内联升级卡在脚本 SPECIAL 表覆盖）。部署验证：v0.4.4 日志加载无异常。版本 0.4.3→0.4.4。
+
+> v1.9（mod v0.4.5，第七轮"已知问题"9条）：①**修移除增益误删Boss专属能力导致暴毙**——沙虫TheInsatiable的SandpitPower（Buff型独有计数器）AfterRemoved直接处决玩家，LsUtil.StripBuffs/StripAllBuffs 现跳过一切重写了 PowerModel.AfterRemoved 的能力（反射判定；常规增益力量/金属化等均不重写它，Boss机制 Sandpit/Burrowed/Slumber/SwordSage/VitalSpark 全重写，精准排除）；②米迦勒按游戏王原卡效果重做：弃牌堆存在「光道」牌时才能打出（IsPlayable+金光，同小龙模式），效果改为回收弃牌堆**全部**卡（原只回收光道），每张3格挡保留，伤害24→20（敲26）；③打击/防御改名v0.4.3已做，本轮复核确认；④初始卡组改 4打击+4防御+1光道圣骑士简+1光道防护罩（原1莱登+1援军）；⑤弃光/除光/暮光**卡组不够时不再自动洗回弃牌堆**——LsUtil.Mill/Banish 移除 ShuffleIfNecessary，抽牌堆空即停（卡片来源/能力来源/圣徽全部生效），弃光关键词释义同步；⑥清除描述里"强化后xxx/敲后"硬文案，改用引擎原生 {IfUpgraded:show:升级后|基础}（UpgradePreview绿色高亮，CardModel.cs:1377自动注入变量；原版DARKNESS/ARMAMENTS同款），涉及加洛斯/暮雷光/暗之进军/割草/裁决/双龙/抹杀7张；⑦数值：防护罩10/13→8/12（敲+4）、裁决之龙26/34→22/28（敲+6）、惩戒之龙26/34→22/28（敲+6）、米迦勒24/32→20/26（敲+6）、沃尔夫18/24→12/16（敲+4）、费莉丝10/13→7/10；⑧光之援军去掉检索牌0费（删SetUntilPlayed(0)，升级仍费用-1）；⑨光道细剑+4/6临时力量改为获得**6/8点活力**（原版VigorPower，删SabrePower类），正义世界"光指示物增伤"整机制改为"每当有牌从抽牌堆弃到弃牌堆获得1点活力"（JusticeWorldPower只剩AfterCardChangedPiles一个钩子）。部署验证：v0.4.5 日志加载无异常。版本 0.4.4→0.4.5。
+
+> v1.10（mod v0.4.6，用户对米迦勒效果的追注定稿）：撤销 v1.9② 的"回收全部卡+打出条件"解读，按用户拍板定稿：**无打出条件；打出先造成伤害，再回收弃牌堆中的「光道」牌（非光道不回收），每回收1张获得3点格挡**（即恢复 v0.4.5 之前"只回收光道"的行为，仅把结算顺序改为先伤害后回收）。伤害维持第七轮下调值 20/26（敲+6）。描述同步："造成{Damage:diff()}点伤害。将弃牌堆中的「光道」牌全部洗回抽牌堆，每洗回1张获得3点格挡。"。部署验证：v0.4.6 日志加载无异常。版本 0.4.5→0.4.6。
+
+> v1.11（mod v0.4.8，第八轮反馈6条）：①**米迦勒"洗回全部卡"真根因修复**：前两轮过滤逻辑都是对的，真凶是回收后调用的 `CardPileCmd.Shuffle`——游戏源码注释明确其语义是"把玩家整个弃牌堆洗进抽牌堆"（打击/防御等非光道牌全被它洗回）。删除该调用，回收牌直接 Add 到抽牌堆底；描述"洗回"改"加入"，米迦勒判断逻辑不变（v0.4.6 定稿）；②珍妮丝：能力"回合结束回血N"改为"获得N点格挡"（JanicePower.BeforeSideTurnEnd Heal→GainBlock，文案同步）；③光道的裁决：被弃置时裁决之龙Token改加入**手牌**（原弃牌堆）；敲后从"2张"改为"1张**强化后的**裁决之龙"（Token 走 UpgradeInternal+FinalizeUpgradeInternal，参考 CardCmd.Upgrade 引擎实现；手牌满则不生成）；④**全部"移除敌方增益"效果按用户要求废除**（StripBuffs bug 多难修），改为施加对应层数的虚弱+易伤：雷光 1弱1易、暮雷光 1弱1易、黄昏之抹杀 每消耗1张=1弱1易；LsUtil.StripBuffs/StripAllBuffs/HasRemovalSideEffect 整体删除（v0.4.5 的 AfterRemoved 防护机制随之作废）；⑤光之放逐重做（问题3）：丢弃手牌中1张「光道」牌（自选，有则必选）+对目标施加虚弱2/敲后3，删除"移除所有增益"；⑥**新增卡 神光之龙 ShiningDragon**（稀有攻击，0费消耗）：弃牌堆存在「裁决之龙」和「惩戒之龙」时才能打出（金色发光）；消耗弃牌堆所有卡→对所有敌人造成44/56伤害（敲+12）并施加3层虚弱3层易伤→从消耗堆把两种龙各1张加入手牌（手牌满留在消耗堆）。原型=YGO 46186135（裁决+惩戒融合），卡图 tools\make_shining_dragon_art.py 裁切 ygopro pics\46186135.jpg；不打「光道」标（同裁决/惩戒）。部署验证：v0.4.8 日志加载无异常。版本 0.4.7→0.4.8。
+
+> v1.12（mod v0.4.9，用户点名新增遗物）：**新增初始遗物「你必须玩游戏王」MustPlayYugioh**（Starter，图标=ygopro 卡背 cover.jpg 漩涡正方形裁剪，tools\make_yugioh_relic_icon.py 生成 64/256 两档；效果文本用户钦定："你的卡组数量不够，但我修复了这一点"）。效果：战斗开始时（BeforeCombatStart）若抽牌堆不足40张，从角色专属卡池随机生成卡牌、随机位置插入抽牌堆直至满40（游戏王"卡组最低40张"规则梗）。生成概率**白(普通):蓝(罕见):金(稀有)=6:3:1**（Rng.CombatCardGeneration.NextInt(10) 分段 0-5/6-8/9）；实现走 Metamorphosis 原版范式：Character.CardPool.GetUnlockedCards → 只取 Common/Uncommon/Rare 且 CanBeGeneratedInCombat（打击/防御=Basic、白雪化身=Token 不参与）→ CombatState.CreateCard(canonical, player) → CardPileCmd.AddGeneratedCardToCombat(Draw, Random)。**原初始遗物光道圣徽转入遗物池**：稀有度 Starter→Uncommon（游戏 RelicGrabBag 只收录白/蓝/金/Shop 四档，Starter 永不掉落，改稀有度即自动进掉落/商店池），商店价随稀有度默认 MerchantCost=225（未覆写）。部署验证：v0.4.9 日志加载无异常。版本 0.4.8→0.4.9。
+> v1.9（mod v0.4.10，第九轮反馈17条全部落地）：①珍妮丝文案"回复生命"→"获得格挡"（v0.4.8改代码时漏改文案）；②沃尔夫/费莉丝描述改写为"只有从抽牌堆以外的地方加入手牌时，此牌才能打出"（代码行为本就如此，仅文案明确化，已核对）；③光道之龙 0费→1费；④多张选牌一次选完（参考雪之化身，LsUtil 新增 PickSomeFromList(min,max)）：雷喵洗回改 0~2 张自选（原自动取前2张）、雅典娜①弃2张改一次选完②消耗至多4张改 0~4 一次选完、黄昏之交衣消耗改 0~4 一次选完（原自动取前4张）。**设计决策：雅典娜"2张不同名"约束随一次性选牌移除**（MultiPileCardSelect 不支持跨选校验）；⑤圣女：追加弃光原硬编码3改与首段共用 {Mill} 变量，敲后两处同时 3→4；⑥丽拉/暮光道巫师：减敏捷改为1层脆弱；⑦埃癸斯盾 BlockGain 4→2（敲后3）；⑧少女：检索的龙牌加入手牌时 AddKeyword(Exhaust)；⑨丽拉/暮光道巫师整卡加消耗（CanonicalKeywords）；⑩米迦勒每回收1张 3→1 格挡；⑪悬浮预览（问题11）：暮光注册为自定义关键词（LsKeywords.Twilight + card_keywords.json 词条），暮雷/暮丽拉/暮简/暮萨满/惩戒之龙挂 CanonicalKeywords——卡牌停留提示面板显示暮光效果；6张关联牌卡覆写 ExtraHoverTips=HoverTipFactory.FromCardWithCardHoverTips<T>()（游戏官方范式）：光道之龙/少女/裁决/双龙/神光→龙牌预览，白雪→雪之化身；⑫魏丝敲后强化改弃光3（原压回+1）；⑬暮光道萨满：消耗堆拿1→2张（一次选完）、暮光 2→1 层、敲后改0费；⑭暮光道四卡全部获得1层暮光（暮简补上）；⑮暮光机制重做：打出光道牌→弃光3→层数-1；若本次弃光不满3（卡组不够）且剩余≥2层，再消耗2层把弃牌堆洗回抽牌堆（CardPileCmd.Shuffle 正合"洗整个弃牌堆"语义）并补完剩余弃光。**决策：2层是洗牌额外代价（触发本身仍耗1层，共3层）**；⑯你必须玩游戏王：生成比例改 打击:防御:白:蓝:金=50:50:85:15:5（NextInt(205) 分段，打击/防御直接生成初始牌 LightBlade/LightWard）；⑰闪光之幻想重做：选弃牌堆1张「光道」攻击牌→获得其面板伤害数值的格挡（DamageVar.BaseValue，含该卡敲后增量）→弃光2；敲后 Bonus 0→3（描述 IfUpgraded 显示（+3））。新增选牌提示 LIGHTSWORN_FLASH_PICK。部署验证：v0.4.10 日志加载无异常。版本 0.4.9→0.4.10。
+> v1.13（mod v0.4.11，用户点名暮光机制再重做，原有效果全部废除）：暮光推倒重做：v0.4.10 的"打出光道牌→弃光3→层数-1"整体删除（TwilightPower 不再覆写 AfterCardPlayed），暮光改为**纯被动层数资源**——判定挪进 LsUtil.Mill（player 重载，卡牌/能力/加洛斯追加等一切弃光来源统一覆盖）：单次弃光数量 > 抽牌堆剩余时，消耗2层暮光→CardPileCmd.Shuffle 把整个弃牌堆洗回抽牌堆→PlayerCmd.GainEnergy 回1费→补完剩余弃光。**设计决策：**①弃牌堆为空不触发（洗不回任何牌，白耗层数）；②暮光不足2层不触发；③补完弃光走裸循环不再触发暮光判定（防递归），补完的牌计入 Mill 返回值（光道来源卡的 OnMilledByLsCard 钩子照常覆盖，加洛斯按来源触发）；④除光(Banish)与 MillSelected 选择性弃置不联动暮光（只有"弃光"关键词触发）。文案同步 card_keywords.json（暮光关键词释义）与 powers.json（能力描述/smartDescription），暮光系5张卡只"获得N层暮光"不受影响。新增 tools\update_loc_twilight.py。部署验证：v0.4.11 日志加载无异常。版本 0.4.10→0.4.11。
+> v1.14（mod v0.4.12，用户报第三层先古之民达弗卡死）：**根因**：达弗(Darv)的第三个选项「布满灰尘的古卷」(DustyTome)在生成选项时调 SetupForPlayer，从角色卡池抽一张 CardRarity.Ancient（先古）稀有度的卡（原版 Quadcast/成神等复古卡即此，DustyTome 赠送时自动升级1次）；光道池没有先古牌 → Rng.NextItem 空列表返回 null → `.Id` 抛 NRE → 事件选项生成失败卡死（达弗 50% 概率走该分支）。对话系统不受影响（达弗有 ANY 兜底台词；建筑师那种卡死是另一回事，v0.4.3 已修）。**修复**：新增两张先古牌（数值=对应基础牌2.5倍：9伤→23 四舍五入、8格→20、弃光2→5，敲后各+4，费用1不变）：「先古光道圣骑士 简」AncientJain（1费攻击，23伤弃光5）、「先古光道防护罩」AncientBarrier（1费技能，20格挡弃光5）。**设计决策**：①新建先古稀有度新卡而非改动基础牌（先古牌不会进战斗奖励/商店/战斗生成，基础牌继续初始卡组与奖励池）；②卡名含「光道」→ 白名单补 AncientJain/AncientBarrier（30→32张，保留光道标签联动甲铠/加洛斯/弃光引擎）；③卡图暂复制基础牌（Jain.png/Barrier.png），后续可换专属图。卡牌图鉴重新生成见 design\卡牌图鉴.md。部署验证：v0.4.12 日志加载无异常。版本 0.4.11→0.4.12。
+> v1.15（mod v0.4.13，用户纠错先古机制并点名新卡）：**机制纠正（原版源码实证）**：先古牌有两条获取线——①欧洛巴斯的遗物「古老牙齿」ArchaicTooth：把卡组里的**基础启动牌**升级成对应先古版（硬编码五组：痛击→破击、中和→压制、释放→守护、陨星→陨石雨、双重施法→四重施法，只认原版那五张基础牌，光道角色永远不触发→欧洛巴斯处显示锁定选项，不卡）；②达弗的「尘封魔典」DustyTome：从角色卡池抽一张先古稀有度的卡，但 **排除 TranscendenceCards（上述五组先古版）**——铁甲池里破击/腐化都在，魔典实际**只能给到没有基础版的腐化**，破击拿不到。**对应调整**：①删除 v0.4.12 的先古光道圣骑士 简/先古光道防护罩（对应"基础牌的先古版"，光道角色无获取途径=死卡；类/白名单（回到30张）/文案/卡图全清）；②新增先古牌**破坏之光 LightOfDestruction**（腐化定位=无基础版，达弗尘封魔典可给，获得时已升级1次；卡图=ygopro 83027236「破坏之光」持续陷阱，tools\make_light_of_destruction_art.py 裁插画区(55,110,345,330)→250x190+圆形能力图标）：1费能力、**固有**，效果=每次弃光对所有敌人施加{Doom}层**灾厄**（6/敲后8，DoomPower 原版能力）。**实现**：LightOfDestructionPower 触发=LsUtil.Mill player重载每次调用通知一次（一次弃光事件1次，与珍妮丝 OnMillHappened 同源；暮光补完计入同一次不另触发；milled=0 不触发）；灾厄施加用 PowerCmd.Apply<DoomPower> 集合重载（光之回弹同款）。白名单不动（卡名无「光道」）。文案 cards.json/powers.json（LIGHT_OF_DESTRUCTION/_POWER）。部署验证：v0.4.13 日志加载无异常。版本 0.4.12→0.4.13。
+
+> v1.16（mod v0.4.14，用户点名新卡：珠泪哀歌族系列+散卡3张，design\新卡牌.txt）：**新增机制「珠泪融合」+12张卡（卡图全部取自 ygopro pics，tools\make_tear_cards_art.py 统一裁插画区 x44-356→250×190）。**
+**①珠泪融合引擎**（LsUtil.TearFusion + LsKeywords.TearFusion 自定义关键词三件套 + Ls.Tearlaments 标签）：拥有「珠泪融合」的卡被弃置时（弃光=AfterCardChangedPiles Draw→Discard；手牌弃置=AfterCardDiscarded；打出不触发，雷光同款双钩子判定，原版源码实证 AfterCardDiscarded 只在 CardCmd.Discard 内触发、弃光只走 AfterCardChangedPiles，不会双重融合）——从弃牌堆选2~3张珠泪攻击牌→非融合牌 CardPileCmd.Add(…Draw, CardPilePosition.Random) 放回抽牌堆随机位置（融合Token当素材=CardCmd.Exhaust 消耗而非返回），然后从条件满足且本回合未生成过的融合卡中选1张（概念卡 ModelDb.Card<T> 作候选→combat.CreateCard(概念,player) 生成→trigger.IsUpgraded 则 UpgradeInternal+FinalizeUpgradeInternal 融合出强化版）加入手牌。同一回合每张融合卡只能生成1次（LsUtil 静态 HashSet<ModelId> 按 回合:侧 键重置）；每次融合成功通知 PearlWorldPower。融合条件（对所选素材判定，≥语义）：水仙女人鱼=2张珠泪攻击牌；鲁莎卡人鱼=含水仙女人鱼的2张；卡雷多哈特=含雷诺哈特的3张；捕食植物犀角龙=含融合卡的2张。
+**②融合Token×4**（TearFusionToken 基类：CardRarity.Token + CanBeGeneratedInCombat:false + showInCardLibrary:false → 不进奖励/商店/战斗生成/图鉴库；BaseLib 强制 mod 卡必须挂 [Pool] 故保留 Pool 属性，奖励路径由 CanBeGeneratedInCombat 过滤；"离开弃牌堆时消耗"=基类 AfterCardChangedPiles 拦截 Discard→Hand/Draw 转 CardCmd.Exhaust，自耗进消耗堆的事件因 Pile 已是 Exhaust 被守卫跳过防递归）：水仙女人鱼 Kitkallos（0费攻击：卡组选1张珠泪卡0费入手→弃光5→打7/10）；鲁莎卡人鱼 Rulkallos（0费攻击：打15/20、目标 HasPower<MinionPower> 爪牙则伤害翻倍、本回合每打出过1张珠泪卡+2格挡——计数=CombatManager.History.CardPlaysFinished 中 HappenedThisTurn 且带珠泪标的牌+自身1张）；卡雷多哈特 KaleidoHeart（0费攻击：打15/20→卡组选1张珠泪卡弃置（MillSelected，可连锁触发其珠泪融合）→获得荆棘3=原版 ThornsPower）；捕食植物 犀角龙 Dragostapelia（0费攻击：打7/10→对目标施加1层**缩小**=原版 ShrinkPower，对怪物生效：ModifyDamageMultiplicative 减其攻击伤害30%且 AfterApplied 自带 ScaleTo(0.5) 体型缩小动画，怪物回合结束-1层；CanonicalTags 覆写为空=不含珠泪字段）。升级增量：水仙/犀角龙伤害+3（7/10）、鲁莎卡/卡雷多+5（15/20）。
+**③珠泪常驻卡×5**（TearFusionCard 基类：CanonicalTags=[Ls.Tearlaments]、CanonicalKeywords=[珠泪融合]、融合触发双钩子、ExtraHoverTips 预览4张融合卡；**统一规则：升级=融合出强化后的融合卡，自身数值不变**）：塞壬人鱼 Suliek（非普通，1费攻击8：然后可丢弃1张手牌攻击牌→回1费+弃光3）；小美人鱼 Merrli（普通，1费攻击7：目标意图不为攻击（Monster.IntendsToAttack）→回1费+弃光3）；梅洛人鱼 Havnis（普通，1费攻击6+4格挡：弃光3）；雷诺哈特 Reinohart（稀有，1费攻击7/10：卡组选1张珠泪攻击牌弃置（MillSelected→可连锁融合）；**不含珠泪融合**；被弃置时（弃光/手牌弃置）可丢弃1张手牌珠泪攻击牌→若丢弃了将自己0费（SetUntilPlayed）回手并 AddKeyword(Exhaust) 获得消耗——已不在弃牌堆（如被融合当素材回收）则不触发）；珍珠世界 Perlereino（稀有能力：每次发动珠泪融合→对所有敌人施加1层易伤（PowerCmd.Apply<VulnerablePower> 集合重载）；敲后追加：打出时从卡组将1张珠泪攻击牌加入手牌）。
+**④散卡×3**：真血公 TrueBloodVampire（稀有，2费攻击18：弃光4/6（敲后 Mill+2）→从本次弃光的牌中选1张攻击牌 TryRecallOnMill 0费入手（SetUntilPlayed）；打出顺序按文案=先伤害后弃光）；手札抹杀 HandDestruction（非普通，0费技能消耗：弃所有手牌再抽等量——CardCmd.DiscardAndDraw（原版 CalculatedGamble 范式，弃置钩子统一在抽牌完成后触发，珠泪融合不吞抽牌）；敲后 RemoveKeyword(Exhaust) 移除消耗，原版 Fusion/Hologram 同款）；愚蠢的埋葬 FoolishBurial（非普通，0费技能消耗：从卡组选1张牌弃置（MillSelected）；敲后移除消耗）。
+**稀有度拍板**（用户授权按强度自定）：小美人鱼/梅洛人鱼=普通，塞壬人鱼/手札抹杀/愚蠢的埋葬=非普通，真血公/雷诺哈特/珍珠世界=稀有。**设计决策**：①珠泪攻击牌=带 Ls.Tearlaments 标的攻击牌（珍珠世界是能力牌不算素材；捕食植物犀角龙不打珠泪标）；②珠泪卡不进 Ls.LightswornNamed 白名单（不触发加洛斯/甲铠等光道联动，两系列互相独立）；③鲁莎卡人鱼的"打出过珠泪卡"计数含本次打出的自身；④手札抹杀弃置的手牌若含珠泪融合卡会触发融合（DiscardAndDraw 后置钩子）。新增选牌提示5条（LIGHTSWORN_TEAR_*）、card_keywords.json 珠泪融合词条、能力图标 pearlworld（make_power_icons.py）。卡牌图鉴重生成（67张，gen_card_doc.py 适配 Cards5/sealed类/Token稀有度）。部署验证：v0.4.14 日志加载无异常。版本 0.4.13→0.4.14。
+
+> v1.17（mod v0.4.15，用户点名：融合条件改严格判定）：珠泪融合的素材条件从「≥语义」（v1.16 拍板）改为**严格语义**（游戏王原版风格，LsUtil.FusionOptions 四条条件全部加 `m.Count(IsTearAttack) == 2/3` 数量精确判定）：2张条件的融合卡（水仙女人鱼/鲁莎卡人鱼/捕食植物犀角龙）不能拿3张素材发动；3张条件的卡雷多哈特必须恰好3张且含雷诺哈特。**行为变化**：选3张素材但其中没有雷诺哈特时，无可用融合→素材已放回抽牌堆（白洗回，严格判定的自然代价）；选择界面只显示当前素材下可用的融合卡，玩家可据此控制选2张还是3张。card_keywords.json 珠泪融合释义补「素材数量须与条件严格一致」。版本 0.4.14→0.4.15，部署验证日志加载无异常。
+
+> v1.18（mod v0.4.16，用户点名：初始遗物可切换）：**新开局时二选一初始遗物**——原版「选择遗物」覆盖界面（珠宝盒同款 NChooseARelicSelection，横幅=官方 CHOOSE_RELIC_HEADER）在「你必须玩游戏王」和「光道圣徽」之间选一个；**跳过=保持游戏王**。实现（Scripts\StartingRelicChoice.cs，Harmony prefix 替换 `RunManager.FinalizeStartingRelics` 返回 Task）：先原样跑完原逻辑（初始遗物逐个 AfterObtained）→ 对每个持「你必须玩游戏王」的光道玩家弹选择 → `RelicCmd.Replace` 原位换遗物。设计决策：①选圣徽时 RelicCmd.Obtain 自动把它从本局 RelicGrabBag 移除（IsStackable=false，不会掉落第二枚）；选游戏王/跳过则圣徽留在遗物池照常掉落（v0.4.9 行为保留，圣徽仍是 Uncommon 池内遗物）；②读档（LoadRun）不调 FinalizeStartingRelics，已选结果天然随存档持久、不重复弹窗；③同一 RunState 用 ConditionalWeakTable 去重防多入口重弹；④TestMode/PlayerChoiceSynchronizer 为空时跳过走原版逻辑。**关键坑**：LocalContext.NetId 要到 RunManager.Launch()（在 FinalizeStartingRelics 之后）才赋值，弹原生选择界面前必须手动 `LocalContext.NetId = manager.NetService.NetId`，否则 IsMe=false 走 WaitForRemoteChoice 分支开局死锁。版本 0.4.15→0.4.16，部署验证日志加载无异常（选择界面流程待玩家实机确认）。
+
+> v1.18（mod v0.4.16，用户点名：初始遗物可切换）：**新开局时二选一初始遗物**——原版「选择遗物」覆盖界面（珠宝盒同款 NChooseARelicSelection，横幅=官方 CHOOSE_RELIC_HEADER）在「你必须玩游戏王」和「光道圣徽」之间选一个；**跳过=保持游戏王**。实现（Scripts\StartingRelicChoice.cs，Harmony prefix 替换 `RunManager.FinalizeStartingRelics` 返回 Task）：先原样跑完原逻辑（初始遗物逐个 AfterObtained）→ 对每个持「你必须玩游戏王」的光道玩家弹选择 → `RelicCmd.Replace` 原位换遗物。设计决策：①选圣徽时 RelicCmd.Obtain 自动把它从本局 RelicGrabBag 移除（IsStackable=false，不会掉落第二枚）；选游戏王/跳过则圣徽留在遗物池照常掉落（v0.4.9 行为保留，圣徽仍是 Uncommon 池内遗物）；②读档（LoadRun）不调 FinalizeStartingRelics，已选结果天然随存档持久、不重复弹窗；③同一 RunState 用 ConditionalWeakTable 去重防多入口重弹；④TestMode/PlayerChoiceSynchronizer 为空时跳过走原版逻辑。**关键坑**：LocalContext.NetId 要到 RunManager.Launch()（在 FinalizeStartingRelics 之后）才赋值，弹原生选择界面前必须手动 `LocalContext.NetId = manager.NetService.NetId`，否则 IsMe=false 走 WaitForRemoteChoice 分支开局死锁。版本 0.4.15→0.4.16，部署验证日志加载无异常（选择界面流程待玩家实机确认）。
+
+---
+
+## v1.17 影依（Shaddoll）系列落地（2026-10-07，v0.4.18）
+
+**来源**：`design\影依卡牌设计初稿.md`（用户逐条订正后拍板：稀有度分配/影融做成关键词/Token可作素材/生成即强化保留/蠢动数值维持现设计/数值已自行调整），另追加：**神影依每回合每张只能生成1次**。**10处卡名更新**（写作xx读作xx，本质都带影依）：神星之影 路径灵→蛇影依 路径灵、神圣之影 商神杖灵→圣影依 商神杖灵、影灵之翼 文蒂→羽影依 文蒂、影雄之烬 神子晶→虚影依 神子晶、与神之假身的接触→神影依融合、假魂的同化→魂影依融合、冻结之心映照的神影→心影依融合、影光的圣选士→联结之影依化身、通向魂源的影劫回归→神我影依流世、影灵翼骑 影文蒂→翼影依 影文蒂。
+
+**实现总览（35张：本家怪15 + 魔法5 + 陷阱6 + 神影依Token9；普通7/非普通12/稀有7，Token9不进池）**：
+
+- **ShaddollCard/ShaddollToken 基类**（ShaddollBase.cs）：影依标自动挂（基类直接打 + Ls.ShaddollNamed 35张白名单兜底）；被弃置双钩子照珠泪先例（弃光=AfterCardChangedPiles Draw→Discard，手牌弃置=AfterCardDiscarded，打出不触发）→统一管线 `LsUtil.OnShaddollDiscarded`：①触发该卡 OnDiscardedEffect（堕影的蠢动/翼影依影文蒂在场时触发2次，加法叠加=3次；影文蒂每次弃置事件耗1层）②影牢之咒缚每次弃置事件+1镀层（PlatingPower，与触发次数无关）。ShaddollToken：Token三要件+打出后消耗（基类CanonicalKeywords=Exhaust）+洗回抽牌堆/回手自动消耗（珠泪Token同款兜底）。
+- **影融引擎**（LsUtil.ShaddollFusion）：三模式——Hand（默认弃手牌2~3素材）/DiscardExhaust（弃牌堆2张影依消耗、不触发被弃置时）/Exempt（任意2张手牌含≥1影依→任意神影依）；includeDraw 参数（影依融合强化后素材可从卡组选，卡组素材走MillSelected同样触发钩子）。素材候选预筛（组合枚举：只显示能参与至少一个可用融合的牌）；选定素材无可用融合=不弃置不消耗什么都没发生（严格判定，v0.4.15珠泪精神）；手牌素材弃置触发各自被弃置时效果。9张神影依注册表条件严格匹配（2张条件拿3张不能发动）；生成锁=每回合每张1次（"回合:侧"键照珠泪）+文迪戈本场战斗1次（战斗引用比对清空）。trigger升级或forceUpgraded（神影依融合）→生成强化版。`LsUtil.PickAndGenerateShaddoll`=心影依融合专用（选神影依生成入手+伤害置0，同样吃生成锁）。
+- **「影融」自定义关键词**（SHADDOLLFUSION，暮光三件套先例）：LsKeywords+card_keywords.json 全条件表+7张影融卡挂 ExtraHoverTips=>ShaddollFusionTips() 悬浮列出9张神影依。
+- **「本回合不能打出」**（影依巫女回收的牌）：LsUtil.LockPlayThisTurn/IsPlayLocked——回合键控+战斗引用清空的静态锁，ShaddollCard/ShaddollToken 的 IsPlayable 拦截（BlockedByCardLogic）。
+- **能力×4**（Powers.cs）：SinisterShadowGamesPower（永续标记）/CurseShadowPrisonPower（OnShaddollDiscarded 通知+镀层）/ShaddollHoundPower（AfterCardPlayed=影依攻击牌打出时额外触发其OnDiscardedEffect，Amount=1/2，AfterSideTurnEnd自删=TangledPower范式）/WendikurhuPower（3次计数，管线内Decrement）。图标=对应卡图圆形裁切（tools\make_shaddoll_power_icons.py）。
+
+**AI拍板事项（用户订正稿之外的自定决策，可再调）**：①翼影依影文蒂敲后"格挡10→14"无落点→基础效果补"获得10点格挡"；②心影依融合"触发其效果"实现为生成入手牌+伤害置0（非程序化打出），其升级=选2张时生成的神影依不升级（它不是影融卡，不吃"trigger升级→强化版"规则）；③影依·拿非利被弃置回手计数"弃牌堆中其他影依牌"不含自身；④蠢动+影文蒂同时在场触发次数加法叠加（1+1+1=3次）；⑤文迪戈"本场战斗不可再使用"=只锁生成（被其它效果回收入手后再打出不拦）；⑥选定素材无可用融合时不弃置不消耗（严格判定的自然代价）；⑦影融素材候选界面预筛（只显示可参与的牌）；⑧白名单 ShaddollNamed 35张照设计稿实现（与基类打标双保险）；⑨猎犬加成（打出触发）不与蠢动/影文蒂（弃置事件加成）叠加计算；⑩艾莉娅儿被弃置时消耗弃牌堆牌0~2可选。
+
+---
+
+## v1.18 融合体验五条优化（2026-10-07，v0.4.19，design\已知问题.txt）
+
+**来源**：用户批次反馈5条，全部按字面落实。
+
+1. **神影依Token消耗时机改珠泪同款**：ShaddollToken 基类删掉 `CanonicalKeywords=[Exhaust]`（不再"打出后消耗"），保留已有的 AfterCardChangedPiles 拦截（离开弃牌堆回手/回卡组→消耗，TearFusionToken 同款）。打出后留在墓地可继续当影融素材（DiscardExhaust 模式）或被检索效果使用；一旦离开弃牌堆即消耗。card_keywords.json 影融释义同步"离开弃牌堆时消耗"。
+2. **影融/珠泪融合触发卡升级加"+"**：卡片悬浮面板的词条说明是静态缓存（HoverTipFactory.FromKeyword，无卡牌上下文），词条 title 吃不到 IfUpgraded——因此"+"加在**各触发卡自己的描述文本**里：`{IfUpgraded:show:+|}` 跟在"影融"/"珠泪融合"词后（珠泪3张原本描述不含词条词，补写"珠泪融合{IfUpgraded:show:+|}。"），升级预览可见"影融+/珠泪融合+"。
+3. **融合条件挪到各融合卡卡面**：13张融合卡（珠泪4+神影依9）描述前置"融合条件：…
+"行（措辞沿用原词条里的条件表）；TEARFUSION/SHADDOLLFUSION 词条描述删掉条件清单，改为"素材数量须与融合条件严格一致，各融合卡的条件见其卡面说明"。
+4. **顶栏融合图鉴按钮**（新文件 Scripts\FusionCodex.cs）：NTopBar.Initialize 的 Harmony postfix 在 RightAlignedStuff（HBox）里、"卡组"左侧插 80×80 槽位+NButton 子类按钮（BaseLib NModListButton 先例：ctor 建子节点、_Ready 调 ConnectSignals；仅本地玩家是光道角色时添加）。点击=NCardPileScreen.ShowScreen(new CardPile(PileType.Deck) 装13张概念卡的 MutableClone)（原版抽/弃/消耗堆同款界面，Deck 类型走牌库视图渲染、底栏说明自动隐藏；PreloadManager.Cache.GetScene 对未预载场景有 ResourceLoader 同步兜底——坑18同源结论），再点一次=关闭（toggle，只认自己打开的那次）。**置灰**=FusionLockWatcher（Node._Process 逐帧递归遍历 CardGrid 的 NCardHolder，按 holder.CardModel.Id 查 `LsUtil.IsFusionUsedForCodex`：珠泪/影依"本回合已生成"∪文迪戈"本场战斗已生成"，回合/战斗键控失配视为未生成）命中→holder.Modulate 灰色(0.45,0.45,0.5)。图标=ygopro cover.jpg 圆形裁切+描边圈 144×144（tools\make_fusion_codex_icon.py→images\ui\fusion_codex.png，res://lightsworn/images/ui/ 加载）。悬浮提示=LocString("static_hover_tips","LIGHTSWORN_FUSION_CODEX.*")，mod 本地化按文件名合并进游戏 static_hover_tips 表（v0.4.3 ancients.json 同机制，新增 localization\zhs\static_hover_tips.json）。按钮 hover=NHoverTipSet（NTopBarDeckButton 同款）+图标 Modulate 提亮。
+5. **删词条关联卡悬浮预览**：TearFusionCard.ExtraHoverTips（4张珠泪融合卡）与 ShaddollCard.ShaddollFusionTips()（9张神影依，7张影融卡+心影依融合挂的）整体删除；影融/珠泪融合词条的悬浮面板说明保留（CanonicalKeywords 机制不变）。其它 ExtraHoverTips（龙牌/白雪等 v0.4.10 的关联预览）不受影响。
+
+**AI拍板事项**：①"+"加在卡面描述而非词条面板（词条说明无卡牌上下文，加不了动态标记）；②图鉴只展示基础版融合卡（强化版差异见各触发卡升级说明）；③神影依Token回手类效果（如米德拉什检索影依技能）从弃牌堆捡起Token会立即消耗——珠泪Token同款语义，按"离开弃牌堆时消耗"字面执行；④图鉴按钮仅光道角色显示（多人局其他角色不显示）。
+
+---
+
+## v1.19 融合Token消耗语义订正（2026-10-07，v0.4.20，对话点名）
+
+**来源**：用户对 v0.4.19 第①条的澄清——"我想的是回到卡组消耗，如果有办法直接从弃牌堆加入手牌是不消耗的"。
+
+**改动**：TearFusionToken 与 ShaddollToken 两个基类的 AfterCardChangedPiles 拦截范围从"弃牌堆→手牌/卡组都消耗"收窄为**只拦截"弃牌堆→卡组（抽牌堆）"时消耗**；被效果直接从弃牌堆加入手牌则保留（可继续打出，打出后回墓地不消耗）。v0.4.14 起"离开弃牌堆时消耗"的旧语义（含回手）作废——当时是按设计稿字面+AI拍板实现的，用户本意一直是"回卡组才消耗"。
+
+**行为变化**：①神影依Token被米德拉什/文迪戈等"从弃牌堆将1张影依(技能)卡加入手牌"检索回手时不再自燃，可以继续打出（打出回墓地，仍可再检索/当影融素材）——Token检索连锁成立；②珠泪Token被真血公等效果从弃牌堆回手同理保留；③洗回卡组的一切来源（暮光洗回/CardPileCmd.Shuffle/融合素材返回等）照旧消耗；④珠泪融合把Token当素材、影融 DiscardExhaust 模式消耗素材=代码里显式 Exhaust，与钩子无关，不变。
+
+**文案**：card_keywords.json 两个融合词条的消耗措辞同步改为"回到卡组（抽牌堆）时消耗，被效果直接加入手牌则保留"。
+
+---
+
+## v1.20 影依两条反馈（2026-10-07，v0.4.21，对话点名）
+
+**来源**：用户直接对话反馈两条：①影依卡伤害变为0的效果改为只持续一次，当前是永久；②神影依从弃牌堆拿影依卡的效果加上限制，不能拿神影依，普通影依还是可以从弃牌堆拿神影依。
+
+**①心影依融合伤害置0改一次性**：原实现（v0.4.18）=PickAndGenerateShaddoll 里直接 `token.DynamicVars["Damage"].BaseValue = 0m`，永久生效（Token被检索回手再打出仍是0伤害）。现改为：生成时把原伤害记在Token实例新字段 `ShaddollToken.DamageRestoreAfterPlay` 上再置0，覆写 `AfterCardPlayed`（游戏钩子，AbstractModel 虚方法；实证时序=CardModel.cs:1959 在牌从打出堆移入弃牌堆*之前*触发，故落弃牌堆时已是正常伤害，检索方拿到即为原值）打出后恢复原值并清标志。只影响心影依融合生成的攻击Token（zeroDamage 参数唯一调用点 Cards7 心影依融合），影融/神影依融合正常生成的Token不变。**AfterCardPlayed 能收到"正在打出的牌自己"**：PlayPile 在 PlayerCombatState.AllPiles 里（5堆含打出堆），IterateHookListeners 遍历全部牌堆。
+
+**②神影依检索不能拿神影依**：9张神影依Token（Cards8.cs）的"从弃牌堆拿影依卡"类效果全部加过滤 `!LsUtil.IsElShaddollToken(c)`（新判定= `card is ShaddollToken`，神影依=9张战斗Token 的类型学判定；普通影依=ShaddollCard 子类不受影响）。覆盖：米德拉什/拿非利/文迪戈/神子晶/舍金纳迦（影依技能）、异花莉莉丝（影依牌×2）、七贤巨鲲魔（卡组或弃牌堆影依卡）、米沙赫雷恶（弃牌堆影依攻击卡+卡组影依卡顺手同滤，防御性）、翼影依 影文蒂（影依卡）。动机=v0.4.20 Token检索连锁成立后，米德拉什（回3费）等可构成神影依互检循环。AI拍板：七贤巨鲲魔/米沙赫雷恶的**卡组半边**也一并过滤（Token事实上进不了卡组——弃牌堆→卡组即被钩子消耗，文案无需加限定）；"从卡组弃置影依卡"（拿非利）、"丢弃手牌影依卡"（神子晶/舍金纳迦）是弃置不是检索，不动。
+
+**文案**：cards.json 10条——心影依融合加"（打出一次后恢复）"；9张神影依检索句加"非神影依的"限定（卡组半边措辞不动）。工具 tools\update_loc_v0421.py（含旧文案校验，Apkallone 那句后接"，然后弃置1张手牌"不是句号）。
+
+---
+
+## v1.21 伤害置0一次性·补全漏网三卡（2026-10-07，v0.4.22，对话点名）
+
+**来源**：用户追问"还有张影依卡也有变0的效果，修了吗"——v0.4.21 只修了心影依融合，全量 grep `BaseValue = 0` 后发现**另有3张影依卡**是同样的永久伤害置0：**羽影依 文蒂**（Cards6，从卡组拿影依攻击卡）、**虚影依 神子晶**（Cards6，从弃牌堆拿）、**联结之影依化身**（Cards7，从弃牌堆拿）。三张原本描述写"本回合…其伤害变为0"，实现却是永久（文/实不符）。
+
+**改动**：①恢复机制从 ShaddollToken **上移到 LsCard 基类**（`DamageRestoreAfterPlay` + AfterCardPlayed 覆写）——这三张拿的是普通影依攻击卡不是Token，且联结化身/虚影依神子晶作为普通影依可从弃牌堆拿到神影依攻击Token（用户规则②明文允许），机制必须在 LsCard 层才能同时覆盖两类卡；②LsUtil 新增 `ZeroDamageOnce(CardModel)` 统一入口（记录原值+置0），4个调用点全部改走它（心影依融合 PickAndGenerateShaddoll / 羽影依文蒂 / 虚影依神子晶 / 联结之影依化身）；③行为=伤害0持续到该卡**打出一次后恢复**（费用0的语义不变：文蒂/神子晶=SetThisTurnOrUntilPlayed，化身=SetUntilPlayed）。
+
+**语义拍板**：用户规则字面是"只持续一次"，故文蒂/神子晶描述里的"本回合"对**伤害**部分不再成立（可跨回合保留到打出为止）——文案改为"其伤害变为0（打出一次后恢复）"，"本回合"仅修饰费用。cards.json 3条（tools\update_loc_v0422.py）。
+
+**排查结论**：全mod伤害置0共4处（`DynamicVars["Damage"].BaseValue = 0m`）已全部收编；其余"变0"均为费用（EnergyCost.SetUntilPlayed/SetThisTurnOrUntilPlayed），不在本次范围。部署验证：日志 0.4.22 加载无异常。
+
+---
+
+## v1.22 第十轮反馈11条（2026-10-10，v0.4.23）
+
+**来源**：`design\已知问题.txt`（11条）。
+
+**核心根因（问题1/3共因）**：融合结果选择界面把**不可变概念卡**（ModelDb 范例卡）直接传进
+MultiPileCardSelect——`NSimpleCardSelectScreen._Ready` 读 `card.Owner` 时对不可变模型抛
+**CanonicalModelException**，界面初始化中断、点击卡牌 NRE（v0.4.20 会话日志实证：珠泪融合选
+Rulkallos、影融选 ElShaddollWinda 两处 `_Ready` 崩溃 + 2次 OnCardClicked NRE；选完虽能恢复
+但交互残废）。影响全部融合触发卡（影依融合/神影依融合/魂影依融合/影依的原核/影依的伪典/
+虚影依 神子晶/影依·拿非利 + 塞壬/小美/梅洛 + 心影依融合）的结果选择。修复=**LsUtil.PickConcept**：
+概念卡先 `MutableClone()`+设 Owner 再进选择界面（FusionCodex 可变克隆先例的推广），
+选中后按 Id 映射回原概念卡供 CreateCard。伤害置0（问题1）的 v0.4.22 恢复机制经源码核对无误；
+心影依融合"伤害变0"观感失效即此界面崩溃所致。ZeroDamageOnce/恢复顺带 TryGetValue 加固。
+
+11条逐一：
+1. **伤害临时变0没有生效**：根因见上；v0.4.22 的"打出一次后恢复"机制本身有效。
+2. **神我影依流世高亮**：`IsPlayable` 的 `Any(IsShaddoll)` 把手牌中的**自己**算进去（打出前本卡
+   在手牌且自带影依标）→手牌无其他影依牌也高亮黄光、判为可打出（实际无牌可弃）。已排除自身
+   （IsPlayable 与 OnPlay 弃置候选都加 `!ReferenceEquals(c, this)`）。
+3. **魂影依融合不能手动选素材**：同问题1根因——素材选择（手牌真卡）没问题，坏在结果选择的
+   概念卡界面崩溃。
+4. **神影依第二次使用消耗**：ShaddollToken 实例计数 `_playCount`，`AfterCardPlayed` 计数≥2 时
+   Exhaust（配合联结之影依化身的循环上限=每张2次）；9张神影依描述+影融词条同步加
+   "第2次打出时消耗"。
+5. **只有名字带影依才是影依卡**：ShaddollCard/ShaddollToken 基类**不再直接打标**，统一走
+   Ls.ShaddollNamed 白名单（35→32张：移除炼狱的乖放/堕影的蠢动/影牢之咒缚）；
+   LsUtil.OnShaddollDiscarded 的蠢动加倍/影文蒂层数/咒缚计数按 IsShaddoll 门控；
+   ShaddollHoundPower 改标签制判定。三张卡自身被弃置只走自己的 OnDiscardedEffect（本无）。
+6. **影融素材双角色占位**：新助手 **DistinctPair**——一张牌不能同时占「影依位」和「类型位」。
+   文迪戈=影依+另1张技能、神子晶=影依+另1张攻击：影依攻击卡+非影依技能卡现在只能融文迪戈；
+   拿非利同改（防患）。
+7. **米德拉什**：融合条件=1张影依+1张影依/珠泪牌（DistinctPair：影依位+影依/珠泪位，双影依照旧）。
+8. **珠泪融合素材必含触发卡**：TearFusion 选素材=触发卡（自动占1席）+其他珠泪攻击牌1~2张；
+   珠泪融合词条与选牌提示同步。
+9. **犀角龙融合卡位适配神影依**：条件=1张融合卡（TearFusionToken 或 ShaddollToken）+1张珠泪
+   攻击牌（DistinctPair）。
+10. **太阳交换**：IsPlayable=手牌有「光道」牌（+金光高亮）；描述加"仅当手牌中有「光道」牌时才能打出"。
+11. **露米娜丝/暮露米娜丝**：拿2→1，各追加获得10格挡（BlockVar 10）。
+
+**AI拍板**：①问题2按bug修复并在汇报里解释成因；②米德拉什=两角色语义（影依位+影依/珠泪位）；
+③犀角龙"融合卡"定义=TearFusionToken 或 ShaddollToken；④神影依二打计数按实例（每张生成物
+独立2次上限，实例随战斗销毁不跨局）；⑤暮露米娜丝格挡在拿牌后、给暮光前结算。
+
+**验证**：v0.4.23 加载无异常（godot.log 实证）。
+
+
+---
+
+## v1.23 融合双bug修复（2026-10-11，v0.4.24，用户实测反馈）
+
+**来源**：用户实测「两个bug在最新一次对战都有触发」（godot.log 会话 Seed CDUDBVL19P 实证），
+已知问题.txt 两条：①影依伤害临时变0未生效（化身拿影依兽打出仍9点）；②弃置梅洛人鱼墓地有
+影依卡未触发珠泪融合（应可融合米德拉什）。
+
+**问题1真根因（v0.4.21/22 两轮修复都修错方向）**：`Hook.AfterCardPlayed` 是**广播钩子**
+（`combatState.IterateHookListeners()` 遍历全部牌堆的所有模型，CardModel.cs:1959 在 OnPlay
+之后调用）——v0.4.21 的设计文档只记对了「能收到打出的牌自己」，漏了反向：**它也会收到
+「别的卡被打出」的通知**。化身 OnPlay 尾部把影依兽置0（DamageRestoreAfterPlay=9,
+BaseValue=0）→ 化身自己打完 → 广播把手牌里影依兽的 AfterCardPlayed 也调了 → 恢复机制当场
+把 BaseValue 恢复回9 → 打出9点。零化从未活过一整个 OnPlay，这就是「检测仍然未修复」的原因
+（v0.4.22 把锅判给融合选择界面崩溃 CanonicalModelException，误诊）。修复=两处覆写加
+`cardPlay.Card == this` 自判：**LsCard.AfterCardPlayed**（伤害恢复）与 **ShaddollToken.AfterCardPlayed**
+（二打计数——原实现打2张别的卡也会累计计数误消耗Token，属同根因的隐藏bug）。能力的
+AfterCardPlayed（甲铠/猎犬等）本就是广播语义且自带 cardPlay.Card 判定，不动。
+
+**问题2**：珠泪融合引擎（LsUtil.TearFusion）素材池只筛 `IsTearAttack`、产出只有4张珠泪Token，
+影依牌永远进不来；墓地无其他珠泪攻击牌时静默 return（用户看到=没触发）。修复四件套：
+①素材池扩为「珠泪攻击牌 或 影依牌」+候选预筛（照影融 ValidMaterialCandidates 精神，只显示与
+触发卡组合后至少一种可用融合的牌）；②FusionOptions 加入**米德拉什**（条件与影融同：1影依+
+1影依/珠泪，DistinctPair——触发卡自己占珠泪位）；③**严格判定前置**：available 判定挪到素材
+弃置/回卡组之前，选出无融合的组合=什么都没发生（v0.4.15「白洗回」代价废除：素材池跨系后
+误选概率大增）；④**生成锁跨引擎统一**：ResetShaddollFusionKeys→ResetFusionKeys（清两个
+集合+文迪戈锁，一个 turnKey），生成时双登记（RegisterFusionGenerated），IsFusionLocked/
+IsFusionUsedForCodex 双查——杜绝「珠泪融合与影融各生成一次米德拉什」的绕锁。
+
+**文案**：card_keywords.json 珠泪融合词条（素材=珠泪攻击牌或影依牌、产出=融合卡）、
+card_selection.json LIGHTSWORN_TEAR_MATERIAL。米德拉什卡面条件行不变（两引擎同条件）。
+
+**AI拍板**：①严格判定前置（废除白洗回）②锁跨引擎统一（每回合每张全引擎共1次）③预筛只
+对「trigger+单素材」组合判定，双素材组合靠前置 available 兜底。
+
+**验证**：0.4.24 加载无异常（checklog + 全日志过滤 0 ERROR）。
+
+
+---
+
+## v1.24 珠泪融合产出神子晶（2026-10-11，v0.4.25，用户点名）
+
+**反馈**：触发珠泪融合时，珠泪攻击卡+影依卡应当满足神影依·神子晶（ElShaddollGrysta）的融合条件。
+
+**修复**：LsUtil.FusionOptions（珠泪融合产出注册表）加入神子晶——条件与影融同：`m.Count == 2 &&
+DistinctPair(m, IsShaddoll, c => c.Type == CardType.Attack)`（1张影依+1张攻击牌）。珠泪融合触发卡
+（塞壬人鱼/小美人鱼/梅洛人鱼均为攻击牌）自己占攻击位，另选1张影依牌当影依位即可融合。严格数量
+判定不变：选2张素材=共3张材料，神子晶/米德拉什（均2张条件）不满足，此时只有珠泪系条件可能满足。
+候选预筛自动覆盖（[trigger, 影依卡]组合经神子晶条件判定通过，影依牌全量进选择界面）。
+
+**文案**：无需改——珠泪融合词条/选牌提示为通用表述（"满足融合条件的融合卡"），神子晶卡面
+「融合条件：1张影依卡+1张攻击牌」本就准确，珠泪融合素材组合可自然满足。
+
+**验证**：v0.4.25 加载无异常（checklog：Version=0.4.25.0 + Lightsworn mod initialized +
+NO RELEVANT ERRORS）。
+
+
+---
+
+## v0.4.26（2026-10-11）：事件「于珍珠世界相逢」+ 遗物「猫狗双全」（用户点名两张素材图）
+
+**事件：于珍珠世界相逢**（首个自定义事件，Scripts\Events.cs，mod 新增 localization\zhs\events.json）：
+- BaseLib `CustomEventModel` 范式：构造时自动注册进共享事件池（**BaseLib 不会反射实例化事件类，
+  必须 Entry.Init 里手动 `new PearlWorldEncounter()`**）；`Acts=[]`=任意幕可刷，
+  `IsAllowed` 限定全部玩家都是光道角色才出现；非共享事件（各玩家独立选择）。
+- 选项一「与珠泪哀歌族同行」=塞壬人鱼/梅洛人鱼/小美人鱼三张加入卡组（RunState.CreateCard +
+  CardPileCmd.Add(Deck) + PreviewCardPileAdd，TheLegendsWereTrue 原版范式）；选项二=珍珠换
+  **100 金币**（对齐原版无代价给金档：LostWisp 60 / TrashHeap 100 / TheLanternKey 100，
+  GoldVar + {Gold} 在选项描述里渲染，NEventOptionButton 自带 DynamicVars.AddTo）。
+- 选项悬停预览三张人鱼卡面（HoverTipFactory.FromCardWithCardHoverTips 三连）。
+- 事件 ID=`LIGHTSWORN-PEARL_WORLD_ENCOUNTER`（GetPrefix=命名空间首段大写+'-'，Entry=类名蛇形），
+  loc 键={Id}.title / .pages.INITIAL.description / .pages.INITIAL.options.{方法名蛇形}.title/.description /
+  .pages.{页}.description（结局页）。选项键由 CustomEventModel.Option(方法组) 按方法名自动推导。
+- **事件立绘规格=3440×1613**（Godot 无头读原版 round_tea_party ctex 实测；正好填满默认布局
+  %Portrait 的 2560×1200 KeepAspectCentered 框）。素材 1536×1174 → cover 模糊底 + 等高居中前景
+  左右羽化 80px 合成（tools\make_pearl_event_art.py）。路径=res://lightsworn/images/events/pearl_world_encounter.png
+  （CustomInitialPortraitPath 覆写；**新 PNG 必须先 Godot --headless --import 再 ExportPck**）。
+- 实测捷径：run 中控制台 `event LIGHTSWORN-PEARL_WORLD_ENCOUNTER` 直达（EventConsoleCmd 按 Id.Entry 匹配）。
+
+**遗物：猫狗双全**（CatsAndDogs，普通/Common，进光道遗物池掉落+商店 175）：
+- 效果=每当抽到「光道兽 沃尔夫」或「光道弓手 费莉丝」时再抽 1 张。实现=覆写
+  `AfterCardDrawn(ctx, card, fromHandDraw)`——**该钩子的监听者含玩家全部未熔解遗物**（CombatState.IterateHookListeners
+  实证），fromHandDraw 不筛（回合抽牌/效果抽到都触发）；连锁抽到继续触发（CardPileCmd.Draw 自带
+  手牌上限/洗牌/空堆检查，天然终止）；`card.Owner != Owner` 过滤他玩家。
+- 图标=素材中央金环徽章圆裁 256/64（径向中值+最小二乘拟合圆心 r=476，tools\make_catdog_relic_icon.py），
+  **右下角「豆包AI生成」水印用整块横向克隆（同高度干净区 830..1050）+羽化+残条洋葱填充修掉**，
+  去水印整图存 `D:\download\chrome_download\光道mod素材\猫狗双全_去水印.png`（素材库备用，不入 mod）。
+
+**验证**：v0.4.26 加载无异常（checklog：Version=0.4.26.0 + Lightsworn mod initialized + NO RELEVANT
+ERRORS；pck 内 events.json/立绘 ctex/遗物图标 ctex 齐全）。
+
+---
+
+## v1.25 事件黑屏修复（2026-10-11，v0.4.27，朋友实测反馈）
+
+**来源**：用户朋友实测 v0.4.26，走进「于珍珠世界相逢」事件房**黑屏卡死**（本机从未实际进过该事件——v0.4.26 会话只验证了"加载无异常 + pck 含资源"，事件屏幕从未视觉验证过）。
+
+**根因（代码级实证）**：`PearlWorldEncounter` **漏写 `CustomInitialPortraitPath` 覆写**（开发手册 §5 记了这条做法，但 v0.4.26 的 Events.cs 里没有）→ 事件立绘路径走原版规则 `res://images/events/pearl_world_encounter.png`（游戏本体目录，mod 立绘实际在 `res://lightsworn/images/events/`）→ 进事件房预载失败，`AssetCache.MarkAssetFailed` 标记该路径 → `NEventRoom.SetupLayout()` 第一行 `Layout.SetEvent()` 内 `CreateInitialPortrait()` 对已标记失败路径**抛 AssetLoadException** → `SetTitle`/`SetDescription`/选项渲染全部不执行（异常被 `TaskHelper.RunSafely` 吞进日志）→ 空黑界面永久卡死。与坑18 同族：SetupLayout 中途抛异常=事件房半初始化。
+
+**改动**：①Events.cs 补 `CustomInitialPortraitPath => res://lightsworn/images/events/{Id.Entry 蛇形小写}.png`（顺手在 JoinTearlaments 加 `Cmd.CustomScaledWait(0.5f,1.2f)` 对齐原版 TheLegendsWereTrue 的入组动画节奏）；②新增 `localization\eng\events.json`（zhs 内容原样复制）——EventOption 构造对缺键返回 null LocString，`AddLocVars` 里 `description.Add()` 直接 NRE，非中文玩家进同样黑屏；eng 表作为所有非 zhs 语言的回退兜底。
+
+**验证**：v0.4.27 加载无异常，日志确认 `eng events.json` 与 `zhs events.json` 均合并。事件屏幕实机复验待用户/朋友下次进事件确认（控制台 `event LIGHTSWORN-PEARL_WORLD_ENCOUNTER` 可直达）。
+
+---
+
+## v1.26 事件黑屏二次修复（2026-10-11，v0.4.28，用户控制台实测反馈）
+
+**来源**：用户在控制台重试 `event LIGHTSWORN-PEARL_WORLD_ENCOUNTER`，事件仍未弹出。日志实证：`No loader found for resource: res://lightsworn/images/events/lightsworn-pearl_world_encounter.png`——v0.4.27 的覆写写成 `{Id.Entry.ToLowerInvariant()}`，拼出的路径比实际文件名**多了 mod 前缀**（`Id.Entry`="LIGHTSWORN-PEARL_WORLD_ENCOUNTER" 自带前缀；实际立绘文件=类名蛇形 `pearl_world_encounter.png`）。同样的预载失败→MarkAssetFailed→同样的 AssetLoadException 黑屏。
+
+**改动**：`CustomInitialPortraitPath` 改为硬编码真实文件名 `res://lightsworn/images/events/pearl_world_encounter.png`（新事件立绘文件按类名蛇形命名）。手册坑23 补两轮踩坑经过，§5 立绘约定订正为"<类名蛇形小写>.png 不含 mod 前缀"。
+
+**验证**：v0.4.28 部署后用户控制台实测：日志 `Preloading 'Event Room' Complete: assets=2` 全部加载、零异常（此前每次该行后必跟 Failed+AssetLoadException），事件房完整构建，用户随后正常返回主菜单退出。**事件验证通过标准=Event Room 预载完成后无 Failed/Exception**。
+
+---
+
+## v1.27 融合生成锁跨战斗/跨存档泄漏修复（2026-10-11，v0.4.29，朋友实测反馈）
+
+**现象**：①上一场战斗最后一个回合融合出的怪，下一次战斗开始时不重置（图鉴仍置灰/同回合不能再融）；②第一回合影融（影依+光道攻击→拿非利/神子晶二选一）选拿非利后保存退出→继续（本场重打）→再融只出神子晶→再保存退出→继续→什么都融不了。
+
+**根因**：融合生成锁（v0.4.24 统一引擎）是 static 集合、只按 "回合数:行动方" 字符串键控，不按战斗实例隔离——回合号每场从1重计（CombatState 构造器 RoundNumber=1，存档不含战斗状态）：①跨战斗同回合号碰撞（上一场第N回合的锁漏进下一场第N回合，末回合=第1回合时下一场开局即中）；②保存退出→继续=本场重打（新 CombatState 回到第1回合），键 "1:Player" 未变→拿非利仍锁→只出神子晶；再锁一轮→全锁死。
+
+**改动**：LsUtil.cs 锁状态重做——5个静态字段收敛为 `ConditionalWeakTable<ICombatState, FusionLockState>`（TurnKey+两套本回合已生成集合+文迪戈本场锁），战斗结束随 CombatState 一起被 GC 回收，新战斗/读档重打天然全新；`IsFusionLocked/RegisterFusionGenerated` 补 combat 参数，`ValidMaterialCandidates` 透传；图鉴置灰 `IsFusionUsedForCodex` 改查实例状态（文迪戈项不再需要引用比较）。「本回合不能打出」play 锁本就带实例引用守卫，未动。
+
+**验证**：v0.4.29 构建部署，日志加载零异常。融合场景实机复验待用户/朋友确认（两场战斗连续融合 + 融合后保存退出再继续）。
+
+---
+
+## v1.28 第二十二轮反馈18条：数值回调+稀有度调整+地天使重做+重放接入（2026-10-12，v0.4.30，朋友实测反馈）
+
+**素材/融合引擎（LsUtil.cs）**：
+1. 影依融合强化后素材可从卡组选——代码本就没筛，实际可选面比文案宽；按用户拍板"正好控制强度"收紧为**只允许「影依」牌**（includeDraw 池加 IsShaddoll 过滤），文案同步"（限「影依」牌）"。
+2. 神影依融合效果调整：生成的神影依**获得1次重放**（原版 BaseReplayCount 机制=打出时效果额外执行1次，HiddenGem/Transfigure 同款，UI自动显示"重放"提示）；不再强制视为已升级（forceUpgraded 移除）；敲后仍=0费。GenerateShaddollToken/ShaddollFusion 加 replayCount 参数。
+3. 神影依·拿非利融合条件（1影依+1光道）扩：**圣影依 商神杖灵可充当光道位**（`c is QadshaddollKeios`）；圣影依卡面追加说明、拿非利融合条件行同步。
+4. 虚影依 神子晶影融改为**被弃置时发动**（OnDiscardedEffect→DiscardExhaust），打出时不再影融；DiscardExhaust 素材池排除触发卡自身（触发时自己已在弃牌堆）。
+5. 珍珠世界能力补齐 powers.json 词条（此前缺失）；易伤层数=Amount（1/敲后2）。
+
+**数值/稀有度**：
+6. 蓝卡（Uncommon）×6：虚影依 神子晶、真血公、雷诺哈特、影依刺猬（白→蓝）、惩戒之龙、光道主·大天使 米迦勒。
+7. 金卡（Rare）×2：邻家割草、光道宰制者 基里奥斯。白卡（Common）×1：影依巫女 艾莉娅儿。
+8. 影依·拿非利 0费→1费。
+9. 影依的炎核 虚梦狱：基础改2费15伤；敲后保持原强化版（2费20伤）=升级改为伤害+5（拍板：升级结果与旧强化版完全一致）。
+10. 正义世界：每次弃牌3点活力（敲后4）；升级由"获得固有"改为活力+1（拍板）。能力改用 Amount 传层数。
+11. 光之回弹：每次弃牌3层灾厄（敲后4）。破坏之光：9层灾厄（敲后12）。
+12. 光道主·大天使 米迦勒：每回收1张光道牌格挡1→2。
+13. 雷喵：改敲前0费，敲后=洗回数量+1（Picks 变量化，原升级0费作废）。
+
+**效果重做**：
+14. 地天使4张（问题14）：姆多拉/凯尔多=0费、回弃牌堆任意2张（敲后3张）到卡组、抽1、抽到攻击/技能牌其费用-1（EnergyCost.UpgradeBy(-1)+FinalizeUpgrade；抽牌堆空触发洗牌时跳过）；凯尔柏克=弃光5，其中2张以上攻击牌→随机敌人7伤（敲后弃光7/10伤）；阿基多=弃光5，其中2张以上技能牌→6格挡（敲后弃光7/9格挡）。
+15. 神光之龙（问题10）：消耗堆每有一张「光道」牌额外+5伤害（在消耗弃牌堆之后结算，刚弃光的光道牌计入）；获得新能力**神光回响**（ShiningDragonPower）：回合开始时从弃牌堆随机将1张「光道」牌加入手牌并变为0费（SetUntilPlayed），敲后2张；图标暂复制神域占位。
+16. 珍珠世界（问题5）：基础效果=原强化版（每次珠泪融合全体1层易伤+打出时从卡组检索1张珠泪攻击牌），敲后=易伤2层；**去掉珠泪哀歌族标签**（问题15，不再计入"打出珠泪卡"计数）。
+17. 珠泪7卡改名（问题15）：珠泪哀歌族 塞壬人鱼/小美人鱼/梅洛人鱼/雷诺哈特/水仙女人鱼/鲁莎卡人鱼/卡雷多哈特；鲁莎卡/卡雷多哈特融合条件行的卡名引用同步。
+18. 露米娜丝（问题3）：效果回调——去掉格挡，从弃牌堆拿「光道」牌1→2张（回到 v0.4.10 前）。
+
+**验证**：v0.4.30 构建部署，日志加载零异常；卡牌图鉴已重跑（gen_card_doc SPECIAL 表订正 4 条过时升级说明）。
+
+---
+
+## v1.29 第二十二轮订正两条（2026-10-12，v0.4.31，用户点名）
+
+1. **地天使减费改"仅一次"**（姆多拉/凯尔多）：抽到的攻击/技能牌费用-1 不再是战斗内永久降费（`EnergyCost.UpgradeBy(-1)+FinalizeUpgrade()` 作废），改用原版 `EnergyCost.AddUntilPlayed(-1, reduceOnly: true)`（SlumberingEssence"费用-1直到打出"同款 API）——减费持续到该牌下一次打出，打出后恢复。文案加"（直到打出）"。
+2. **雷喵敲后=抽X+1张牌**（X=其效果洗回抽牌堆的牌数）：原拍板"洗回数量2→3"作废；洗回上限固定2，基础固定抽1，敲后抽 chosen.Count+1（洗回0张时=抽1，与基础一致）；Picks 变量删除，升级为行为型（OnUpgrade 空），文案用 {IfUpgraded:show:，然后抽X+1张牌（X=洗回的牌数）|，然后抽1张牌}。
+
+**验证**：v0.4.31 构建部署，日志加载零异常；卡牌图鉴已重跑。
+
+---
+
+## v1.30 第三十八轮反馈37条：数值修正+影依融合体验重做+壹世坏2新卡（2026-10-12，v0.4.32）
+
+**事件/本家（Cards1-4）**：
+1. 事件「于珍珠世界相逢」选项一追加诅咒牌「腐朽」（原版 Decay：不可打出，回合结束在手牌受到2点伤害；选项悬停可预览）。
+2. 光道贼猫 雷喵：1费（0→1）；抽牌数=洗回牌数X（不再固定1），敲后X+1。
+3. 光道武僧 艾琳：伤害8/11（原6/10）；改为"先清除目标所有格挡，然后照常造成伤害"（原清格挡时不打伤害）。
+4. 光道圣骑士 简：10/13（原9/13）；稀有度改基础卡。
+5. 光道魔术师 丽拉/暮光道巫师 丽拉：脆弱→虚弱；丽拉稀有度白→蓝。
+6. 神我影依流世：格挡10/15（原8/12）。
+7. 闪光之幻想：弃光移到最前结算。
+8. 光道龙 格拉古尼斯：基础伤害固定14（升级不再+4），敲后改为"每张光道+3"（升级改加成，原+2）。
+9. 光道天使 基路伯：主目标伤害改4点×3段（敲后4段），溅射6/9不变。
+10. 光道少女 密涅瓦：升级从"降挡位"改为"被从卡组弃置时追加抽1张牌"（挡位不再降低）。
+11. 光道德鲁伊 奥库斯：0费（1→0）+追加「消耗」。
+12. 光道圣灵 夏尔：格挡5/7（原10/14）。
+13. 妖精传姬-白雪 雪之化身：弃牌堆≥7张才能打出（必须消耗7张），稀有度Token→金卡。
+14. 裁决之龙：稀有度金→蓝。
+15. 神光之龙：去掉"消耗堆光道+5伤害"与获得能力「神光回响」两部分；基础伤害固定60；敲后获得「保留」。ShiningDragonPower 类已删除（配套 powers.json 条目已清）。
+16. 暮光道萨满 露米娜丝：去掉10格挡；升级改为拿取数1→2（原敲后0费作废）。
+17. 光道防护罩：稀有度改基础卡（与简一起，不再从奖励/商店获取）。
+
+**影依系（Cards5-8/LsUtil/ShaddollBase）**：
+18. 救影依-神数纳迦：1费（0→1）、获得6格挡。此前本地化写了8格挡但代码漏了GainBlock——本批一并补上并按用户要求改6。
+19. 影依巫女 艾莉娅儿：敲后不再加格挡；升级=被弃置时"每消耗1张牌随机敌人获得1层虚弱"（基础=1层虚弱不变）。
+    **两个bug修复**：①打出锁改用**卡牌实例**键控——原 ModelId（卡名）键控导致巫女锁1张神影依后"融的同名神影依也被连坐不能打出"，且回合过期判定只在加锁时执行=旧锁永不失效；②融合Token消耗语义回（改）订为最终版：**离开弃牌堆（回手牌/回卡组）都消耗 + 任何来源"回卡组"都消耗**（原先只拦"弃牌堆→抽牌堆"，"从消耗堆回卡组"会漏=巫女bug）+ 被效果从消耗堆加入手牌保留；删除"第2次打出时消耗"（ShaddollToken 实例计数）。card_keywords 两词条已同步。
+20. 虚影依 神子晶：伤害6/9；升级同时为影融+（产出强化版，引擎自动）。
+21. 影依猎犬：稀有度蓝→白。
+22. 影依猎鹰：被弃置格挡5/7（原9/12）。
+23. 圣影依 商神杖灵重做：**1费技能**——和手牌另一张影依卡影融出拿非利（有另一张影依+拿非利未生成才可打出；素材弃置照常触发被弃置时）；敲后=影融+（强化版拿非利）；被弃置时改为"丢弃1张影依攻击牌→对随机1名敌人造成其伤害"（原活力效果删除）。保留"素材时充当拿非利光道位"。
+24. 影依融合/神影依融合/魂影依融合：均1费。影依融合敲后=**仅精英/Boss战**可从卡组选素材（当前房间 RoomType 判定）。
+    另修朋友反馈bug：**米沙赫雷恶素材收紧为"3张手牌"**（素材须全部来自手牌）——从卡组选的素材不能凑数。
+25. 神影依融合敲后不减费（升级=影融+，由引擎自动产出强化版）。
+26. 心影依融合敲后从"选牌张数+1"改为0费（仍选1张）。
+27. 影依的伪典改**能力**（新能力 ShaddollSchismPower）：每回合开始可以消耗弃牌堆2张「影依」牌发动一次影融（0~2可选=可不发动；DiscardExhaust 模式；引擎新增 `ShaddollFusionFromPower` 无触发卡入口）。
+28. 影依的原核重做：1费技能=8格挡（去掉"丢影融卡触发影融"部分）；**作为影融素材时本次影融可融合任意神影依**（引擎 `WithCoreRule`：组合含原核→豁免条件"任意2张含≥1影依"）；敲后=影融+（素材为强化版原核时产出强化版神影依）；被弃置效果不变。
+29. 联结之影依化身重做：1费——消耗弃牌堆1张影依（没有则不产生效果），从弃牌堆或消耗堆将1张影依攻击卡加入手牌；敲后加入手牌的卡0费（原"伤害置0一次"机制从该卡移除，ZeroDamageOnce 余3处：心影依/文蒂/神子晶）。
+30. 神影依·拿非利：去掉清除格挡；**对Boss伤害翻倍**（当前房间 RoomType.Boss 判定）。
+31. 神影依·米德拉什：回费3→2。
+32. 珠泪融合卡：鲁莎卡格挡固定5（去掉"每打出1张珠泪卡+2格挡"计数）；卡雷多哈特重做=打15+**消耗**+在消耗区时每回合开始自动打出（原版 Bombardment 范式：`AfterAutoPrePlayPhaseEnteredEarly` + `CardCmd.AutoPlay`；原弃珠泪/荆棘效果删除）。
+
+**新卡2张（问题25）**：
+33. 壹世坏·为珠泪哀歌族奏起的哀唱（1费技能·单体）：从卡组将1张珠泪卡送去墓地（走 MillSelected，弃置钩子照常触发——珠泪融合可由此发动），给目标敌人1层易伤。【AI拍板：敲后易伤2】
+34. 壹世坏·向珠泪哀歌族劈斩的弦声（1费能力）：每回合开始时弃光3（能力来源弃光：不触发光道的连锁，珍妮丝/破坏之光/暮光照常）。【AI拍板：敲后弃光4】
+    两张均**不打珠泪标**（同珍珠世界，不计"打出珠泪卡"）；卡图=YGO 74920585/6767771（tools\make_primeval_cards_art.py）；能力图标=卡图圆形裁切。
+
+**AI拍板/歧义决策（待用户确认，如有出入下轮修正）**：
+① #10"虚影依伤害改为6/9"与#31"虚影依敲后不增加数值，改为影融+"字面冲突——采用6/9（显式数值优先），升级同时为影融+。
+② 光道天使"4x3/4x4"按"主目标4伤×3/4段"落地，溅射按"未提及=不动"保留并参与升级。
+③ 新卡2张的升级数值与稀有度（均蓝卡）为AI拍板。
+④ 米沙赫雷恶修复=素材须全部来自手牌（"3张手牌"字面）；如需干脆禁止卡组模式选它请指出。
+⑤ 暮光道萨满升级=拿取数1→2（顺带撤掉原"敲后0费"）；贼猫升级=X+1（行为型）。
+
+**验证**：v0.4.32 构建部署，日志加载零异常（Version=0.4.32.0 + Lightsworn mod initialized!）；卡牌图鉴重跑（104张，含2新卡；SnowSpirit 移入金卡组）。
+
+---
+
+## v1.31 第三十八轮订正三条（2026-10-12，v0.4.33，用户验收反馈）
+
+1. **虚影依 神子晶敲后也是6**（#10"6/9"的9作废）：伤害固定6（升级不再+3），升级=影融+（产出强化版，引擎按触发卡已升级自动处理）。
+2. **光道天使 基路伯**：改为**对所有敌人**造成4点伤害×3次（敲后×4次），**删除溅射部分**（目标类型 AnyEnemy→AllEnemies；升级=攻击次数3→4）。
+3. **升级文案条件化**：敲前文本不再出现"强化后xxx"字样——影依融合（"处于精英战或Boss战时…"改为 {IfUpgraded:show:…|} 仅强化后显示）、炼狱的乖放（"加入手牌的2张牌费用变为0"同上）；裁决之龙/雷喵/闪光之幻想等原本就是升级后才显示，无改动。**gen_card_doc 的 render() 同步支持 {IfUpgraded:show:A|B}**（基础取B、强化取A，B缺省=空——图鉴不再显示字面占位符，该脚本既有局限已消除）。
+
+**验证**：v0.4.33 构建部署（部署时用户正在实测 v0.4.32，游戏进程锁定 dll——先关闭游戏再换包），日志零异常（Version=0.4.33.0 + initialized）；卡牌图鉴重跑。
+
+## v1.32 米沙赫雷恶「素材被吃却融不出」修复 + 素材预筛挡枪修复（2026-10-13，v0.4.35，用户控制台实测+日志实证）
+
+**现象**：使用强化后的影依融合（精英/Boss战），选「手牌猎犬＋打击/防御/光道圣女等任意3张手牌（含≥1影依）」→ 三张手牌被弃置、什么都没发生（不弹神影依选择界面、不生成Token）。用户控制台实测日志实锤：picked n=3 → discard 手牌3张 → available=[] → abort。朋友此前反馈的「融合了手牌中的影依猎犬、打击、防御，结果没有获得米沙赫雷恶」即此（与生成锁无关——融合图鉴确认未锁）。
+
+**根因**：v0.4.32 给米沙赫雷恶收紧的「素材须全部来自手牌」条件含牌堆判定（c.Pile?.Type == PileType.Hand），而引擎在流程里判定【两次】：第一次在弃置素材前（素材在手牌→成立→放行并弃置），第二次在弃置素材后（素材已进弃牌堆→必然不成立）→ 可用神影依列表为空 → 静默中止，此时素材已被消耗。⇒ v0.4.32 起米沙赫雷恶实际完全融不出；从卡组选的组合因第一次判定就失败、素材无损（收紧本身按预期拦截）。
+
+**修复**（LsUtil.cs）：两个素材来源分支的可用神影依列表 available 改为在素材移动（弃置/消耗）之前判定一次并复用（弃置后不再重新判定）。**另修**：素材候选预筛 ValidMaterialCandidates 原实现每张融合卡只标记「第一个命中的组合」（break），同样能参与融合的牌会被别的牌挡枪而在选材界面选不了（用户实测：加进手牌的打击不可选）——改为遍历全部命中组合标记。诊断日志（[LsShaddoll] FUSION 前缀，v0.4.34 加入）保留。
+
+**验证**：v0.4.35 构建部署（dll 哈希与 dist 一致、含 Version=0.4.35.0）；待用户复测：手牌三人组→直接入手米沙赫雷恶；卡组素材混选→弃置前拦截、素材无损。
+
+---
+
+## v1.33 三条稀有度/升级调整（2026-10-13，v0.4.36，用户点名）
+
+1. **妖精传姬-白雪**：稀有度 Uncommon→Rare（金卡）。衍生Token「雪之化身」此前已是金卡展示，本次为白雪本体入金卡池。
+2. **光道祭司 珍妮丝**：稀有度 Common→Uncommon（蓝卡）。数值/效果无改动（5/敲后8格挡+同额随机敌人伤害）。
+3. **光道召唤师 露米娜丝**：升级重做——**敲前拿1张、敲后拿2张，升级不再变为0费**（原"费用1→0"作废，升级后仍1费；与暮光道萨满同范式）。基础拿取数 2→1（`Picks` DynamicVar 1m；OnUpgrade=UpgradeValueBy(1)）。被拿取牌的"本回合费用为0"保留不变（用户字面"不再变为0费"指升级后卡牌自身费用，非被拿的牌）。
+
+**验证**：v0.4.36 构建部署（dist 与游戏目录三件套哈希一致；部署前先关闭用户实测中的游戏进程），日志零异常（Version=0.4.36.0 + Lightsworn mod initialized!）；卡牌图鉴重跑，三张卡显示已核对（珍妮丝"非普通"、白雪"稀有"、露米娜丝"敲后拿2、升级变化：拿取数1→2"）。
+
+---
+
+## v1.34 珠泪融合素材预筛修复 + 影依的伪典升级订正（2026-10-13，v0.4.37，用户/朋友反馈）
+
+**① 珠泪融合「选不了雷诺哈特」修复**（朋友实测）：弃牌堆有雷诺哈特+鲁莎卡人鱼，弃置一张珠泪触发珠泪融合，结果选材界面里雷诺哈特不可选、卡雷多哈特融不出。根因=LsUtil.TearFusion 的素材候选预筛只测「触发卡+单张候选」两卡组合：卡雷多哈特条件为 3 张素材（`m.Count(IsTearAttack)==3` 且含雷诺哈特），两卡列表恒不命中——当本回合已生成过 Kitkallos（生成锁挡住其两卡组合）时，雷诺哈特没有任何可用组合为其背书 → 在候选预筛中被挡枪、界面选不了。**与 v0.4.35 影融「打击不可选」同族（预筛挡枪）**，但机制不同：影融是 break 只标首个命中组合，珠泪是组合长度只枚举到两卡。修复：预筛改为枚举「触发卡+1张」「触发卡+2张」的全部组合（触发卡必须参与——问题8），命中组合的所有牌都标记；顺带：融合卡选择与手牌空间判定前移到素材移动之前（取消选择/手牌满不再白吃素材）；新增 **[LsTear] FUSION** 诊断日志（触发卡/素材池/候选/逐处中止原因）。
+
+**② 影依的伪典升级订正**（用户口径）：**敲后费用保持1费**（原 v0.4.32 定的"费用1→0"作废），**升级=影融+**——打出的是强化版能力 `ShaddollSchismPowerPlus`（GarothPowerPlus 同款子类范式：基类加 `virtual OnTurnStartFusion`，强化版重写为 `ShaddollFusionFromPower(forceUpgraded:true)`），回合开始的影融产出强化版神影依；卡面描述"影融"后加 `{IfUpgraded:show:+（本次产出强化版神影依）|}`（敲前不显示）。能力词条 powers.json 新增 ShaddollSchismPowerPlus 三键（标题同基础版，同 GarothPowerPlus 惯例）。
+
+**验证**：v0.4.37 构建部署（dist 与游戏目录三件套 md5 一致），日志零异常（Version=0.4.37.0 + Lightsworn mod initialized!）；卡牌图鉴重跑（伪典显示"1费"、敲后"影融+（本次产出强化版神影依）"）。待用户/朋友复测：弃牌堆鲁莎卡+雷诺哈特+任意珠泪触发→三张同选可融卡雷多哈特（Kitkallos 本回合已生成也不影响）；强化伪典回合开始的影融产出强化版神影依。
+
+---
+
+## v1.35 蛇影依追加「消耗」+ 影依·拿非利1费复查（2026-10-13，v0.4.38，用户点名）
+
+1. **蛇影依 路径灵**：追加**「消耗」**关键词（打出后进消耗堆）。「被弃置时：获得1层镀层」不受影响——弃置（手牌/弃光）仍是弃置、照常触发；消耗只是打出后的去向。升级（伤害7→10）**保留消耗**。卡面描述追加「消耗。」（cards.json 与 tools\locfrag\cards_6.json 同改，locfrag 保持同步防止未来重合并回退）。
+2. **影依·拿非利 1费复查**（用户口径"确认敲后也是1费"）：基础与敲后均为 **1费**——升级只改"被弃置回手门槛 Recall 2→1"，OnUpgrade 无费用改动。**双证**：①源码 Cards6.cs `base(1, …)`；②部署版 v0.4.37 dll ILSpy 反编译核对（构造 `base(1, …)`、`OnUpgrade` 仅 `Recall.UpgradeValueBy(-1)`）。用户看到的 0费 系朋友机上旧版本（v0.4.30"0费→1费"之前的包）。**无改动**。
+
+**验证**：v0.4.38 构建部署（dist 与游戏目录三件套 md5 一致），日志零异常（Version=0.4.38.0 + Lightsworn mod initialized!）；卡牌图鉴重跑——蛇影依条目= `攻击 · 非普通 · 1费 · 目标：单体 · 「消耗」`，敲前/敲后描述均含"消耗。"。
+
+---
+
+## v1.36 第四十轮反馈39条（2026-10-13，v0.4.39，design\已知问题.txt 下发）
+
+### 一、数值与费用微调（歧义处理原则=字面优先；"X/Y"=基础/强化；未提及的既有升级保留）
+
+| # | 卡 | 改动 |
+|---|---|---|
+| 1 | 神影依·米德拉什 | 回费回调 2→**3**（v0.4.32 的 3→2 作废） |
+| 4 | 光道武僧 艾琳 / 光道暗杀者 莱登 / 影依猎犬 | 伤害各 +1：艾琳 8→**9**/12（敲+3）、莱登 8→**9**/13（敲+4）、猎犬 7→**8**（升级=Next+1，伤害不变） |
+| 5 | 影依蜥蜴 | 伤害 **8/10**（敲+2）；**敲后虚弱 1→2 层**（新增 Weak 变量） |
+| 6 | 珠泪哀歌族 梅洛人鱼 | 伤害 6→**7**、格挡 4→**5**（升级纯珠泪融合型，数值两态通用） |
+| 8 | 影依兽 | 伤害 **15/20**（敲+5） |
+| 9 | 救影依-神数纳迦 | 格挡 6→**8/10**（敲+2）；弃光升级（1→2）保留 |
+| 13 | 光道德鲁伊 奥库斯 | **敲后 2 层人工制品**（新增 Artifact 变量 1→2）；弃光升级（2→3）保留 |
+| 14 | 虚影依 神子晶 | 伤害 6→**8**（升级=影融+ 行为型，两态均 8） |
+| 15 | 真血公 | **敲后伤害 20**（新增 Damage 升级 +2）；弃光升级（4→6）保留 |
+| 18 | 暗之进军 | 费用 1→**0** |
+| 19 | 光道恶魔 魏丝 | 费用 1→**0** |
+| 20 | 光道魔术师 丽拉 / 暮光道巫师 丽拉 | **敲后虚弱 2 层**（新增 Weak 变量 1→2）；原削力量升级保留 |
+| 21 | 光道圣灵 夏尔 | 格挡 5→**8/10**（敲+2）；每张光道 +1 保留 |
+| 25 | 影牢之咒缚 | 费用 1→**2**（升级=固有 不变） |
+| 30 | 壹世坏·弦声 | **敲后改为固有（Innate），不再加弃光**（原 3→4 作废） |
+
+### 二、重做/机制类
+
+2. **光道天使 基路伯 多段伤害不吃活力的 bug 修复**（用户实测：只有第一段吃活力）：根因=原实现逐段 `DamageCmd.Attack(...).Execute()`，每段是独立 AttackCommand，而原版 VigorPower 的 BeforeAttack 只认第一个命令、AfterAttack 后层数清零（源码实证）→改为**原生多段攻击** `.TargetingAllOpponents(CombatState).WithHitCount(Hits)`：单个 AttackCommand 内部循环，BeforeAttack/AfterAttack 只包一次，全部段落吃活力。**通用教训：mod 里任何"同一张卡打多段"都必须用 WithHitCount，不要手写 for 循环逐段 Execute**（神光之龙同步改）。
+3. **联结之影依化身**：去掉"消耗弃牌堆1张影依"的代价部分，直接"从弃牌堆或消耗堆将1张影依攻击卡加入手牌（敲后费用0）"。
+7. **小美人鱼**：触发条件反转——**目标意图为攻击时**回1费并弃光3（原"不为攻击"作废）；伤害 **6/9**（新增数值升级 +3，珠泪融合强化副产物照常）。
+10. **闪光之幻想**（升金）：弃光2→**3**；格挡改为**造成伤害**（数值公式不变=所选牌基础伤害+0/敲后3，单体）；**斩杀时额外获得一次卡牌奖励**——照原版 TheHunt 范式：`CombatRoom.AddExtraReward(Owner, new CardReward(CardCreationOptions.ForRoom(...), 3, Owner))`，附 TheHunt 同款 `ShouldOwnerDeathTriggerFatal` 判定（爪牙死亡不算）。
+11. **影依巫女 艾莉娅儿**：被弃置效果重做=**消耗至多{Max}张**（基础1/敲后2，新增 Max 变量）、**每消耗1张牌随机1名敌人获得1层虚弱**、文本统一（原"基础1层固定/敲后按数量"作废）；**拿回来的影依卡改为可以打出但伤害为0**（`LsUtil.ZeroDamageOnce`，打出一次后恢复）——原"本回合不能打出"的实例锁作废（锁机制代码保留备用）。
+12. **绊影依-神数原核**：被弃置效果改为**弃光4**（原"获得6点格挡"作废；用户描述"放1张影依到牌堆顶"与部署 dll 不符——ILSpy 反编译核对为 GainBlock 6，按指令直接改弃光4）。
+16. **光道的裁决**：生成的裁决之龙Token **「虚无」改「保留」**（CreateToken 新增 retain 参数；回合结束不弃置，可留到下回合）。
+17. **剑神官 姆多拉 / 宿神像 凯尔多**：抽到对应牌（攻击/技能）的降费改为**本次费用变为0**（`SetUntilPlayed(0)`；原 `AddUntilPlayed(-1, reduceOnly)` 作废）。
+22. **光之放逐**：施加 **2层虚弱+2层易伤**（敲后各3，新增 Vul 变量）；**强制弃光道**=手牌无「光道」牌时不可打出（IsPlayable 门禁）+打出时强制弃1张手牌光道（仅1张光道时直接弃，免选）。
+23. **壹世坏·哀唱**：追加**被弃置时（弃光/手牌弃置）从卡组将1张珠泪攻击牌加入手牌**（LsCard 双钩子，LsUtil.PickFromDraw 检索）。
+24. **神光之龙**：伤害 60 → **22×3**（敲后 **26×3**，Damage +4 保留「保留」升级；原生多段攻击同第2条）。
+26. **除光机制重做**（LsUtil.Banish）：从"抽牌堆顶N张"改为**从抽牌堆自选N张消耗**（MultiPileCardSelect 界面；不足N张时全部消耗、无选择界面）。card_keywords.json 词条同步。影响：暗之进军、黄昏之双龙的被弃置联动。
+27. **黄昏之双龙**：生成的裁决/惩戒**去掉虚无**；**敲后不再增加除光**（固定4，原4→6 作废）；**敲后生成的牌获得「保留」**。
+28. **光道埃癸斯盾 = 光道防护罩的先古版**（用户拍板）：类重做为 1费 技能、弃光4、**15/20 格挡**、**被弃置（弃光）时自动加入手牌且费用变0**（细剑同款弃光回手钩子）；稀有度 Ancient。**获取途径=古老牙齿**：`Barrier : ITranscendenceCard`（BaseLib Abstracts）——`ArchaicToothTranscendenceUpgradesPatch` 自动收集 mod 卡映射（防护罩→埃癸斯盾），古老牙齿从卡组把防护罩转化（升级态保留）；因进 TranscendenceCards，达弗尘封魔典不会给到（原版规则）；「你必须玩游戏王」生成池只收白/蓝/金，不受影响。**v0.4.13 的"防护罩先古版是死卡"作废**。
+29. **光之回弹**（升金）：效果改为**原埃癸斯盾的效果**=每当你打出「光道」牌，获得 **2/3** 点格挡（原"每次弃牌→灾厄3/4"作废；AegisPower 类删除、效果并入 LightBouncePower）。
+33. **古尖兵 凯尔柏克 / 古卫兵 阿基多**（升金）：满足条件（弃光中有2张以上攻击/技能牌）后**改为抽2张牌**（原伤害7/10、格挡6/9 作废）；**追加"被弃置时自动打出"**（弃光/手牌弃置均触发，`LsUtil.AutoPlayOnDiscard`=CardCmd.AutoPlay，卡雷多哈特同款；打出不触发）。
+34. **光道战士 加洛斯**（升金）：**敲后效果改到敲前**——基础=「光道」牌弃光后追加弃光2**并抽其中「光道」牌数量的牌**（原强化版效果）；**敲后=触发条件放宽为任意弃光都触发，不限制光道**（不限来源：能力弃光、非光道牌弃光等全部触发）。实现：`LsUtil.MillCore(garothAny:)` 每次弃光后通知 `GarothPower.OnAnyMill`（强化版响应、基础版空操作）；强化版 `OnLightswornMilled` 置空防双重触发；**载荷追加弃光关掉 any 通知防递归**（garothAny:false）。
+35. **光道龙 格拉古尼斯**（升金）：追加**斩杀时（DamageResult.WasTargetKilled）自动回手、费用临时变为0**（手牌满不回）。
+36. **正义世界**（升金）：改为 **3费能力**——**每当弃光，可以将弃置的牌中的1张加入手牌**（0~1可选，LsUtil.MillCore 每次弃光事件通知）；**敲后：加入手牌的牌获得「保留」**（JusticeWorldPower/Plus 子类，GrantsRetain）。原"每次弃牌获得活力3/4"作废。
+37. **神我影依流世**（升金）：改为 **2费能力**（敲后**1费**）——每回合开始时**可以（0~1可选）从消耗堆将1张「影依」牌加入手牌**（PurushaddollAeonPower，AfterPlayerTurnStartEarly 同神域）。原"弃手牌影依换格挡"技能作废。
+38. **新卡「壹世坏·让珠泪哀歌族澄澈的残响」**（金卡2费技能，原型=YGO 1329620）：**击晕目标敌人**（眩晕=原版先古卡「吹哨」施加的 `CreatureCmd.Stun`）、**消耗**；**被弃置时（弃光/手牌弃置）从消耗堆选1张珠泪攻击牌，生成一张相同的卡加入手牌**（`CardModel.CreateClone`=升级状态/关键词完整复制，原版双重施法范式）。不打珠泪标（同哀唱/弦声/珍珠世界）。卡图=tools\make_primeval_cards_art.py（ygopro 1329620 裁切）+能力图标管线同步。
+39. **黄昏之交衣**（升金）：效果重做为**弃牌堆中每有1张「光道」牌获得1层暮光**、**消耗**；**敲后去掉消耗**（原"消耗至多4张换格挡"作废；BlockPerBurn/MaxBurn 变量删除）。
+
+### 三、歧义拍板记录（汇报中已列出）
+
+- **29 光之回弹"光道埃癸斯盾的效果"**：埃癸斯盾本批被改为防护罩先古版，"埃癸斯盾的效果"按**原能力版效果**（打出光道牌→获得2/3格挡）移交（数值与升级沿用原案）；若用户原意是别的（如按弃牌触发），下轮订正即可。
+- **17"本次变0费"**= SetUntilPlayed(0)（直到打出），与露米娜丝/细剑同族的"0费直到打出"语义。
+- **13/20 的"敲后X"**= 在既有升级之上**新增**该升级项（弃光/削力量升级保留）。
+- **9/21 的"X/Y"**= 被提及数值的基础/强化两态（格挡 8/10），未提及的升级（弃光+1、每张+1）保留。
+- **7 小美人鱼"改成为攻击时触发特效"**= 触发条件反转为"目标意图为攻击时"。
+- **12 绊影依**：用户描述（放影依到牌堆顶）与部署 dll（获得6格挡）不符，按指令"改成弃光4"落地。
+- **28 古老牙齿**：只为防护罩做映射（打击/防御/圣骑士简无先古版=用户未点名）；防护罩的弃置回手按 mod 惯用的"从卡组被弃置（弃光）时"实现（非任意弃置）。
+- **10 闪光之幻想**：仍为技能牌（只改效果与目标类型为单体），未改攻击牌类型。
+
+**验证**：v0.4.39 构建部署（dist 与游戏目录三件套 md5 一致），日志零 Lightsworn 异常（Version=0.4.39.0 + Lightsworn mod initialized!）；pck 内文案抽查（残响/埃癸斯盾/加洛斯能力/除光词条）全部为新版；卡牌图鉴重跑（105张）。**待用户/朋友复测**：古老牙齿转化埃癸斯盾、正义世界每次弃光的拾回UI、加洛斯强化版任意弃光触发、古尖兵被弃置自动打出、闪光之幻想斩杀奖励、残响的复制与击晕。
+
+---
+
+## v1.37 用户订正4条（2026-10-13，v0.4.40，对话直接下发）
+
+1. **正义世界（敲后）订正**："敲后是**正义世界自己**获得保留，不是拿回的牌保留"——OnUpgrade 改为 `AddKeyword(CardKeyword.Retain)`（3费攒费期间回合结束留在手牌，不弃置）；`JusticeWorldPowerPlus`/GrantsRetain 机制整体删除（能力无强化版），powers.json 的 `JUSTICE_WORLD_POWER_PLUS.*` 词条删除；卡面文案去掉"（该牌获得「保留」）"。
+2. **残响（PrimevalEcho）补锁**：用户问"从消耗堆拿回的珠泪攻击卡如果是融合的卡，本回合是不是就不能融合对应的怪"——**原实现并不会**（CreateClone 只复制牌，不登记融合生成锁）。已补：拿回的卡是 `TearFusionToken`（融合生成的珠泪攻击Token）时，`LsUtil.LockFusionGeneratedThisTurn` 登记本回合生成锁——本回合不能再融合出对应的融合卡，融合图鉴同步置灰（与"每回合每张1次"锁同源）。卡面描述补充该规则说明。
+3. **绊影依-神数原核（ShaddollZefracore）订正重做**：用户澄清本批第12条的原意=①**主动打出时弃光 2→4**（`Mill` 变量 4，升级仍只加伤害+4）；②**被弃置时：由"获得6点格挡"改为"从弃牌堆将1张影依牌置于抽牌堆顶"**（不能选自身——触发时自己在弃牌堆；v0.4.39 先误实现的"被弃置时弃光4"作废）。排查插曲：用户原始描述"放一个影依到牌堆顶"其实就是想要的效果本身，部署 dll 核对显示旧版是 6 格挡（ILSpy 双证）。
+4. **埃癸斯盾加强**：加入"被从手牌弃置也能拿回来"——补 `AfterCardDiscarded` 钩子（弃光 Draw→Discard + 手牌弃置都回手且本回合0费，"类似影依的被弃置时"双钩子范式）；卡面文案去掉"从卡组"。**机制核查**：回合结束的手牌清理走 `CardPileCmd.Add + Hook.AfterFlush`，**不触发 AfterCardDiscarded**（CombatManager.FlushPlayerHand 源码实证）——不会每回合自动回手。
+
+**验证**：v0.4.40 构建部署（dist 与游戏目录三件套 md5 一致），日志零 Lightsworn 异常（Version=0.4.40.0 + Lightsworn mod initialized!）；图鉴重跑（105张）。
+
+---
+
+## v1.38 埃癸斯盾卡图重裁（2026-10-13，v0.4.41，用户点名）
+
+用户反馈"卡图变形"。排查：从部署 pck 解出旧纹理（pck list `.godot/imported/Aegis.png-*.ctex` → `tools\pck.py extract` → `tools\ctex.py` 解码）与源卡逐像素比对——旧图**横向拉宽**（脸/法杖/光球都偏胖，与源图比例不符；推测为早期手工/旧脚本产物，非标准裁切管线）。
+修复：`tools\make_aegis_art.py`（新）按标准管线重裁——ygopro 25218587「光道埃癸斯盾」400×580 → 插画区 x44..357、y101..414 取 313×238（25:19，比例与 250×190 一致）垂直居中 → resize 250×190。**注意：卡图窗口与裁切比例必须一致（313/238≈250/190），比例不符=拉伸变形**。
+验证：重导入（Godot --headless --import）→ ExportPck；部署后从新 pck 解出纹理与本地文件逐像素比对 **0 diff（md5 相同）**；游戏加载 Version=0.4.41.0、零 Lightsworn 异常。
+
+---
+
+## v1.39 先古卡全框卡图修复（2026-10-13，v0.4.42，用户点名）
+
+**真因**（用户提示"先古卡卡图是全框的、有单独比例"后实证）：对 `CardRarity.Ancient` 的卡，NCard 用独立的 **%AncientPortrait** 渲染（`scenes/cards/card.tscn`：全卡锚点 rect 598×842、scale 0.5 → 显示 299×421、**STRETCH_SCALE 拉伸铺满**），卡图**不是常规的 250×190 竖窗**。从游戏 pck 解出官方先古卡纹理实测（`.godot/imported/corruption.png-*.ctex`、`whistle.png-*.ctex` → `tools\ctex.py` 解码）：**官方规格 = 606×852**（≈0.711 全卡比例，无缝满幅）。v0.4.41 那张 250×190 的埃癸斯盾在 299×421 的框里被横向拉宽——这就是"变形"的真因（我 v0.4.41 误判为旧图问题，实际比例本身就不对）。
+**修复**：`tools\make_ancient_cards_art.py`（新）——两张先古卡（光道埃癸斯盾 25218587 / 破坏之光 83027236）YGO 插画区（边缘亮度采样实测内沿：左50/右350/顶106-107/底408，避开卡框内沿灰条）→ 等比放大到高 852 → 居中裁 606 宽（cover：无拉伸，左右各裁约13%）。**破坏之光旧图另有一处问题一并对齐**：原 250×190 只裁了插画上半截（y110-330），本次取全插画。
+**通用知识（已入手册）**：先古卡（Ancient）卡图规格 = **606×852 全框**（常规卡才是 250×190）；两张先古卡的卡图以后按此重裁。Power 图标（圆形裁切）仍从卡图中心取，不受影响。
+**验证**：重导入 → ExportPck → 部署；从部署 pck 解出两张纹理与本地 **0 diff（md5 相同）**、尺寸 606×852；日志 Version=0.4.42.0 零 Lightsworn 异常。
+
+
+---
+
+## v1.40 第四十一轮17条（2026-10-14，v0.4.43，design\已知问题.txt 下发）
+
+1. **光之回弹调蓝**：Rare→Uncommon（效果不变：打出光道牌得2/3格挡）。
+2. **影依的炎核 虚梦狱（HelshaddollHollow）重做**：2费攻击打15/20（升级=伤害+5不变）；主动打出的效果改为
+   **弃光X（X=手牌中不同名「神影依」数量+1）**——原"可以从卡组弃置1张影依攻击卡→施加1层虚弱和易伤"作废；
+   被弃置时弃光4 保留；加回「弃光」关键词。「神影依」判定=`LsUtil.IsElShaddollToken`（9张ShaddollToken，含翼影依影文蒂）。
+3. **莱登（Layden）**："+4伤害"改为**弃光到「光道」牌→在本回合结束前获得2点临时力量**（先结算临时力量再打伤害，
+   本次攻击也吃加成）。实现=BaseLib `CustomTemporaryPowerModelWrapper<Layden, StrengthPower>`（`LaydenTempStrengthPower`）：
+   应用原版 StrengthPower、回合结束自动返还；图标/文案走 BaseLib 通用临时力量资源+游戏本体 TEMPORARY_STRENGTH_POWER 文案
+   （中文=「在本回合结束前获得力量」），标题=卡牌名。升级仍=伤害+4（9/13）。
+4. **光道天使 基路伯进白**：Uncommon→Common。
+5. **影依兽升蓝**：Common→Uncommon。
+6. **绊影依-神数原核（ShaddollZefracore）重做为2费能力·蓝卡**：获得能力「绊影依-神数原核」——**回合开始时从
+   「影依的炎核 虚梦狱」「虚影依 神子晶」「神影依·神子晶」中随机生成1张加入手牌，其获得「消耗」**；
+   生成的是神影依（ElShaddollGrysta，ShaddollToken）时**登记融合生成锁**（同残响=本回合不能再融合出该卡、图鉴置灰）；
+   敲后费用2→1。原"打8/12+弃光4"作废；被弃置时（v0.4.40 订正）"从弃牌堆将1张影依牌置于抽牌堆顶"**保留**。
+7. **救影依-神数纳迦（ShaddollZefranaga）重做为2费能力·蓝卡**：回合开始时从「圣影依 商神杖灵」「联结之影依化身」
+   「影依的伪典」中随机生成1张加入手牌（同上获得「消耗」；三张都不是神影依、不占生成次数）；敲后2→1费。
+   被弃置时"抽1张牌"保留（同上，未点名删除）。
+8. **古尖兵/古卫兵**：条件由"2张以上→抽2"改为**每有3张对应类型牌→抽1**（弃光5/7；技能=阿基多、攻击=凯尔柏克；
+   向下取整）。"被弃置时自动打出"保留。
+9. **雷喵（Rinyan）重做**：0费、升蓝、加「消耗」；**从弃牌堆将最多{Picks}张「光道」牌洗回抽牌堆（自选0~上限），
+   每有1种不同名的「光道」牌→获得1点费用**；洗回上限2/敲后3。原"洗回→抽X张"作废。
+10. **光道龙 格拉古尼斯**：基础伤害18/敲后22（升级由"每张+3"改为**伤害+4**；"弃牌堆每张「光道」+2"保留）。
+11. **加洛斯回调初版**：敲前=「光道」牌弃光后**只追加弃光2**；敲后=追加弃光2**并抽其中「光道」牌数量**的牌。
+    v0.4.39 的"基础=抽牌 / 敲后=任意弃光都触发"整体作废（MillCore 的 OnAnyMill 通知点保留但两级都不响应；
+    powers.json 双词条同步）。
+12. **光道神域降蓝**：Rare→Uncommon。
+13. **暮光道将军 简重做+进白**：Uncommon→Common；1费攻击**打9/12**，**可以**（0~1可选）消耗弃牌堆中1张「光道」牌，
+    若如此做**额外造成5/7点伤害**；获得1层暮光（无条件）。原"消耗1张→16伤、没有则整张牌无效"作废。
+14. **光道圣灵 夏尔进白**：Uncommon→Common。
+15. **羽影依 文蒂**：被弃置效果**改成和打出相同**——回收影依攻击卡之外，同样给"本回合费用为0、伤害为0（打出一次后恢复）"
+    （原被弃置只回收不加buff）。抽出 `FetchBuff` 私有方法供 OnPlay/OnDiscardedEffect 共用。
+16. **黄昏之交衣追加效果**：**被从卡组弃置时（Draw→Discard，任意来源），获得"本回合打出「光道」牌获得2格挡（敲后3）"**
+    ——新能力 `TwilightGarbPower : LightBouncePower`（继承光之回弹的 AfterCardPlayed；`AfterSideTurnEnd` 自我移除=
+    "本回合"一次性），图标=卡图圆裁（zefracore/zefranaga/twilightgarb 三套新图标，tools\make_power_icons_v443.py）。
+    卡面新增 `Guard` 变量（2→3）驱动文案。
+17. **卡雷多哈特全局限1次生成**：与文迪戈同款——**本场战斗只能生成1次**（`Locks(combat).BattleLocked`，
+    RegisterFusionGenerated 内统一登记，WendigoLocked 改名 BattleLocked）；图鉴置灰同步；卡面加"[gold]本场战斗[/gold]此牌只能生成1次。"
+
+**实现细节/拍板点**：
+- 新能力 `ShaddollZefracorePower`/`ShaddollZefranagaPower`（Powers.cs；AfterPlayerTurnStartEarly，流世同款）：随机生成走
+  `LsUtil.GenerateRandomToHand`（玩家侧 RNG `RunState.Rng.CombatCardSelection.NextItem` → `combat.CreateCard(概念卡, player)`
+  → AddKeyword(Exhaust) → ShaddollToken 时 `LockFusionGeneratedThisTurn` → AddGeneratedCardToCombat(Hand)）。
+- 炎核的"弃光X"在**造成伤害之后**结算（保留原顺序）；X 动态、卡面写死"X=手牌中不同名「神影依」的数量+1"（不进动态变量）。
+- 莱登的临时力量在**攻击前**施加（本次攻击也受益）。
+- 雷喵"回墓地x张光道"=从弃牌堆洗回**抽牌堆**（原卡定位"墓地光道回卡组"不变，仅地址词按用户说法"回墓地"）；能量按
+  **所选牌的不同名数**给（1种=1费）。
+- 交衣的"被从卡组弃置时"=Draw→Discard 任意来源（mod 惯用），非限光道卡来源。
+- 绊影依/救影依的「被弃置时」效果按既有设计**保留**（用户未点名删除；绊影依的为 v0.4.40 用户点名订正）。
+- 图鉴 gen_card_doc.py：VAR_LABEL 补 Guard/Temp；SPECIAL 表同步 Garoth/KaleidoHeart/Rinyan/TwilightGarb +
+  新增 ShaddollZefranaga 条目；tools\locfrag\cards_6/7.json **全量同步**至当前 cards.json（此前有12处陈旧漂移，
+  防未来重跑合并脚本回退旧文案；tools\sync_locfrag.py）。
+- 三张新能力图标（zefracore/zefranaga/twilightgarb 64/256）=卡图中心圆裁（make_power_icons_v443.py）。
+
+**验证**：v0.4.43 构建（0错误）→ 新 PNG 先 Godot --headless --import → ExportPck（pck 20,466,604B）→
+dist 三件套 md5 与游戏目录一致 → 启动游戏日志 `Version=0.4.43.0` + `Lightsworn mod initialized!` 零 Lightsworn 异常；
+从部署 pck 解出 cards/powers.json 抽查（炎核/雷喵/交衣/加洛斯/绊影依/救影依）全部为新版；卡牌图鉴重跑（105张）。
+**待用户/朋友复测**：炎核弃光X、莱登临时力量（BaseLib 包装器首次使用）、绊影依/救影依能力随机生成 + 消耗 + 神影依占锁、
+雷喵0费回费、加洛斯初版双态、暮将军可选消耗、交衣被弃置临时回弹、卡雷多哈特本场限1。
+
+
+---
+
+## v1.41 用户订正3条（2026-10-14，v0.4.44，对话直接下发）
+
+1. **炎核订正**：v1.40 第2条理解错误——"弃光X"是改在**被弃置时**：`弃光4 → 弃光X（X=手牌中不同名「神影依」的数量+1）`；
+   主动打出的效果**恢复原样**（造成15/20伤害；可以从卡组弃置1张影依攻击卡，若如此做对目标施加1层虚弱和易伤）。
+2. **光道龙订正**：升级**同时**改两项——伤害 18→22 **并且** 每张「光道」+2→+3（v1.40 把 Scale 升级删掉是错的，已恢复；
+   OnUpgrade = Damage+4 与 Scale+1 并改）。
+3. **绊影依/救影依订正**：两张重做卡的**「被弃置时」效果整体删除**（绊影依"从弃牌堆将1张影依牌置于抽牌堆顶"、
+   救影依"抽1张牌"；v1.40 保留的判断作废）。被弃置仍走 ShaddollCard 管线（照常计「影依」弃置事件=咒缚/蠢动/影文蒂联动），
+   只是不再有效果本身。
+
+**验证**：v0.4.44 构建（0错误）→ ExportPck（pck 20,466,556B）→ dist 与游戏目录三件套 md5 一致
+（dll cf5274ab…/pck ce97d722…）→ 从部署 pck 解出 cards.json 抽查三条新文案全部到位 → 日志 Version=0.4.44.0
++ Lightsworn mod initialized! 零异常；图鉴重跑（炎核恢复原效果+弃光X、两张影依无被弃置段、光道龙 18/22 且每张 2→3）。
+
+---
+
+## v1.42 BaseLib→RitsuLib 迁移 + beta 双版本兼容（2026-10-14，v0.5.0，用户三项任务）
+
+**背景**：用户把游戏切到 beta（0.111.0）并下载 RitsuLib 0.6.7；三项任务：①mod 从 BaseLib 迁移到 RitsuLib；
+②同一份 dll 同时支持正式版 0.107.1 与 beta 0.111.0；③救影依/绊影依 2费→1费、敲后固有。
+
+**迁移总览**（完整对照表与风险清单见 `design\ritsulib迁移方案.md`）：
+- 卡牌/遗物/能力/池/角色/事件基类 → RitsuLib：`ModCardTemplate` / `ModRelicTemplate` / `ModPowerTemplate` /
+  `TypeList{Card,Relic,Potion}PoolModel` / `ModCharacterTemplate<...>` / `ModEventTemplate`。
+- `[Pool(typeof(X))]` → `[RegisterCard(typeof(X))]`（遗物 `[RegisterRelic]`、角色 `[RegisterCharacter]`、
+  事件 `[RegisterSharedEvent]`；105 张卡 + 3 遗物全量替换，脚本 tools\migrate_bulk_v050.py）。
+- 标签（Lightsworn/EarthAngel/Fiendsmith/Tearlaments/Shaddoll）→ `ModCardTagRegistry` 铸造真实 CardTag；
+  关键词（弃光/除光/暮光/珠泪融合/影融）→ `ModKeywordRegistry` 铸造真实 CardKeyword（id=LIGHTSWORN_KEYWORD_*，
+  loc 键=LIGHTSWORN_KEYWORD_*.title/.description，BeforeCardDescription ≈ 旧 AutoKeywordPosition.Before）。
+- 金色卡框：BaseLib ShaderColor → `PoolFrameMaterial`（游戏 hsv.gdshader + h/s/v，移植 BaseLib ShaderUtils）。
+- 顶栏融合图鉴按钮：自 patch NTopBar + NButton 子类 → `ModTopBarButtonRegistry.Register("LIGHTSWORN_FUSION_CODEX", spec)`
+  （保留旧 loc 键；打开界面/watcher 逻辑不变）。
+- 古老牙齿：Barrier 上的 `ITranscendenceCard` → `[RegisterArchaicToothTranscendence(typeof(Aegis))]`。
+- 金色卡框/临时力量/选牌/能量球的替代：见下"自建三件套"。
+- 补丁：Harmony.PatchAll → `RitsuLibFramework.CreatePatcher` + `IPatchMethod`（3 生效 + 1 按设计忽略）。
+- **Localization 键全量迁移**（RitsuLib 固定条目 = `{MOD}_{CATEGORY}_{TYPENAME}`）：
+  cards→`LIGHTSWORN_CARD_*`、powers→`LIGHTSWORN_POWER_*`、relics→`LIGHTSWORN_RELIC_*`、
+  character→`LIGHTSWORN_CHARACTER_LIGHTSWORN_CHARACTER`、event→`LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER`、
+  关键词→`LIGHTSWORN_KEYWORD_*`、ancients 对白键同步（脚本 tools\migrate_lockeys_v050.py + locfrag 同步迁移）。
+  card_selection / static_hover_tips 为自建键不动。**旧存档（含进行中 run）因 ModelId 变化不再可用**。
+- **双版本兼容层（tools 无关，代码层）**：0.107.1→0.111.0 三处硬签名破坏，全部以反射探测闭合：
+  ①`AttackCommand.FromCard(card)`→`(card, cardPlay)`（42 处调用点→`LsCompat.FromCardCompat`）；
+  ②`CreatureCmd.LoseBlock`→需 ctx+remover（艾琳 1 处→`LsCompat.LoseBlockCompat`）；
+  ③`ModifyDamageMultiplicative` 5参→6参（欧尼斯特：编译期 6 参 override 覆盖 beta；正式版由
+  `HonestPowerLegacyPatch` 对 5 参基类方法打 postfix 转发，ignoreIfMissing 让 beta 自动跳过）。
+  其余 130+ 使用点/42 处 override 经双版本源码全量审计**签名一致**（审计脚本留 research\api_audit\）。
+- **自建三件套**（RitsuLib 无对应物）：
+  ①`MultiPileCardSelect` shim（浅封装 `CardSelectCmd.FromSimpleGrid`，签名同旧；**失去牌堆来源角标**）；
+  ②能量球 `LightswornEnergyCounterPatch`（patch `NEnergyCounter.Create`，纯 C# 建节点树，移植 BaseLib FromLegacy
+  精简版）+ 描边色补丁；③欧尼斯特正式版 postfix（见上）。
+- 构建：csproj Import `RitsuLib.References.props`（`RitsuLibReferenceTarget=0.111.0`），删 BaseLib 引用；
+  清单依赖改 `STS2-RitsuLib >= 0.6.7`；min_game_version 保持 0.107.1。
+
+**③救影依/绊影依**：基础费用 2→1；敲后由"费用-1"改为**获得「固有」**（`OnUpgrade → AddKeyword(CardKeyword.Innate)`，
+升级预览/卡面关键词行自动显示）。
+
+**验证（beta 0.111.0 实机）**：构建 0 错 0 警 → ExportPck → robocopy /MIR /IS /IT → 启动：
+`RitsuLib 0.6.7 [compat branch: 0.111.0]` 加载、5 标签/5 关键词铸造成功、顶栏按钮注册、
+`[AutoRegister] Lightsworn: 111 operations, 111 succeeded, 0 failed`（105卡+3遗物+角色+事件+池）、
+3 补丁生效 + 1 按设计忽略（honest_107）、日志零异常。图鉴重跑 105 张。
+**正式版（0.107.1）无法本机实测**（Steam 只装了 beta 一份）——以"三处破坏点反射闭合 + 其余审计安全"背书；
+正式版上线若见 MissingMethodException/TypeLoadException 即漏网（排查入口：本记录 §兼容层 三条）。

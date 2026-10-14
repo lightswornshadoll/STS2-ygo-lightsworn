@@ -1,0 +1,3 @@
+MegaCrit.Sts2.Core.GameActions\GameAction.cs 32 public abstract class GameAction
+MegaCrit.Sts2.Core.Runs\RunManager.cs 50 public class RunManager : IRunLobbyListener
+--- 2 hits ---

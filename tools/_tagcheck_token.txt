@@ -1,0 +1,180 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Models;
+
+namespace Lightsworn;
+
+public abstract class TearFusionToken : LsCard
+{
+	[CompilerGenerated]
+	private sealed class <AfterCardChangedPiles>d__5 : IAsyncStateMachine
+	{
+		public int <>1__state;
+
+		public AsyncTaskMethodBuilder <>t__builder;
+
+		public CardModel card;
+
+		public PileType oldPileType;
+
+		public AbstractModel clonedBy;
+
+		public TearFusionToken <>4__this;
+
+		private PileType? <now>5__1;
+
+		private bool <leavingDiscard>5__2;
+
+		private bool <toDeck>5__3;
+
+		private bool <>s__4;
+
+		private bool <>s__5;
+
+		private TaskAwaiter <>u__1;
+
+		private void MoveNext()
+		{
+			//IL_0126: Unknown result type (might be due to invalid IL or missing references)
+			//IL_012b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0133: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0047: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0058: Unknown result type (might be due to invalid IL or missing references)
+			//IL_005e: Invalid comparison between Unknown and I4
+			//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00c3: Invalid comparison between Unknown and I4
+			//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00ef: Expected O, but got Unknown
+			//IL_00ef: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
+			//IL_008c: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0091: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0092: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0094: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0096: Invalid comparison between Unknown and I4
+			//IL_0109: Unknown result type (might be due to invalid IL or missing references)
+			//IL_010b: Unknown result type (might be due to invalid IL or missing references)
+			int num = <>1__state;
+			try
+			{
+				TaskAwaiter val;
+				if (num == 0)
+				{
+					val = <>u__1;
+					<>u__1 = default(TaskAwaiter);
+					num = (<>1__state = -1);
+					goto IL_0142;
+				}
+				bool flag;
+				if ((object)card == <>4__this)
+				{
+					CardPile pile = card.Pile;
+					<now>5__1 = ((pile != null) ? new PileType?(pile.Type) : ((PileType?)null));
+					<>s__4 = (int)oldPileType == 3;
+					<>s__5 = <>s__4;
+					if (<>s__5)
+					{
+						if (<now>5__1.HasValue)
+						{
+							PileType valueOrDefault = <now>5__1.GetValueOrDefault();
+							if (valueOrDefault - 1 <= 1)
+							{
+								flag = true;
+								goto IL_00a2;
+							}
+						}
+						flag = false;
+						goto IL_00a2;
+					}
+					goto IL_00aa;
+				}
+				goto end_IL_0007;
+				IL_00aa:
+				<leavingDiscard>5__2 = <>s__5;
+				<toDeck>5__3 = (int)<now>5__1.GetValueOrDefault() == 1;
+				if (<leavingDiscard>5__2 | <toDeck>5__3)
+				{
+					val = CardCmd.Exhaust((PlayerChoiceContext)new ThrowingPlayerChoiceContext(), (CardModel)(object)<>4__this, false, false).GetAwaiter();
+					if (!((TaskAwaiter)(ref val)).IsCompleted)
+					{
+						num = (<>1__state = 0);
+						<>u__1 = val;
+						<AfterCardChangedPiles>d__5 <AfterCardChangedPiles>d__ = this;
+						((AsyncTaskMethodBuilder)(ref <>t__builder)).AwaitUnsafeOnCompleted<TaskAwaiter, <AfterCardChangedPiles>d__5>(ref val, ref <AfterCardChangedPiles>d__);
+						return;
+					}
+					goto IL_0142;
+				}
+				goto end_IL_0007;
+				IL_0142:
+				((TaskAwaiter)(ref val)).GetResult();
+				goto end_IL_0007;
+				IL_00a2:
+				<>s__5 = flag;
+				goto IL_00aa;
+				end_IL_0007:;
+			}
+			catch (global::System.Exception exception)
+			{
+				<>1__state = -2;
+				((AsyncTaskMethodBuilder)(ref <>t__builder)).SetException(exception);
+				return;
+			}
+			<>1__state = -2;
+			((AsyncTaskMethodBuilder)(ref <>t__builder)).SetResult();
+		}
+
+		[DebuggerHidden]
+		private void SetStateMachine(IAsyncStateMachine stateMachine)
+		{
+		}
+	}
+
+	public override bool CanBeGeneratedInCombat => false;
+
+	protected override HashSet<CardTag> CanonicalTags
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			HashSet<CardTag> obj = new HashSet<CardTag>();
+			obj.Add(Ls.Tearlaments);
+			return obj;
+		}
+	}
+
+	protected TearFusionToken(int baseCost, CardType type, CardRarity rarity, TargetType target)
+		: base(baseCost, type, rarity, target, showInCardLibrary: false)
+	{
+	}//IL_0002: Unknown result type (might be due to invalid IL or missing references)
+	//IL_0003: Unknown result type (might be due to invalid IL or missing references)
+	//IL_0004: Unknown result type (might be due to invalid IL or missing references)
+
+
+	[AsyncStateMachine(typeof(<AfterCardChangedPiles>d__5))]
+	[DebuggerStepThrough]
+	public override global::System.Threading.Tasks.Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy)
+	{
+		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
+		<AfterCardChangedPiles>d__5 <AfterCardChangedPiles>d__ = new <AfterCardChangedPiles>d__5();
+		<AfterCardChangedPiles>d__.<>t__builder = AsyncTaskMethodBuilder.Create();
+		<AfterCardChangedPiles>d__.<>4__this = this;
+		<AfterCardChangedPiles>d__.card = card;
+		<AfterCardChangedPiles>d__.oldPileType = oldPileType;
+		<AfterCardChangedPiles>d__.clonedBy = clonedBy;
+		<AfterCardChangedPiles>d__.<>1__state = -1;
+		((AsyncTaskMethodBuilder)(ref <AfterCardChangedPiles>d__.<>t__builder)).Start<<AfterCardChangedPiles>d__5>(ref <AfterCardChangedPiles>d__);
+		return ((AsyncTaskMethodBuilder)(ref <AfterCardChangedPiles>d__.<>t__builder)).Task;
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.1.0.9782' (yours is '9.1.0.7988')

@@ -1,0 +1,39 @@
+Patches\UI\CharacterSelectStartingRelicsPatch.cs 15 internal static class CharacterSelectStartingRelicsPatch
+Patches\UI\CharacterSelectStartingRelicsPatch.cs 30 if (__instance.GetParent()?.Name == "BaseLibStartingRelics")
+Patches\UI\CharacterSelectStartingRelicsPatch.cs 120 var relics = character.StartingRelics;
+Patches\UI\CharacterSelectStartingRelicsPatch.cs 157 Name = "BaseLibStartingRelics",
+Patches\UI\CustomCharacterSelectEntryPatch.cs 142 CharacterSelectStartingRelicsPatch.Clear(screen, restoreControllerFocus: true);
+Patches\UI\CustomCharacterSelectEntryPatch.cs 173 CharacterSelectStartingRelicsPatch.Clear(screen, restoreControllerFocus: true);
+Patches\UI\CustomCharacterSelectEntryPatch.cs 376 CharacterSelectStartingRelicsPatch.RebindFocusNeighbors(screen);
+Patches\UI\CustomCharacterSelectEntryPatch.cs 397 CharacterSelectStartingRelicsPatch.Clear(screen, restoreControllerFocus: true);
+Patches\UI\CustomCharacterSelectEntryPatch.cs 414 CharacterSelectStartingRelicsPatch.Clear(screen, restoreControllerFocus: true);
+Patches\UI\CustomCharacterSelectEntryPatch.cs 459 if (character.StartingRelics.Count > 0)
+Patches\UI\CustomCharacterSelectEntryPatch.cs 461 var relic = character.StartingRelics[0];
+Patches\UI\CustomCharacterSelectEntryPatch.cs 497 CharacterSelectStartingRelicsPatch.ApplyForCharacter(screen, character, state?.ActiveButton?.Button);
+Patches\UI\CustomCharacterSelectEntryPatch.cs 501 CharacterSelectStartingRelicsPatch.Clear(screen, restoreControllerFocus: true);
+Patches\UI\CustomCharacterSelectEntryPatch.cs 511 CharacterSelectStartingRelicsPatch.Clear(screen, restoreControllerFocus: true);
+Patches\UI\CustomCharacterSelectEntryPatch.cs 518 if (character is not RandomCharacter && character.StartingRelics.Count > 0)
+Patches\UI\CustomCharacterSelectEntryPatch.cs 520 var relic = character.StartingRelics[0];
+MegaCrit.Sts2.Core.Entities.Players\Player.cs 341 PopulateStartingRelics();
+MegaCrit.Sts2.Core.Entities.Players\Player.cs 739 private void PopulateStartingRelics()
+MegaCrit.Sts2.Core.Entities.Players\Player.cs 741 List<RelicModel> list = Character.StartingRelics.Select((RelicModel r) => r.ToMutable()).ToList();
+MegaCrit.Sts2.Core.Models\CharacterModel.cs 100 public abstract IReadOnlyList<RelicModel> StartingRelics { get; }
+MegaCrit.Sts2.Core.Models\ModelDb.cs 227 public static IEnumerable<RelicModel> AllRelics => _allRelics ?? (_allRelics = from r in AllRelicPools.SelectMany((RelicPoolModel p) => p.AllRelics).Concat(AllCharacters.
+MegaCrit.Sts2.Core.Models.Characters\Defect.cs 54 public override IReadOnlyList<RelicModel> StartingRelics => new global::_003C_003Ez__ReadOnlySingleElementList<RelicModel>(ModelDb.Relic<CrackedCore>());
+MegaCrit.Sts2.Core.Models.Characters\DeprecatedCharacter.cs 44 public override IReadOnlyList<RelicModel> StartingRelics => Array.Empty<RelicModel>();
+MegaCrit.Sts2.Core.Models.Characters\Deprived.cs 38 public override IReadOnlyList<RelicModel> StartingRelics => Array.Empty<RelicModel>();
+MegaCrit.Sts2.Core.Models.Characters\Ironclad.cs 57 public override IReadOnlyList<RelicModel> StartingRelics => new global::_003C_003Ez__ReadOnlySingleElementList<RelicModel>(ModelDb.Relic<BurningBlood>());
+MegaCrit.Sts2.Core.Models.Characters\Necrobinder.cs 63 public override IReadOnlyList<RelicModel> StartingRelics => new global::_003C_003Ez__ReadOnlySingleElementList<RelicModel>(ModelDb.Relic<BoundPhylactery>());
+MegaCrit.Sts2.Core.Models.Characters\RandomCharacter.cs 47 public override IReadOnlyList<RelicModel> StartingRelics => new global::_003C_003Ez__ReadOnlySingleElementList<RelicModel>(ModelDb.Relic<Circlet>());
+MegaCrit.Sts2.Core.Models.Characters\Regent.cs 58 public override IReadOnlyList<RelicModel> StartingRelics => new global::_003C_003Ez__ReadOnlySingleElementList<RelicModel>(ModelDb.Relic<DivineRight>());
+MegaCrit.Sts2.Core.Models.Characters\Silent.cs 60 public override IReadOnlyList<RelicModel> StartingRelics => new global::_003C_003Ez__ReadOnlySingleElementList<RelicModel>(ModelDb.Relic<RingOfTheSnake>());
+MegaCrit.Sts2.Core.Nodes\NGame.cs 1152 await RunManager.Instance.FinalizeStartingRelics();
+MegaCrit.Sts2.Core.Nodes.Debug.Multiplayer\NMultiplayerTest.cs 335 _localPlayerData.Relics = _characterPaginator.Character.StartingRelics.Select((RelicModel r) => r.ToMutable().ToSerializable()).ToList();
+MegaCrit.Sts2.Core.Nodes.Debug.Multiplayer\NMultiplayerTest.cs 379 await RunManager.Instance.FinalizeStartingRelics();
+MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect\NCharacterSelectScreen.cs 746 await RunManager.Instance.FinalizeStartingRelics();
+MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect\NCharacterSelectScreen.cs 836 RelicModel relicModel = characterModel.StartingRelics[0];
+MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect\NCharacterSelectScreen.cs 869 RelicModel relicModel2 = characterModel.StartingRelics[0];
+MegaCrit.Sts2.Core.Nodes.Screens.RelicCollection\NRelicCollectionCategory.cs 157 List<RelicModel> list = ModelDb.AllCharacters.SelectMany((CharacterModel c) => c.StartingRelics).ToList();
+MegaCrit.Sts2.Core.Runs\RunManager.cs 650 public async Task FinalizeStartingRelics()
+MegaCrit.Sts2.Core.Saves.Managers\ProgressSaveManager.cs 91 foreach (RelicModel startingRelic in ironclad.StartingRelics)
+--- 38 hits ---

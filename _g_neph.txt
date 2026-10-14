@@ -1,0 +1,67 @@
+.\开发手册.md 58 │   │   ├─ Cards6.cs           ← 影依本家怪15张（影依兽…绊影依-神数原核，含影依·拿非利/虚影依神子晶两张影融卡）
+.\开发手册.md 60 │   │   ├─ Cards8.cs           ← 神影依Token9张（米德拉什/拿非利/文迪戈/神子晶/舍金纳迦/异花莉莉丝/七贤巨鲲魔/米沙赫雷恶/翼影依影文蒂）
+.\开发手册.md 184 **影融引擎** `LsUtil.ShaddollFusion(ctx, trigger, mode, forceUpgraded, includeDraw, replayCount, optional)`：mode=`Hand`（弃手牌2~3素材，默认）/`DiscardExhaust`（弃牌堆2
+.\开发手册.md 289 - **v0.4.32**（2026-10-12）：**第三十八轮反馈37条**（数值修正+影依融合体验重做+壹世坏2新卡）：①本家18条（雷喵1费/抽X、艾琳8/11先清格挡再打伤害、简10/13+基础卡、丽拉×2弱化改虚弱+蓝卡、神我10/15、闪光弃光提前、格拉古尼斯基础固定+敲后每张+3、基
+.\开发手册.md 303 - **v0.4.18**（2026-10-07）：**影依（Shaddoll）系列35张卡落地**（用户订正设计稿 `design\影依卡牌设计初稿.md` 后点名开发）。本家怪15+魔法5+陷阱6+神影依Token9（普通7/非普通12/稀有7，Token不进池），10处卡名按用户订正（蛇影依路
+.\design\_tail.txt 2 **根因**：融合生成锁（v0.4.24 统一引擎）是 static 集合、只按 "回合数:行动方" 字符串键控，不按战斗实例隔离——回合号每场从1重计（CombatState 构造器 RoundNumber=1，存档不含战斗状态）：①跨战斗同回合号碰撞（上一场第N回合的锁漏进下一场第N回合，末回合
+.\design\_tail.txt 15 3. 神影依·拿非利融合条件（1影依+1光道）扩：**圣影依 商神杖灵可充当光道位**（`c is QadshaddollKeios`）；圣影依卡面追加说明、拿非利融合条件行同步。
+.\design\_tail.txt 22 8. 影依·拿非利 0费→1费。
+.\design\_tail.txt 77 23. 圣影依 商神杖灵重做：**1费技能**——和手牌另一张影依卡影融出拿非利（有另一张影依+拿非利未生成才可打出；素材弃置照常触发被弃置时）；敲后=影融+（强化版拿非利）；被弃置时改为"丢弃1张影依攻击牌→对随机1名敌人造成其伤害"（原活力效果删除）。保留"素材时充当拿非利光道位"。
+.\design\_tail.txt 85 30. 神影依·拿非利：去掉清除格挡；**对Boss伤害翻倍**（当前房间 RoomType.Boss 判定）。
+.\design\光道mod设计文档.md 366 **AI拍板事项（用户订正稿之外的自定决策，可再调）**：①翼影依影文蒂敲后"格挡10→14"无落点→基础效果补"获得10点格挡"；②心影依融合"触发其效果"实现为生成入手牌+伤害置0（非程序化打出），其升级=选2张时生成的神影依不升级（它不是影融卡，不吃"trigger升级→强化版"规则）；③影依
+.\design\光道mod设计文档.md 403 **②神影依检索不能拿神影依**：9张神影依Token（Cards8.cs）的"从弃牌堆拿影依卡"类效果全部加过滤 `!LsUtil.IsElShaddollToken(c)`（新判定= `card is ShaddollToken`，神影依=9张战斗Token 的类型学判定；普通影依=Shaddo
+.\design\光道mod设计文档.md 430 虚影依 神子晶/影依·拿非利 + 塞壬/小美/梅洛 + 心影依融合）的结果选择。修复=**LsUtil.PickConcept**：
+.\design\光道mod设计文档.md 451 拿非利同改（防患）。
+.\design\光道mod设计文档.md 584 **现象**：①上一场战斗最后一个回合融合出的怪，下一次战斗开始时不重置（图鉴仍置灰/同回合不能再融）；②第一回合影融（影依+光道攻击→拿非利/神子晶二选一）选拿非利后保存退出→继续（本场重打）→再融只出神子晶→再保存退出→继续→什么都融不了。
+.\design\光道mod设计文档.md 586 **根因**：融合生成锁（v0.4.24 统一引擎）是 static 集合、只按 "回合数:行动方" 字符串键控，不按战斗实例隔离——回合号每场从1重计（CombatState 构造器 RoundNumber=1，存档不含战斗状态）：①跨战斗同回合号碰撞（上一场第N回合的锁漏进下一场第N回合，末回合
+.\design\光道mod设计文档.md 599 3. 神影依·拿非利融合条件（1影依+1光道）扩：**圣影依 商神杖灵可充当光道位**（`c is QadshaddollKeios`）；圣影依卡面追加说明、拿非利融合条件行同步。
+.\design\光道mod设计文档.md 606 8. 影依·拿非利 0费→1费。
+.\design\光道mod设计文档.md 661 23. 圣影依 商神杖灵重做：**1费技能**——和手牌另一张影依卡影融出拿非利（有另一张影依+拿非利未生成才可打出；素材弃置照常触发被弃置时）；敲后=影融+（强化版拿非利）；被弃置时改为"丢弃1张影依攻击牌→对随机1名敌人造成其伤害"（原活力效果删除）。保留"素材时充当拿非利光道位"。
+.\design\光道mod设计文档.md 669 30. 神影依·拿非利：去掉清除格挡；**对Boss伤害翻倍**（当前房间 RoomType.Boss 判定）。
+.\design\卡牌图鉴.md 731 和手牌另外一张「影依」卡发动影融，融合出「神影依·拿非利」。
+.\design\卡牌图鉴.md 732 作为影融素材时，仅在融合「神影依·拿非利」时可充当「光道」牌。
+.\design\卡牌图鉴.md 735 **敲后**：和手牌另外一张「影依」卡发动影融+，融合出「神影依·拿非利」。  作为影融素材时，仅在融合「神影依·拿非利」时可充当「光道」牌。  [gold]被弃置时[/gold]：可以丢弃1张手牌中的影依攻击牌，对随机1名敌人造成其伤害数值。
+.\design\卡牌图鉴.md 737 > 升级变化：素材时充当拿非利融合的光道位；强化后=影融+（产出强化版拿非利）
+.\design\卡牌图鉴.md 777 ### 影依·拿非利
+.\design\卡牌图鉴.md 1076 ### 神影依·拿非利
+.\design\已知问题.txt 34 28.神影依 拿非利调整:去掉清除格挡部分，改为对boss伤害翻倍
+.\design\已知问题.txt 38 32.圣影依效果调整，改为1费技能，和手牌另外一张影依卡影融出拿非利，敲后改为影融+，被弃置时效果改为可以丢弃一张影依攻击牌，造成其伤害
+.\mod\lightsworn\lightsworn\localization\zhs\cards.json 153 "LIGHTSWORN-QADSHADDOLL_KEIOS.description": "和手牌另外一张「影依」卡发动影融{IfUpgraded:show:+|}，融合出「神影依·拿非利」。\n作为影融素材时，仅在融合「神影依·拿非利」时可充当「光道」牌。\n[gold]被弃置时[/gold]：可以
+.\mod\lightsworn\lightsworn\localization\zhs\cards.json 160 "LIGHTSWORN-SHADDOLL_CONSTRUCT.title": "影依·拿非利",
+.\mod\lightsworn\lightsworn\localization\zhs\cards.json 190 "LIGHTSWORN-EL_SHADDOLL_CONSTRUCT.title": "神影依·拿非利",
+.\mod\lightsworn\Scripts\Cards6.cs 282 // 圣影依 商神杖灵（本批问题32重做：1费技能——和手牌另外一张「影依」卡发动影融，融合出「神影依·拿非利」；
+.\mod\lightsworn\Scripts\Cards6.cs 284 // 仍保留"作为影融素材时可充当拿非利融合的光道位"（问题13）
+.\mod\lightsworn\Scripts\Cards6.cs 290 // 融合目标预览：拿非利
+.\mod\lightsworn\Scripts\Cards6.cs 296 // 有另外一张手牌影依卡、且拿非利本回合未生成时才能打出
+.\mod\lightsworn\Scripts\Cards6.cs 304 // 和手牌另外一张影依卡影融出拿非利（素材=本卡+所选牌；本卡以"拿非利的光道位"参与条件判定）
+.\mod\lightsworn\Scripts\Cards6.cs 335 // 问题32：敲后=影融+（产出强化版拿非利，生成时读取 IsUpgraded，升级为行为型）
+.\mod\lightsworn\Scripts\Cards6.cs 450 // 影依·拿非利（1费技能：影融（问题4：0费→1费）。
+.\mod\lightsworn\Scripts\Cards8.cs 47 // 神影依·拿非利（0费攻击Token：打16/22；本批问题28：去掉"清除格挡"部分，改为对Boss伤害翻倍；
+.\mod\lightsworn\Scripts\LsUtil.cs 395 Hand,           // 默认：弃手牌2~3张作素材（影依融合/神影依融合/影依·拿非利）
+.\mod\lightsworn\Scripts\LsUtil.cs 425 // 拿非利（光道桥）：1张影依+1张光道（问题13：圣影依 商神杖灵仅在融合拿非利时可充当光道位）
+.\mod\lightsworn\Scripts\LsUtil.cs 606 // 影融主流程（影依融合/神影依融合/魂影依融合/影依·拿非利/影依的伪典/虚影依 神子晶）：
+.\mod\lightsworn\Scripts\LsUtil.cs 709 // 生成指定神影依（圣影依 商神杖灵"影融出拿非利"，问题32）：遵守生成锁与手牌上限。
+.\tools\findids_out.txt 13 神影依·拿非利	LIGHTSWORN-EL_SHADDOLL_CONSTRUCT
+.\tools\findids_out.txt 75 影依·拿非利	LIGHTSWORN-SHADDOLL_CONSTRUCT
+.\tools\gendoc_out.txt 81 [非普通] 影依·拿非利  (ShaddollConstruct, 自动)
+.\tools\gendoc_out.txt 96 [特殊] 神影依·拿非利  (ElShaddollConstruct, 含特殊覆盖)
+.\tools\ids_dump.txt 13 神影依·拿非利	LIGHTSWORN-EL_SHADDOLL_CONSTRUCT
+.\tools\ids_dump.txt 77 影依·拿非利	LIGHTSWORN-SHADDOLL_CONSTRUCT
+.\tools\peek2_out.txt 10 ### 影依·拿非利
+.\tools\peek_out.txt 11 == 影依·拿非利 => **敲后**：造成3点伤害。手牌中1张「影依」攻击牌变成0费。  [gold]被弃置时[/gold]：可以丢弃1张手牌中的影依攻击牌，获得（其费用+1）×6的活力。  作为影融素材时，仅在融合「神影依·拿非利」时可作为「光道」牌使用。 | > 升级变化：活力倍率 4→6
+.\tools\shaddoll_query.txt 29 ==== 神影依·拿非利 | 20366274 | 怪兽/效果/融合 | ATK 2800 / DEF 2500 | lv 8 | setcode 0x9d | pic:Y
+.\tools\shaddoll_query.txt 40 ==== 神影依·拿非利 | 20366275 | 怪兽/效果/融合 | ATK 2800 / DEF 2500 | lv 8 | setcode 0x9d | pic:Y
+.\tools\shaddoll_query.txt 51 ==== 神影依·拿非利 | 20366276 | 怪兽/效果/融合 | ATK 2800 / DEF 2500 | lv 8 | setcode 0x9d | pic:Y
+.\tools\shaddoll_query.txt 160 ==== 影依·拿非利 | 86938484 | 怪兽/效果 | ATK 1200 / DEF 40 | lv 2 | setcode 0x9d | pic:Y
+.\tools\shaddoll_query2.txt 26 ==== 神影依·拿非利 | 20366274 | type 97 | ATK 2800 / DEF 2500 | lv 8 | pic:Y
+.\tools\shaddoll_query2.txt 148 ==== 影依·拿非利 | 86938484 | type 67108897 | ATK 1200 / DEF 40 | lv 2 | pic:Y
+.\tools\shaddoll_query2.txt 265 ==== 神影依·拿非利 | 20366274 | type 97 | ATK 2800 / DEF 2500 | lv 8 | pic:Y
+.\tools\shaddoll_query2.txt 275 ==== 神影依·拿非利 | 20366275 | type 97 | ATK 2800 / DEF 2500 | lv 8 | pic:Y
+.\tools\shaddoll_query2.txt 285 ==== 神影依·拿非利 | 20366276 | type 97 | ATK 2800 / DEF 2500 | lv 8 | pic:Y
+.\tools\shaddoll_query2.txt 439 ==== 影依·拿非利 | 86938484 | type 67108897 | ATK 1200 / DEF 40 | lv 2 | pic:Y
+.\tools\_findids.txt 13 神影依·拿非利	LIGHTSWORN-EL_SHADDOLL_CONSTRUCT
+.\tools\_findids.txt 75 影依·拿非利	LIGHTSWORN-SHADDOLL_CONSTRUCT
+.\tools\_g1.txt 18 LIGHTSWORN-QADSHADDOLL_KEIOS.description => "和手牌另外一张「影依」卡发动影融{IfUpgraded:show:+|}，融合出「神影依·拿非利」。\n作为影融素材时，仅在融合「神影依·拿非利」时可充当「光道」牌。\n[gold]被弃置时[/gold]：可以
+.\tools\_g1.txt 25 LIGHTSWORN-SHADDOLL_CONSTRUCT.title => "影依·拿非利"
+.\tools\_g1.txt 47 LIGHTSWORN-EL_SHADDOLL_CONSTRUCT.title => "神影依·拿非利"
+.\tools\locfrag\cards_6.json 26 "LIGHTSWORN-SHADDOLL_CONSTRUCT.title": "影依·拿非利",
