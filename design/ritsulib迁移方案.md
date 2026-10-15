@@ -17,9 +17,13 @@
 | 1 | `AttackCommand.FromCard(CardModel)` | `FromCard(CardModel, CardPlay?)`（旧签名删除） | **反射兼容**：`LsCompat.FromCard(this, card, cardPlay)`，42 处调用点机械替换 |
 | 2 | `CreatureCmd.LoseBlock(Creature, decimal)` | `LoseBlock(PlayerChoiceContext, Creature, decimal, Creature?)` | 反射兼容 `LsCompat.LoseBlock(...)`（1 处：艾琳） |
 | 3 | `ModifyDamageMultiplicative(…, CardModel?)` 5参 | 6参（+`CardPlay?`） | 欧尼斯特：编译期写 6 参 override（0.111 生效）；**0.107.1 运行时**在 Init 里检测 5 参方法存在→给 `AbstractModel.ModifyDamageMultiplicative`(5参) 打 Harmony postfix 转发到 HonestPower 的逻辑 |
+| 4 | `CardCmd.Exhaust(...) : Task`（v0.5.3 补记） | `Exhaust(...) : Task<CardPileAddResult?>`——**参数表相同、仅返回类型不同** | **反射兼容**：`LsCompat.ExhaustCompat(ctx, card, …)`（13 处调用点：弃光/除光/融合/珠泪引擎）。⚠ **试编译抓不到这类**（编译期两版都合法），靠 `tools\memberref_audit` 拦——v0.5.2 联机的"卡牌卡在空中/融合融不出来"即此 |
+| 5 | `CardPlay` 无 `Player` 属性（v0.5.3 补记） | `CardPlay.Player` 新增属性 | **反射兼容**：`LsCompat.CardPlayPlayer(cardPlay)`（无属性时回退 `cardPlay.Card.Owner`，语义等价）——3 处联机钩子过滤（LightBounce/Honest/ShaddollHound 的 AfterCardPlayed） |
 
 其余 mod 用到的全部 API 经逐项审计（130 使用点 + 42 override + Harmony 目标 + 枚举）**签名一致**，安全。
 （`Hook.ModifyDamage` 加 CardPlay、`FromCard` 等变化不影响我们直接使用面。）
+⚠ 审计结论只覆盖当时已使用的 API；**v0.5.3 起改为"发布前全量 memberref 审计"（§手册4③.5），
+不再依赖一次性清单**——清单仍保留作为已知雷区备忘（尤其"参数同、返回类型变"的第 4 条）。
 
 ## 2. BaseLib → RitsuLib 对照（本项目实际用到的）
 

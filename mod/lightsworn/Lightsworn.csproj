@@ -3,7 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>true</ImplicitUsings>
     <LangVersion>13</LangVersion>
-    <Version>0.5.2</Version><Nullable>enable</Nullable>
+    <Version>0.5.3</Version><Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
     <PathMap>$(AppOutputBase)=.\</PathMap>
@@ -21,6 +21,12 @@
     <Sts2RefDir>$(MSBuildProjectDirectory)\refs\</Sts2RefDir>
     <RitsuLibDir>$(Sts2RefDir)RitsuLib</RitsuLibDir>
     <RitsuLibReferenceTarget>0.111.0</RitsuLibReferenceTarget>
+
+    <!-- API 兼容试编译（手册 §4）：Sts2RefDir 指到 0.107 refs + RitsuLibReferenceTarget=0.107.1
+         + LsCompatTrial=true 时定义 LS_TRIAL_107，屏蔽"只存在于 0.111"的 override（否则 csc 的
+         CS0115 声明级错误会抑制方法体内的绑定错误，看不到真实 API 差异）。
+         例：dotnet build -p:Sts2RefDir=<refs107>\ -p:RitsuLibReferenceTarget=0.107.1 -p:LsCompatTrial=true -->
+    <DefineConstants Condition="'$(LsCompatTrial)' == 'true'">$(DefineConstants);LS_TRIAL_107</DefineConstants>
   </PropertyGroup>
 
   <Import Project="$(RitsuLibDir)\RitsuLib.References.props" Condition="Exists('$(RitsuLibDir)\RitsuLib.References.props')" />

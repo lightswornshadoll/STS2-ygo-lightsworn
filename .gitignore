@@ -38,3 +38,15 @@ tools/mp_evidence/
 
 # 珍珠世界事件实测证据图（2026-10-15）
 tools/pearl_evidence/
+
+# ===== API 兼容试编译（v0.5.3）：0.107 refs 副本 + 试编译输出（含游戏二进制，不进仓库）=====
+mod/lightsworn/refs107/
+mod/lightsworn/_trial_mods/
+mod/_apitest/
+
+# ===== v0.5.3 四连修实测证据截图（本地留档）=====
+tools/_v053_check/
+
+# ===== memberref 审计工具构建产物（v0.5.3）=====
+tools/memberref_audit/bin/
+tools/memberref_audit/obj/

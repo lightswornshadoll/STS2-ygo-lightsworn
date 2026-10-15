@@ -155,7 +155,7 @@ public class MinervaExalted : LsCard
         List<CardModel> toBurn = await LsUtil.PickSomeFromList(choiceContext, Owner, discardCandidates,
             "LIGHTSWORN_TO_EXHAUST", 0, 4);
         foreach (CardModel card in toBurn)
-            await CardCmd.Exhaust(choiceContext, card);
+            await LsCompat.ExhaustCompat(choiceContext, card);
         int x = toBurn.Count;
 
         // ③ 弃光x
@@ -312,7 +312,7 @@ public class ShiningDragon : LsCard
         List<CardModel> inDiscard = LsUtil.DiscardPile(this).Cards
             .Where(c => !ReferenceEquals(c, this)).ToList();
         foreach (CardModel card in inDiscard)
-            await CardCmd.Exhaust(choiceContext, card);
+            await LsCompat.ExhaustCompat(choiceContext, card);
         // ② 对所有敌人造成伤害（问题24：22×3/26×3，原生多段攻击让全部段落吃活力）
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCardCompat(this, cardPlay)
             .TargetingAllOpponents(Owner.Creature.CombatState!)

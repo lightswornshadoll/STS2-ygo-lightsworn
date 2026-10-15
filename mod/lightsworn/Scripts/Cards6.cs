@@ -248,7 +248,7 @@ public sealed class NaelshaddollAriel : ShaddollCard
                 0, (int)DynamicVars["Max"].BaseValue);
             foreach (CardModel card in chosen)
             {
-                await CardCmd.Exhaust(ctx, card);
+                await LsCompat.ExhaustCompat(ctx, card);
                 List<Creature> enemies = Owner.Creature.CombatState!.HittableEnemies.ToList();
                 if (enemies.Count == 0) return;
                 Creature victim = Owner.RunState.Rng.CombatCardSelection.NextItem(enemies)!;

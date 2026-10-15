@@ -105,7 +105,7 @@ public static class LsUtil
             : await PickFromList(ctx, player, draw, "LIGHTSWORN_TO_EXHAUST", count);
         foreach (CardModel card in chosen)
         {
-            await CardCmd.Exhaust(ctx, card);
+            await LsCompat.ExhaustCompat(ctx, card);
             banished.Add(card);
         }
         return banished;
@@ -206,7 +206,7 @@ public static class LsUtil
     {
         CardModel? pick = await PickFromDiscard(ctx, source, filter, "LIGHTSWORN_TO_EXHAUST");
         if (pick == null) return null;
-        await CardCmd.Exhaust(ctx, pick);
+        await LsCompat.ExhaustCompat(ctx, pick);
         return pick;
     }
 
@@ -216,7 +216,7 @@ public static class LsUtil
     {
         CardModel? pick = await PickFromPile(ctx, source, pile, filter, "LIGHTSWORN_TO_EXHAUST");
         if (pick == null) return null;
-        await CardCmd.Exhaust(ctx, pick);
+        await LsCompat.ExhaustCompat(ctx, pick);
         return pick;
     }
 
@@ -226,7 +226,7 @@ public static class LsUtil
         List<CardModel> sel = await PickFromList(ctx, source.Owner, DiscardPile(source).Cards.ToList(),
             "LIGHTSWORN_TO_EXHAUST", count);
         foreach (CardModel card in sel)
-            await CardCmd.Exhaust(ctx, card);
+            await LsCompat.ExhaustCompat(ctx, card);
         return sel.Count;
     }
 
@@ -341,7 +341,7 @@ public static class LsUtil
         foreach (CardModel card in material)
         {
             if (card is TearFusionToken)
-                await CardCmd.Exhaust(ctx, card);   // 融合卡被选做素材=消耗，而不是返回卡组
+                await LsCompat.ExhaustCompat(ctx, card);   // 融合卡被选做素材=消耗，而不是返回卡组
             else
                 await CardPileCmd.Add(card, PileType.Draw, CardPilePosition.Random);
         }
@@ -723,7 +723,7 @@ public static class LsUtil
                 return;   // 选出的组合无可用融合：不消耗，留在弃牌堆
             }
             foreach (CardModel card in material)
-                await CardCmd.Exhaust(ctx, card);
+                await LsCompat.ExhaustCompat(ctx, card);
         }
         else
         {

@@ -58,7 +58,7 @@ public abstract class TearFusionToken : LsCard
         bool leavingDiscard = oldPileType == PileType.Discard && now is PileType.Hand or PileType.Draw;
         bool toDeck = now == PileType.Draw;   // 任何来源回卡组都消耗（进消耗堆本身=离场，不在此列，防递归）
         if (leavingDiscard || toDeck)
-            await CardCmd.Exhaust(new ThrowingPlayerChoiceContext(), this);
+            await LsCompat.ExhaustCompat(new ThrowingPlayerChoiceContext(), this);
     }
 }
 

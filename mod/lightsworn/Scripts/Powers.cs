@@ -210,7 +210,7 @@ public class LightBouncePower : ModPowerTemplate
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         // 联机：AfterCardPlayed 是全场广播（队友打牌也会通知）——只认自己打出的「光道」牌
-        if (cardPlay.Player != Owner.Player) return;
+        if (LsCompat.CardPlayPlayer(cardPlay) != Owner.Player) return;
         if (Amount <= 0) return;
         if (!cardPlay.Card.Tags.Contains(Ls.Lightsworn)) return;
         await CreatureCmd.GainBlock(Owner, Amount, ValueProp.Unpowered, null);
@@ -345,8 +345,12 @@ public class HonestPower : ModPowerTemplate
         IconPath: "res://lightsworn/images/powers/honest.png",
         BigIconPath: "res://lightsworn/images/powers/honest_big.png");
 
+    // ⚠ 6 参 override 只存在于 0.111：对 0.107 refs 试编译会 CS0115，而 csc 的声明级错误会抑制
+    // 方法体内的绑定错误——试编译（-p:LsCompatTrial=true）会屏蔽本方法，才能看到真实的 API 差异。
+#if !LS_TRIAL_107
     public override decimal ModifyDamageMultiplicative(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)
         => CompatModifyDamage(target, amount, props, dealer, cardSource);
+#endif
 
     // 判定逻辑共用（供 6 参 override 与 0.107.x 的 postfix 转发）
     internal decimal CompatModifyDamage(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)
@@ -360,7 +364,7 @@ public class HonestPower : ModPowerTemplate
     public override Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         // 联机：只认自己打出的攻击牌（队友攻击是全场广播，不过滤会白白消耗层数）
-        if (cardPlay.Player != Owner.Player) return Task.CompletedTask;
+        if (LsCompat.CardPlayPlayer(cardPlay) != Owner.Player) return Task.CompletedTask;
         if (cardPlay.Card.Type == CardType.Attack) return PowerCmd.Decrement(this);
         return Task.CompletedTask;
     }
@@ -431,7 +435,7 @@ public class ShaddollHoundPower : ModPowerTemplate
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         // 联机：只认自己打出的影依攻击卡（队友打牌是全场广播，不过滤会消耗我的层数并重复触发）
-        if (cardPlay.Player != Owner.Player) return;
+        if (LsCompat.CardPlayPlayer(cardPlay) != Owner.Player) return;
         if (Amount <= 0) return;
         // 问题5：影依判定走标签（卡名无影依的 ShaddollCard 子类不再算影依卡）
         if (!LsUtil.IsShaddoll(cardPlay.Card) || cardPlay.Card.Type != CardType.Attack) return;
@@ -464,8 +468,16 @@ public class WendikurhuPower : ModPowerTemplate
 
 // ============ 光道暗杀者 莱登的临时力量（本批反馈：弃光到「光道」牌→本回合结束前获得2点力量） ============
 // BaseLib 的临时力量包装器：应用原版 StrengthPower、回合结束时自动返还（同原版柔性药水范式）。
-// 图标/文案走 BaseLib 通用临时力量资源 + 游戏本体 TEMPORARY_STRENGTH_POWER 文案；标题=卡牌名（OriginModel）。
-public class LaydenTempStrengthPower : ModTemporaryAppliedPowerTemplate<Layden, StrengthPower> { }
+// 标题=来源卡牌名（RitsuLib 模板走 OriginModel=Layden 卡名）；描述=LAYDEN_TEMP_STRENGTH_POWER.* 词条
+// （原版 TEMPORARY_STRENGTH_POWER 文案，v0.5.3 短键别名制度）。
+// v0.5.3 修复：此前无 AssetProfile → 图标回退 res://images/powers/<entry>.png（不存在）=占位符；
+// 现用卡图圆裁图标（tools\make_layden_temp_strength_icon.py 生成）。
+public class LaydenTempStrengthPower : ModTemporaryAppliedPowerTemplate<Layden, StrengthPower>
+{
+    public override PowerAssetProfile AssetProfile => new(
+        IconPath: "res://lightsworn/images/powers/laydentempstrength.png",
+        BigIconPath: "res://lightsworn/images/powers/laydentempstrength_big.png");
+}
 
 // ============ 绊影依-神数原核（本批反馈重做）：回合开始时随机生成「影依的炎核 虚梦狱」「虚影依 神子晶」
 // 「神影依·神子晶」中的一张加入手牌，其获得「消耗」；生成的是神影依→登记融合生成锁（同残响：

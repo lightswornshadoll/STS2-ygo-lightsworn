@@ -344,7 +344,7 @@ public class TwilightJain : LsCard
                 "LIGHTSWORN_TO_EXHAUST", 0, 1);
             if (picked.Count > 0)
             {
-                await CardCmd.Exhaust(choiceContext, picked[0]);
+                await LsCompat.ExhaustCompat(choiceContext, picked[0]);
                 burned = true;
             }
         }

@@ -1107,3 +1107,86 @@ nextChoiceIds（玩家选择ID向量）、hook id），主机比对不一致→S
 - 附带发现（非本次改动引入，供后续排查）：涅奥事件交互时 BaseLib 3.4.7（工坊仍装的旧库，MissingLocPatch）
   会对本 mod 的 21 个能力打印 `GetRawText: Key 'XX_POWER.title' not found in table 'powers'`（旧格式键名），
   WARN 级、功能无影响；本批未动能力代码。
+
+## v1.45 联机实战四连修：卡牌卡空中 / 能力没名字 / 占位符图标 / 融合失败（2026-10-15，v0.5.3，用户对话下发 + 朋友反馈）
+
+**背景**：用户与朋友用 v0.5.2 联机实战一轮（0.107.1 正式版），事后日志（`godot.log`）与截图暴露 4 个问题：
+「经常有卡牌卡在空中」「能力没名字」「光道暗杀者临时力量图标是占位符」「朋友说满足条件融不出来」。
+排查后 4 个问题分属 **2 类根因**：
+
+### 一、卡牌卡在空中 + 融合失败 = 0.111 专有 API 在 0.107.1 运行时炸（同一根因）
+
+v0.5.0 起的架构决定：**编译对齐 0.111 refs、运行时兼容 0.107.1**（个别差异走 LsCompat 反射）。
+本批日志实证还有 2 处 v0.5.0 迁移清单没覆盖到的差异，且都属于"编译能过、正式版运行时报
+MissingMethodException"：
+
+1. **`CardCmd.Exhaust` 返回类型差异**（本次最大凶手）：参数表两版完全相同，但
+   0.107.1 返回 `Task`、0.111 返回 `Task<CardPileAddResult?>`——**CLR 方法签名含返回类型**，
+   按 0.111 编译出的调用点在 0.107.1 找不到方法。13 处调用点全部命中（弃光/除光/融合/珠泪引擎 +
+   多张卡的消耗），症状=`PlayCardAction … completed with exception` → 卡牌动画停在空中不落地。
+   **朋友的"融不出来"就是这条**：`ShaddollFusionCore`（影依融合引擎）在素材消耗处调 Exhaust → 炸。
+   修复=`LsCompat.ExhaustCompat`（反射按参数表取方法缓存，两版各自命中；返回 Task 供 await）。
+2. **`CardPlay.Player` 属性 0.111 才有**（0.107 无此属性）：v0.5.1 联机过滤新增的
+   `cardPlay.Player != Owner.Player` 过滤全数变成运行时炸弹（LightBounce/Honest/ShaddollHound 的
+   AfterCardPlayed），症状=队友打牌时持有这三能力的一方炸（日志里 ShaddollHoundPower 的
+   MissingMethodException 即此）。修复=`LsCompat.CardPlayPlayer`（属性存在则反射取，否则回退
+   `cardPlay.Card.Owner`——语义等价，仅 TheBall 之类"打出后换主"的牌有差别，与本 mod 用途无关）。
+
+**为什么两轮测试都没抓到**：①"试编译（对 0.107 refs）"只能抓"成员不存在/参数表不同"，
+**抓不到"仅返回类型不同"**；②v0.5.1 联机实测是在 0.111 beta 分支上做的。
+**制度性修复（本批建立，见手册 §4）**：
+- `tools\memberref_audit`（新工具，System.Reflection.Metadata）：把 mod dll 里指向 sts2 的全部
+  memberref（**含返回类型**逐签名）+ 基类/接口 typeref 与目标 sts2.dll 比对，0.107 与 0.111 两端
+  PASS 才可发布。在旧 v0.5.2 dll 上实测：189 个引用中精确报出上述 2 个坏引用。
+- csproj 新增 `LsCompatTrial=true`（试编译开关）：对 0.107 refs 编译时必须定义 `LS_TRIAL_107`
+  屏蔽"只存在于 0.111"的 override（欧尼斯特 6 参）——**csc 的声明级错误（CS0115）会抑制方法体内的
+  绑定错误**，不屏蔽就看不到真实差异（本轮实测教训）。
+
+### 二、能力没名字 = 能力本地化键格式错（短键别名制度）
+
+**实证（日志+控制台+游戏源码三方对齐）**：mod 的**能力**没有走 `[RegisterPower]` 特性注册
+（卡牌走 `[RegisterCard]`），运行时按类型解析，`ModelId.Entry = ModelDb.GetEntry(type) =
+StringHelper.Slugify(类名)`——**不带 mod 前缀**（如 `ShaddollHoundPower → SHADDOLL_HOUND_POWER`），
+与卡牌 ID（`LIGHTSWORN_CARD_*`）不同。而 powers.json 的键全是 `LIGHTSWORN_POWER_*`（v0.5.0 迁移时
+按"统一 `{MOD}_{CATEGORY}_{TYPENAME}`"写的）→ `PowerModel.Title/Description/SmartDescription`
+全部取不到 → 能力名字/描述空白（BaseLib 的 MissingLocPatch 只把原始键名当文本兜底）。
+日志实证：一次全能力枚举打出 21 条 `GetRawText: Key 'XX_POWER.title' not found in table 'powers'`；
+控制台 `power LIGHT_BOUNCE_POWER 3 0` 按短名精确命中，`AppliedPower: [PLAYER]`。
+
+**修复**：`tools\update_power_loc_aliases.py`——为 21 个能力各生成一份**去 `LIGHTSWORN_POWER_`
+前缀的短键别名**（`SHADDOLL_HOUND_POWER.title` 等，与原键同值并存，两套机制下都命中）；
+另补齐 `LAYDEN_TEMP_STRENGTH_POWER.description/.smartDescription`（原版 TEMPORARY_STRENGTH_POWER
+中文文案："在本回合结束前获得[blue]{Amount}[/blue]点[gold]力量[/gold]。"——title 由 RitsuLib
+模板走来源卡「光道暗杀者 莱登」的卡名，无需词条）。
+
+### 三、莱登临时力量图标占位符
+
+`LaydenTempStrengthPower : ModTemporaryAppliedPowerTemplate<Layden, StrengthPower>` 类上没有
+AssetProfile → `CustomIconPath=null` → 游戏回退 `res://images/powers/<entry小写>.png`（不存在）
+=占位符。修复=卡图圆裁图标（新脚本 `tools\make_layden_temp_strength_icon.py`：
+`images/cards/Layden.png` 中心方形→圆形蒙版→64/256 两档→`images/powers/laydentempstrength(_big).png`）
++ 类上补 `AssetProfile`。新 PNG 走 Godot `--headless --import` 再 ExportPck（坑13）。
+
+### 实机验证（0.107.1，wininput.ps1 + 控制台）
+
+- 战斗内打出 莱登 / 打击×2 / 费莉丝 / 愚蠢的埋葬 / 魂影依融合 全部正常结算，**整局日志 0 ERROR**；
+- 欧尼斯特钩子：`power HONEST_POWER 1 0` 后打出攻击 → 层数 1→0（AfterCardPlayed + CardPlayPlayer 生效）；
+- 光之回弹钩子：费莉丝打出后格挡 = 7（自身）+3（回弹）=10（触发与加格挡都生效）；
+- **融合全链路**：魂影依融合 → 选材（影依巫女艾莉娅+防御）→ 弃置 → 选要生成的神影依（9 候选）
+  → 神影依·神子晶入手牌；日志 `[LsShaddoll] FUSION cast/pool/picked/discard/available/生成` 各步齐全；
+  朋友那局崩的路径（影依怪被弃置触发的 DiscardExhaust 融合）素材消耗同样走通；
+- 能力悬浮框：光之回弹=「光之回弹 / 每当你打出「光道」牌，获得3点格挡。」；莱登临时力量=
+  「光道暗杀者 莱登 / 在本回合结束前获得2点力量。」+ 力量关联提示；图标栏第二格=莱登卡图圆裁图标；
+- 日志 `not found in table 'powers'` 计数 **0**（修复前 199+）。
+- 审计：新 dll 对 0.107.1 与 0.111.0 两端 memberref 审计 **双 PASS**。
+
+### 附带观察（本机无法定位，留观）
+
+- 朋友一局里休息处 SMITH 一次失败（选择结果空、success False）——客户端侧现象，本机日志只见结果空；
+  若复现再查（可能与当时朋友端的崩溃残留有关）。
+- 一次 `MapDrawingMessage` 报错（player not in drawing mode）——地图涂鸦消息时序，疑似原版行为，未处理。
+
+### 发布注意
+
+- 本次改了 dll（兼容层）与 pck（本地化/图标）→ 联机两端必须同时升到 v0.5.3（mod 版本握手校验）；
+  朋友端需重新订阅/更新工坊条目。

@@ -65,7 +65,7 @@ public abstract class ShaddollToken : LsCard
         bool toDeck = now == PileType.Draw;   // 任何来源回卡组都消耗（Problem9 bug：巫女从消耗堆拿的神影依回卡组逃跑）
         // 进消耗堆本身就是离场，不再处理（递归守卫：消耗自身会触发本钩子，但那时 now=Exhaust 不满足条件）
         if (leavingDiscard || toDeck)
-            await CardCmd.Exhaust(new ThrowingPlayerChoiceContext(), this);
+            await LsCompat.ExhaustCompat(new ThrowingPlayerChoiceContext(), this);
     }
 
     public override async Task AfterCardDiscarded(PlayerChoiceContext choiceContext, CardModel card)

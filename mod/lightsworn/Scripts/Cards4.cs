@@ -202,7 +202,7 @@ public class TwilightErasure : LsCard
         {
             CardModel? pick = await LsUtil.PickFromDiscard(choiceContext, this, LsUtil.IsLs, "LIGHTSWORN_TO_EXHAUST");
             if (pick == null) break;
-            await CardCmd.Exhaust(choiceContext, pick);
+            await LsCompat.ExhaustCompat(choiceContext, pick);
             burned++;
         }
         // 问题5：原"每消耗1张移除目标1个随机增益"改为施加等量虚弱+易伤
