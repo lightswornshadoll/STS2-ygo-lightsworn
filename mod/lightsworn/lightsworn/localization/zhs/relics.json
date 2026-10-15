@@ -4,5 +4,7 @@
   "LIGHTSWORN_RELIC_MUST_PLAY_YUGIOH.title": "你必须玩游戏王",
   "LIGHTSWORN_RELIC_MUST_PLAY_YUGIOH.description": "你的卡组数量不够，但我修复了这一点",
   "LIGHTSWORN_RELIC_CATS_AND_DOGS.title": "猫狗双全",
-  "LIGHTSWORN_RELIC_CATS_AND_DOGS.description": "每当你抽到「光道兽 沃尔夫」或「光道弓手 费莉丝」时，再抽1张牌。"
+  "LIGHTSWORN_RELIC_CATS_AND_DOGS.description": "每当你抽到「光道兽 沃尔夫」或「光道弓手 费莉丝」时，再抽1张牌。",
+  "LIGHTSWORN_RELIC_PHANTOM_PEARL.title": "幻色珍珠",
+  "LIGHTSWORN_RELIC_PHANTOM_PEARL.description": "拾起时，随机变成[gold]金色珍珠[/gold]或[red]诅咒珍珠[/red]的效果；有1%的概率变成[blue]发光珍珠[/blue]的效果。\n当前效果：{Effect}"
 }

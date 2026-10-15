@@ -2,7 +2,6 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Events;
 using MegaCrit.Sts2.Core.HoverTips;
-using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Runs;
@@ -14,17 +13,17 @@ namespace Lightsworn;
 // 仅光道角色可见（IsAllowed 按角色过滤）。
 // 选项一：三姐妹加入卡组（各得1张塞壬人鱼/梅洛人鱼/小美人鱼，悬停选项可预览卡面）
 //         + 本批问题1：还要获得诅咒牌「腐朽」（原版 Decay：不可打出，回合结束时在手牌中→受到2点伤害）；
-// 选项二：收下珍珠换 100 金币（对齐原版无代价给金事件档位：迷失鬼火 60 / 垃圾堆 100 / 提灯钥匙 100）。
+// 选项二（本批改）：不再直接给金币，改为获得事件遗物「幻色珍珠」PhantomPearl
+//         （拾起时随机变成金色珍珠/诅咒珍珠的效果，1%概率为发光珍珠的效果；图标=金色珍珠染珠泪蓝）。
+// 人设（本批改）：梅洛活泼、小美人鱼安静——两位的身份性格全文案对调。
 // 机制（v0.5.0 RitsuLib 迁移）：ModEventTemplate + [RegisterSharedEvent] 注册（不再构造自注册、
 // Entry.Init 不再手动 new）；选项 loc 键=InitialOptionKey（{Entry}.pages.INITIAL.options.{键}，与旧格式一致）。
 // 本地化=mod localization\zhs\events.json（按文件名并入游戏 events 表），选项键=方法名蛇形大写。
-// 发卡/发金=原版 TheLegendsWereTrue / LostWisp 范式（RunState.CreateCard + CardPileCmd.Add(Deck) +
-// PreviewCardPileAdd；PlayerCmd.GainGold）。
+// 发卡/发遗物=原版 TheLegendsWereTrue / GraveOfTheForgotten 范式（RunState.CreateCard + CardPileCmd.Add(Deck) +
+// PreviewCardPileAdd；RelicCmd.Obtain<T>(Owner)）。
 [RegisterSharedEvent]
 public sealed class PearlWorldEncounter : ModEventTemplate
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new GoldVar(100)];
-
     // 必须覆写：默认路径指向游戏本体 res://images/events/<entry小写>.png（mod 立绘不在那里），
     // 预载失败会被 AssetCache.MarkAssetFailed 标记，进事件房时 CreateInitialPortrait 抛
     // AssetLoadException 中断 SetupLayout → 标题/描述/选项全不渲染 → 黑屏卡死（v0.4.26 事故）。
@@ -45,7 +44,9 @@ public sealed class PearlWorldEncounter : ModEventTemplate
         return
         [
             new EventOption(this, JoinTearlaments, InitialOptionKey("JOIN_TEARLAMENTS"), mermaidTips),
-            new EventOption(this, TakePearls, InitialOptionKey("TAKE_PEARLS")),
+            // 选项二：收下幻色珍珠（悬停预览遗物；原版 GraveOfTheForgotten 范式）
+            new EventOption(this, TakePearls, InitialOptionKey("TAKE_PEARLS"),
+                HoverTipFactory.FromRelic<PhantomPearl>()),
         ];
     }
 
@@ -66,10 +67,10 @@ public sealed class PearlWorldEncounter : ModEventTemplate
         CardCmd.PreviewCardPileAdd(await CardPileCmd.Add(card, PileType.Deck));
     }
 
-    // 选项二：珍珠换金币
+    // 选项二（本批改）：获得事件遗物「幻色珍珠」（拾起时随机变成金/诅咒珍珠的效果，1%发光珍珠）
     private async Task TakePearls()
     {
-        await PlayerCmd.GainGold(DynamicVars.Gold.BaseValue, Owner);
+        await RelicCmd.Obtain<PhantomPearl>(Owner);
         SetEventFinished(L10NLookup($"{Id.Entry}.pages.PEARLS.description"));
     }
 }

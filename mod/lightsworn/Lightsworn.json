@@ -3,7 +3,7 @@
   "name": "光道 Lightsworn",
   "author": "light",
   "description": "游戏王「光道」主题角色mod。弃牌堆=墓地，消耗堆=除外。堆墓、回收、黄昏三轴共52张卡（本家38张+地天使/刻魔/白雪/割草等14张非本家）。 支持联机（所有玩家需同版本 mod + RitsuLib）。",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "min_game_version": "0.107.1",
   "has_pck": true,
   "has_dll": true,

@@ -1,14 +1,20 @@
 using Godot;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Characters;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Relics;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Random;
 using MegaCrit.Sts2.Core.Rooms;
+using MegaCrit.Sts2.Core.Saves.Runs;
+using MegaCrit.Sts2.Core.Unlocks;
 using STS2RitsuLib.Scaffolding.Characters;
 
 namespace Lightsworn;
@@ -28,6 +34,14 @@ public class LightswornCardPool : TypeListCardPoolModel
     // 金色卡框（原 BaseLib ShaderColor(0.96,0.82,0.38) 的替代）：游戏 HSV shader 材质
     public override Material? PoolFrameMaterial => LsCompat.LightswornFrameMaterial(
         new Color(0.96f, 0.82f, 0.38f).H, new Color(0.96f, 0.82f, 0.38f).S, new Color(0.96f, 0.82f, 0.38f).V);
+
+    // ⚠ 雪之化身修复（本批用户反馈）：mod 卡全部经 [RegisterCard] 注进本池（含战斗内令牌），
+    // 而原版卡池从不收录令牌——雪之化身改金卡(Rare)后就失去了"Token 稀有度不进奖励"的保护，
+    // 会以金卡身份出现在战斗奖励/事件选牌/尘封魔典等一切"卡池来源"里（原版 CreateForReward 对
+    // Rare 没有额外过滤）。统一剔除所有"不进卡牌图鉴"的战斗专属牌（SnowSpirit/神影依/珠泪融合
+    // Token，即全部 showInCardLibrary:false 的牌）：它们只由战斗内效果生成，永远不该被当作可获得卡。
+    protected override IEnumerable<CardModel> FilterThroughEpochs(UnlockState unlockState, IEnumerable<CardModel> cards)
+        => base.FilterThroughEpochs(unlockState, cards).Where(c => c.ShouldShowInCardLibrary);
 }
 
 public class LightswornRelicPool : TypeListRelicPoolModel
@@ -224,6 +238,112 @@ public class CatsAndDogs : ModRelicTemplate
         if (card.Owner != Owner || card is not (Wulf or Felis)) return;
         Flash();
         await CardPileCmd.Draw(choiceContext, 1m, Owner);
+    }
+}
+
+// ============ 幻色珍珠（事件遗物，本批新增；「于珍珠世界相逢」选项二奖励） ============
+// 图标=金色珍珠遗物原图 → 珠泪海蓝重上色（tools\make_phantom_pearl_icon.py，64/256 两档）。
+// 效果：拾起时随机变成「金色珍珠」或「诅咒珍珠」的效果（各50%），1%概率是「发光珍珠」的效果。
+//   ·金色珍珠（原版 GoldenPearl）：拾起时获得150金币；
+//   ·诅咒珍珠（原版 CursedPearl）：拾起时加入1张诅咒「贪婪」并获得333金币；
+//   ·发光珍珠（原版 RadiantPearl）：每场战斗第一回合抽牌时（BeforeHandDraw/TurnNumber==1），
+//     将1张「冷光」加入手牌。
+// 稀有度 Event：RelicGrabBag.Populate 只收 Common/Uncommon/Rare/Shop（Event 档被剔除），
+// 商店价 999999999（RelicModel.MerchantCost）——只能由本事件发放（事件遗物语义）。
+// 抽到的模式持久化用 [SavedProperty]（RitsuLib 把 mod 类型注入保存属性缓存；读档 Fill 走属性 setter，
+// 会把描述里的「当前效果」刷新成对应文本）。RNG=玩家侧 PlayerRng.Rewards（联机同种子、各端确定性一致；
+// 绝不能用 UnityEngine.Random 之类非同步源——联机校验和会断线）。
+[RegisterRelic(typeof(LightswornRelicPool))]
+public class PhantomPearl : ModRelicTemplate
+{
+    private const int ModeGolden = 0;
+    private const int ModeCursed = 1;
+    private const int ModeRadiant = 2;
+
+    private const int GoldenGold = 150;   // = 原版金色珍珠 GoldVar
+    private const int CursedGold = 333;   // = 原版诅咒珍珠 GoldVar
+
+    public override RelicRarity Rarity => RelicRarity.Event;
+
+    public override bool HasUponPickupEffect => true;
+
+    public override RelicAssetProfile AssetProfile => new(
+        IconPath: "res://lightsworn/images/relics/phantom_pearl.png",
+        IconOutlinePath: "res://lightsworn/images/relics/phantom_pearl.png",
+        BigIconPath: "res://lightsworn/images/relics/phantom_pearl_big.png");
+
+    // 关联牌悬浮预览：可能抽到的两种素材牌（贪婪=诅咒牌，冷光=发光珍珠产物）
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
+        HoverTipFactory.FromCardWithCardHoverTips<Greed>()
+            .Concat(HoverTipFactory.FromCardWithCardHoverTips<Luminesce>());
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new StringVar("Effect", "未定"),   // 描述里 {Effect}：拾起后在 setter 里刷新为实际抽到的效果
+    ];
+
+    private int _pearlMode = ModeGolden;
+
+    /// <summary>拾起时抽到的效果（0=金色 / 1=诅咒 / 2=发光）。</summary>
+    [SavedProperty]
+    public int PearlMode
+    {
+        get => _pearlMode;
+        set
+        {
+            AssertMutable();
+            _pearlMode = value;
+            RefreshEffectText();
+        }
+    }
+
+    public override async Task AfterObtained()
+    {
+        Rng rng = Owner.PlayerRng.Rewards;
+        // 1% → 发光珍珠；其余各 50% → 金色 / 诅咒珍珠（掷两次只在非发光时发生，各端求值顺序一致）
+        int mode = rng.NextInt(100) == 0
+            ? ModeRadiant
+            : (rng.NextInt(2) == 0 ? ModeGolden : ModeCursed);
+        PearlMode = mode;   // setter 刷新描述里的「当前效果」
+        Flash();
+        switch (mode)
+        {
+            case ModeGolden:
+                await PlayerCmd.GainGold(GoldenGold, Owner);
+                break;
+            case ModeCursed:
+                await CardPileCmd.AddCurseToDeck<Greed>(Owner);
+                await PlayerCmd.GainGold(CursedGold, Owner);
+                break;
+            case ModeRadiant:
+                // 拾起时无即时效果：战斗内由 BeforeHandDraw 生效
+                break;
+        }
+    }
+
+    // 发光珍珠效果：每场战斗第一回合抽牌时，将1张「冷光」加入手牌（原版 RadiantPearl 同款钩子，
+    // 联机：BeforeHandDraw 对每个玩家各触发一轮，必须过滤 Owner）
+    public override async Task BeforeHandDraw(Player player, PlayerChoiceContext choiceContext, ICombatState combatState)
+    {
+        if (PearlMode != ModeRadiant || player != Owner) return;
+        if (Owner.PlayerCombatState.TurnNumber != 1) return;
+        List<CardModel> cards = [];
+        cards.Add(Owner.Creature.CombatState.CreateCard<Luminesce>(Owner));
+        Flash();
+        await CardPileCmd.AddGeneratedCardsToCombat(cards, PileType.Hand, Owner);
+    }
+
+    private void RefreshEffectText()
+    {
+        if (DynamicVars.TryGetValue("Effect", out DynamicVar? effect) && effect is StringVar text)
+        {
+            text.StringValue = _pearlMode switch
+            {
+                ModeCursed => $"诅咒珍珠（获得1张贪婪与{CursedGold}金币）",
+                ModeRadiant => "发光珍珠（每场战斗的第一回合，将1张冷光加入手牌）",
+                _ => $"金色珍珠（获得{GoldenGold}金币）",
+            };
+        }
     }
 }
 

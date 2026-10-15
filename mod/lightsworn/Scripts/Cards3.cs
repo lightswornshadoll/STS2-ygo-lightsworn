@@ -15,7 +15,8 @@ namespace Lightsworn;
 
 // 光道召唤师 露米娜丝（问题7：弃光→追加丢弃1张手牌→从弃牌堆拿「光道」牌变0费；升级后0费。
 // 问题17：拿取数1→2。问题11：回调为1+10格挡。问题3：再次回调——去掉格挡，拿取2张。
-// v0.4.36：敲前拿1、敲后拿2，升级不再变为0费（同暮光道萨满范式））
+// v0.4.36：敲前拿1、敲后拿2，升级不再变为0费（同暮光道萨满范式）。
+// 本批反馈：必须弃置1张手牌才能发动拿回——手牌只剩自己时不能再白嫖拿牌（打出条件+运行期双保险））
 [RegisterCard(typeof(LightswornCardPool))]
 public class Lumina : LsCard
 {
@@ -28,17 +29,19 @@ public class Lumina : LsCard
 
     public Lumina() : base(1, CardType.Skill, CardRarity.Rare, TargetType.Self) { }
 
+    // 本批反馈（同雪之化身范式）：手牌中除自己外还有牌（可弃）时才能打出
+    protected override bool IsPlayable =>
+        base.IsPlayable && PileType.Hand.GetPile(Owner).Cards.Any(c => !ReferenceEquals(c, this));
+    protected override bool ShouldGlowGoldInternal => IsPlayable;
+
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await LsUtil.Mill(choiceContext, this, (int)DynamicVars["Mill"].BaseValue);
-        // 追加：丢弃1张手牌（任意牌；无手牌则跳过）
-        if (PileType.Hand.GetPile(Owner).Cards.Count > 0)
-        {
-            CardSelectorPrefs prefs = new(CardSelectorPrefs.DiscardSelectionPrompt, 1);
-            List<CardModel> chosen = (await CardSelectCmd.FromHandForDiscard(choiceContext, Owner, prefs, null, this)).ToList();
-            if (chosen.Count > 0)
-                await CardCmd.Discard(choiceContext, chosen);
-        }
+        // 丢弃1张手牌（任意牌）——本批反馈：这是后续拿牌的代价，没弃成就不拿
+        CardSelectorPrefs prefs = new(CardSelectorPrefs.DiscardSelectionPrompt, 1);
+        List<CardModel> chosen = (await CardSelectCmd.FromHandForDiscard(choiceContext, Owner, prefs, null, this)).ToList();
+        if (chosen.Count == 0) return;   // 未弃置=拿牌效果不发动（IsPlayable 已挡常态，双保险）
+        await CardCmd.Discard(choiceContext, chosen);
         // 从弃牌堆拿「光道」牌（刚丢弃的手牌若是光道牌也可选），本回合0费
         int picks = (int)DynamicVars["Picks"].BaseValue;
         for (int i = 0; i < picks; i++)
@@ -55,7 +58,8 @@ public class Lumina : LsCard
 }
 
 // 暮光道萨满 露米娜丝（用户指定设计；本批问题22：回调——敲前拿1张、敲后拿2张，不再获得格挡（原10格挡删除），
-// 升级=拿取数1→2（原敲后0费作废））
+// 升级=拿取数1→2（原敲后0费作废）。
+// 本批反馈：必须消耗1张「光道」才能发动拿回——弃牌堆没有光道不能再白拿（打出条件+运行期双保险））
 [RegisterCard(typeof(LightswornCardPool))]
 public class TwilightLumina : LsCard
 {
@@ -69,17 +73,26 @@ public class TwilightLumina : LsCard
 
     public TwilightLumina() : base(1, CardType.Skill, CardRarity.Rare, TargetType.Self) { }
 
+    // 本批反馈（同雪之化身范式）：弃牌堆中有「光道」牌（可消耗）时才能打出
+    protected override bool IsPlayable =>
+        base.IsPlayable && LsUtil.DiscardPile(this).Cards.Any(LsUtil.IsLs);
+    protected override bool ShouldGlowGoldInternal => IsPlayable;
+
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        // 消耗墓地1张光道，从消耗堆一次选{Picks}张光道拿回（0费）
-        await LsUtil.ExhaustOneFromDiscard(choiceContext, this, LsUtil.IsLs);
-        List<CardModel> candidates = LsUtil.ExhaustPile(this).Cards.Where(LsUtil.IsLs).ToList();
-        List<CardModel> picked = await LsUtil.PickFromList(choiceContext, Owner, candidates,
-            "LIGHTSWORN_TO_HAND", (int)DynamicVars["Picks"].BaseValue);
-        foreach (CardModel card in picked)
+        // 消耗墓地1张光道——本批反馈：这是后续拿回的代价，没消耗就不拿
+        CardModel? burned = await LsUtil.ExhaustOneFromDiscard(choiceContext, this, LsUtil.IsLs);
+        if (burned != null)
         {
-            await CardPileCmd.Add(card, PileType.Hand);
-            card.EnergyCost.SetUntilPlayed(0);
+            // 从消耗堆一次选{Picks}张光道拿回（0费）
+            List<CardModel> candidates = LsUtil.ExhaustPile(this).Cards.Where(LsUtil.IsLs).ToList();
+            List<CardModel> picked = await LsUtil.PickFromList(choiceContext, Owner, candidates,
+                "LIGHTSWORN_TO_HAND", (int)DynamicVars["Picks"].BaseValue);
+            foreach (CardModel card in picked)
+            {
+                await CardPileCmd.Add(card, PileType.Hand);
+                card.EnergyCost.SetUntilPlayed(0);
+            }
         }
         await PowerCmd.Apply<TwilightPower>(choiceContext, Owner.Creature, (int)DynamicVars["Twilight"].BaseValue, Owner.Creature, this);
     }
