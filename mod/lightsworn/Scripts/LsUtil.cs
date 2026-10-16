@@ -261,9 +261,14 @@ public static class LsUtil
     // 素材数量须与条件完全一致——2张条件的融合卡不能拿3张素材发动，反之亦然）
     private static List<(CardModel Concept, Func<List<CardModel>, bool> Cond)> FusionOptions() => new()
     {
-        (ModelDb.Card<Kitkallos>(),    m => m.Count(IsTearAttack) == 2),
-        (ModelDb.Card<Rulkallos>(),    m => m.Count(IsTearAttack) == 2 && m.Any(c => c is Kitkallos)),
-        (ModelDb.Card<KaleidoHeart>(), m => m.Count(IsTearAttack) == 3 && m.Any(c => c is Reinohart)),
+        // ⚠ 已知问题3（v0.5.4 修复）：每个条件都必须显式约束**素材总数**（m.Count == N）。
+        // 原 Rulkallos/KaleidoHeart 只判 Count(IsTearAttack) 而漏了总量——玩家选「水仙女+影依」时
+        // material=[触发珠泪攻击牌, 水仙女(Kitkallos), 影依] 共3张，Count(IsTearAttack)==2 与
+        // Any(is Kitkallos) 双双成立 → 3张素材融出了卡面写明"2张珠泪攻击牌"的鲁莎卡人鱼。
+        // 卡雷多哈特同理（Count(IsTearAttack)==3 成立但总量可能是4）。
+        (ModelDb.Card<Kitkallos>(),    m => m.Count == 2 && m.Count(IsTearAttack) == 2),
+        (ModelDb.Card<Rulkallos>(),    m => m.Count == 2 && m.Count(IsTearAttack) == 2 && m.Any(c => c is Kitkallos)),
+        (ModelDb.Card<KaleidoHeart>(), m => m.Count == 3 && m.Count(IsTearAttack) == 3 && m.Any(c => c is Reinohart)),
         // 犀角龙=融合卡+珠泪卡（问题9）：融合卡位适配珠泪融合Token与神影依Token
         (ModelDb.Card<Dragostapelia>(), m => m.Count == 2 && DistinctPair(m,
             c => c is TearFusionToken or ShaddollToken, IsTearAttack)),
@@ -323,14 +328,16 @@ public static class LsUtil
         List<CardModel> material = [trigger, .. extra];
         TearLog($"picked n={material.Count}：{string.Join(" ; ", material.Select(MatDescr))}");
 
-        // 严格判定前置（问题2）：选出的组合无可用融合=不弃置不消耗，什么都没发生
-        // （素材池扩到影依牌后误选概率大增，v0.4.15"白洗回"的自然代价不再可接受）
+        // 严格判定（问题2）：选出的组合无可用融合=**作废**（不弃置不消耗、什么都没发生）。
+        // ⚠ 已知问题3（v0.5.4，用户订正）：此处**不做向下兼容**——用户明确要求"选超素材就作废"。
+        //   即玩家在选材界面选了不满足任何融合条件的组合时，整个发动作废、素材原样不动。
+        //   （曾试实现"降级到合法子集"，用户否决；严格语义与 v0.4.15 起的既有设计一致。）
         List<CardModel> available = options
             .Where(o => o.Cond(material) && !IsFusionLocked(combat, player, o.Concept))
             .Select(o => o.Concept).ToList();
         if (available.Count == 0)
         {
-            TearLog($"abort：组合无可用融合（素材未动）｜{OptionLine(combat, player, options, material)}");
+            TearLog($"abort：组合无可用融合（素材未动、作废）｜{OptionLine(combat, player, options, material)}");
             return;
         }
         // v0.4.37：融合卡选择与手牌空间判定前移到素材移动之前——取消选择/手牌满时不再白吃素材
@@ -743,8 +750,10 @@ public static class LsUtil
                 .Select(o => o.Concept).ToList();
             if (available.Count == 0)
             {
-                FusionLog($"abort：组合无可用融合（素材未弃置、什么都没发生）｜{OptionLine(combat, player, options, material)}");
-                return;   // 选出的组合无可用融合：素材从未被弃置，什么都没发生
+                // ⚠ 已知问题3（v0.5.4，用户订正）：选超素材=**作废**，不做向下兼容降级。
+                // 素材弃置发生在本判定之后，故作废时素材原样留在手牌、什么都没发生。
+                FusionLog($"abort：组合无可用融合（素材未弃置、作废）｜{OptionLine(combat, player, options, material)}");
+                return;
             }
 
             // 弃置素材（触发各自「被弃置时」效果）：手牌走 CardCmd.Discard，卡组走 MillSelected（Draw→Discard 同样触发管线）

@@ -387,6 +387,8 @@ public sealed class PrimevalScream : LsCard
 // （原版复制范式=CardModel.CreateClone，升级状态保留）。
 // 订正：拿回的是融合生成的珠泪攻击Token（水仙女人鱼等）时，登记本回合融合生成锁——
 // 本回合不能再融合出对应的融合卡（与融合引擎/图鉴的"每回合每张1次"锁同源）。
+// 已知问题2（v0.5.4）：原先漏写 OnUpgrade → 敲前敲后无差别；现改为**敲后生成强化后的版本**
+// （用户订正，原"费用-1"方案作废）——即被弃置时拿回的珠泪攻击牌以强化版入手牌。
 // 原型=YGO 1329620；不打珠泪标）
 [RegisterCard(typeof(LightswornCardPool))]
 public sealed class PrimevalEcho : LsCard
@@ -403,6 +405,14 @@ public sealed class PrimevalEcho : LsCard
         if (cardPlay.Target != null)
             await CreatureCmd.Stun(cardPlay.Target);
     }
+
+    // 已知问题2（v0.5.4 修复）：本卡原先没有覆写 OnUpgrade——基类 CardModel.OnUpgrade 是空实现
+    // （反编译证据：`protected virtual void OnUpgrade() { }`），所以"敲前敲后效果没变"是**真实存在的
+    // bug**，不是单纯的文本问题。
+    // 修复（用户订正）：**敲后改为生成强化后的版本**（原"敲后费用2→1"方案作废）。
+    // 实现=把升级态透传给 CopyTearAttackFromExhaust：拿回的珠泪攻击牌以**强化版**入手牌。
+    // 保持 OnUpgrade 为空体（本卡无自身数值升级），升级语义完全由下面 CopyTearAttackFromExhaust 承担。
+    protected override void OnUpgrade() { }
 
     // 被弃置时（弃光/手牌弃置）从消耗堆选1张珠泪攻击卡，生成一张相同的珠泪攻击卡加入手牌
     public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy)
@@ -426,6 +436,14 @@ public sealed class PrimevalEcho : LsCard
         if (pick == null) return;
         // CreateClone = 完全相同的副本（升级状态/关键词一并复制，原版双重施法范式）
         CardModel copy = pick.CreateClone();
+        // 已知问题2（用户订正）：残响已升级 → 生成的副本也强化为「强化后的版本」。
+        // 范式与 LsUtil 的融合产出（UpgradeInternal + FinalizeUpgradeInternal）一致；
+        // 若素材本身已是强化版（CreateClone 已复制升级态）则不重复升级。
+        if (IsUpgraded && !copy.IsUpgraded)
+        {
+            copy.UpgradeInternal();
+            copy.FinalizeUpgradeInternal();
+        }
         await CardPileCmd.AddGeneratedCardToCombat(copy, PileType.Hand, Owner);
         // 订正：拿回的是融合生成的珠泪攻击Token时，视同"本回合已生成"——本回合不能再融合出对应的融合卡
         // （登记融合生成锁；珠泪融合引擎与融合图鉴同步生效）

@@ -16,9 +16,13 @@ namespace Lightsworn;
 
 // 光道战士 加洛斯（本批反馈问题34：升金；敲后效果改到敲前——基础=弃光2+按其中光道牌抽牌；
 // 敲后=触发条件改为任意弃光都触发，不限制光道）
+// 已知问题4（v0.5.4）：正文内联的"[gold]弃光[/gold]"要能悬浮查定义 → 声明 MILL 关键词
+// （placement=None 不注入词条行；声明的唯一效果=原版 CardModel.HoverTips 自动带出提示）
 [RegisterCard(typeof(LightswornCardPool))]
 public class Garoth : LsCard
 {
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [LsKeywords.Mill];
+
     public Garoth() : base(2, CardType.Power, CardRarity.Rare, TargetType.Self) { }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
@@ -67,6 +71,22 @@ public class Celestia : LsCard
 // 光道龙 格拉古尼斯（本批反馈：基础伤害14→18，敲后22（升级=伤害+4）；每张「光道」+2 的加成保留、
 // 升级后每张+3（订正：Scale 2→3 的升级保留，与伤害+4 并改）。
 // 凯旋：斩杀时自动回手，费用临时变为0（v0.4.39 追加，照原版击杀判定=DamageResult.WasTargetKilled）
+// ⚠ 已知问题1（v0.5.4 修复）：原实现"斩杀时卡回来了、但仍是2费"，根因=0费的**清理时机**。
+//   走一遍原版 OnPlayWrapper 的结算顺序即可复现：
+//     ① OnPlay 里 `CardPileCmd.Add(this, PileType.Hand)` 把卡从 Play 移到 Hand —— 这一步是成功的
+//        （用户实测：击杀帝皇蟹右侧钳子、左侧钳子仍存活时卡确实回手，此时 IsEnding 为 false，
+//         故 Add 不会失败；原注释里"战斗收尾导致回手失败"的推测**已被用户实测推翻**，见下）。
+//     ② OnPlay 返回后，OnPlayWrapper 尾部**无条件**执行
+//        `if (EnergyCost.AfterCardPlayedCleanup()) { ... }`，
+//        而 `AfterCardPlayedCleanup()` = `_localModifiers.RemoveAll(m => m.Expiration.HasFlag(WhenPlayed))`
+//        —— 它清的是 **`this` 这张卡**的修正，而 `this` 此刻正躺在手牌里。
+//     ③ 原实现用的 `SetUntilPlayed(0)` 其 Expiration=WhenPlayed → 被②原地抹掉 → 手牌里仍是2费。
+//   修复=改用 `CardModel.SetToFreeThisTurn()`（= `EnergyCost.SetThisTurnOrUntilPlayed(0)`，
+//   Expiration=EndOfTurn|WhenPlayed）：EndOfTurn 位让它在②的清理中存活，回合结束才自然失效
+//   ——与原版"暂时0费"语义一致；这也是原版自身给出的入口（SetToFreeThisTurn 即为此设计）。
+//   同时保留"按 Add 的实际结果判定"：`IsEnding`（=所有 primary enemy 已死）为 true 时
+//   `CardPileCmd.Add` 会静默返回 success=false（守卫见 CardPileCmd.Add 开头），
+//   那种情况（例如直接击杀 boss 本体）确实什么都没发生，不应白给0费标记。
 [RegisterCard(typeof(LightswornCardPool))]
 public class Gragonith : LsCard
 {
@@ -89,8 +109,14 @@ public class Gragonith : LsCard
         // 斩杀时（原版击杀判定 WasTargetKilled）自动回手且费用临时变为0
         if (!attack.Results.SelectMany(r => r).Any(r => r.WasTargetKilled)) return;
         if (!LsUtil.HandHasSpace(this)) return;
-        await CardPileCmd.Add(this, PileType.Hand);
-        EnergyCost.SetUntilPlayed(0);
+        // 已知问题1：按 Add 的实际结果判定——IsEnding（所有 primary enemy 已死，如直接击杀 boss）时
+        // 该 API 静默失败（success=false），此时什么都没发生，不能白给0费标记
+        CardPileAddResult added = await CardPileCmd.Add(this, PileType.Hand);
+        if (!added.success) return;
+        // 已知问题1：SetUntilPlayed 的 WhenPlayed 修正会被 OnPlayWrapper 尾部的
+        // AfterCardPlayedCleanup() 原地清掉（该清理作用于 this=已在手牌的这张卡）；
+        // 必须用 SetToFreeThisTurn（EndOfTurn|WhenPlayed）才能让0费在手牌里真正生效
+        SetToFreeThisTurn();
     }
 
     // 本批：基础伤害18/敲后22（升级=伤害+4）；订正：每张「光道」+2→+3 的升级保留（两者并改）

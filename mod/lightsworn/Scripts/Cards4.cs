@@ -160,6 +160,9 @@ public class SolarExchange : LsCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class JusticeWorld : LsCard
 {
+    // 已知问题4（v0.5.4）：正文内联的"[gold]弃光[/gold]"（触发条件）需要悬浮提示可查
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [LsKeywords.Mill];
+
     public JusticeWorld() : base(3, CardType.Power, CardRarity.Rare, TargetType.Self) { }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
@@ -311,6 +314,16 @@ public class FlashFantasy : LsCard
 
 // 黄昏之双龙（本批反馈问题27：生成的裁决/惩戒去掉「虚无」；敲后不再增加除光（固定4）；
 // 敲后生成的裁决和惩戒加「保留」）
+// ⚠ 已知问题4（v0.5.4，用户："卡牌文本没有单独的弃光/除光/暮光"）：
+//   本卡曾静态声明 `[LsKeywords.Mill, LsKeywords.Banish]`，卡面恒定叠两行孤立短词
+//   "[gold]弃光[/gold]。" + "[gold]除光[/gold]。"。——用户点名的正是这种"独立词条行"。
+//   全局收敛（不是本卡单独处理）：三个机制关键词 MILL/BANISH/TWILIGHT 已改为
+//   `ModKeywordCardDescriptionPlacement.None`（Ls.cs），**任何卡都不再注入词条行**；
+//   机制名只在正文里以 `[gold]弃光[/gold]{Mill:diff()}` 内联出现（官方"重放"范式）。
+//   因此本卡**恢复常规声明**（声明与否只影响悬浮提示，不影响卡面文本/逻辑——
+//   LsKeywords.Mill/Banish 在 mod 内无任何读取点，grep `Keywords.Contains(LsKeywords` 零命中）：
+//   声明的关键词由原版 CardModel.HoverTips 自动带出提示（详见 LightswornContent.cs LsCard 注释），
+//   不需要 AdditionalHoverTips 手工挂载（那会与原版自动提示**重复**）。
 [RegisterCard(typeof(LightswornCardPool))]
 public class TwinTwilightDragon : LsCard
 {
@@ -353,6 +366,7 @@ public class TwinTwilightDragon : LsCard
     }
 
     // 问题11：卡牌停留时预览关联牌（裁决之龙/惩戒之龙）卡图
+    // （「弃光」「除光」的悬浮提示由原版自动带出——上面已恢复关键词声明，勿再手工挂）
     protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
         HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>()
             .Concat(HoverTipFactory.FromCardWithCardHoverTips<PunishDragon>());
@@ -556,6 +570,9 @@ public class Mudora : LsCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class LawnMowing : LsCard
 {
+    // 已知问题4（v0.5.4）：正文内联的"[gold]弃光[/gold]"（数量=抽牌堆一半）需要悬浮提示可查
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [LsKeywords.Mill];
+
     public LawnMowing() : base(1, CardType.Skill, CardRarity.Rare, TargetType.Self) { }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)

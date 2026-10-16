@@ -50,3 +50,12 @@ tools/_v053_check/
 # ===== memberref 审计工具构建产物（v0.5.3）=====
 tools/memberref_audit/bin/
 tools/memberref_audit/obj/
+
+# ===== v0.5.4 关键词文案定稿：实测证据图 / 截屏辅助脚本（本地留档）=====
+tools/_v054_*.png
+tools/_v054_wheel.ps1
+tools/_v054_crop.py
+
+# ===== ILSpy 合并反编译转储（33MB，本地留档；代码注释/设计文档里的行号指这里）=====
+tools/_g4/
+tools/_g5/

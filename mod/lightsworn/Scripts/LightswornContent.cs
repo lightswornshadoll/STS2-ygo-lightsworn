@@ -16,6 +16,9 @@ using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Saves.Runs;
 using MegaCrit.Sts2.Core.Unlocks;
 using STS2RitsuLib.Scaffolding.Characters;
+// 问题6：WorldProceduralVisuals（商店/火堆程序化形象）所需命名空间
+using STS2RitsuLib.Scaffolding.Characters.Visuals.Definition;
+using STS2RitsuLib.Scaffolding.Visuals.Definition;
 
 namespace Lightsworn;
 
@@ -88,6 +91,22 @@ public abstract class LsCard : ModCardTemplate
     {
     }
 
+    // ================= v0.5.4：正文内联关键词的悬浮提示（无需手写） =================
+    // MILL/BANISH/TWILIGHT 已改为 ModKeywordCardDescriptionPlacement.None（卡面不再有独立词条行，
+    // 见 Ls.cs 的说明）——机制名现在只出现在正文里（`[gold]弃光[/gold]{Mill:diff()}`）。
+    // **悬浮提示不需要本类操心**，链路已由原版+RitsuLib 闭环（反编译实证，勿再加手写 tips）：
+    //   ① 原版 `CardModel.HoverTips`：`foreach (CardKeyword keyword in Keywords)
+    //      list.Add(HoverTipFactory.FromKeyword(keyword));`（sts2.decompiled.cs:65580）——
+    //      `Keywords` 含 CanonicalKeywords，所以只要卡类声明了关键词就自动有提示；
+    //   ② RitsuLib `HoverTipFactoryFromKeywordPatch`（Prefix，decompiled.cs:177489）把 mod 关键词
+    //      改路由到 `ModKeywordRegistry.CreateHoverTip`，用注册的 title/description 建提示；
+    //   ③ `IncludeInCardHoverTip: true`（默认，本 mod 未改）保留该提示；置 false 才由
+    //      CardModelHoverTipsModKeywordPatch 后置剔除。
+    // ⚠ 反面教训（v0.5.4 中途写过一版本）：在 AdditionalHoverTips 里对 Keywords 再挂一遍
+    //   `HoverTipFactory.FromKeyword` 是**重复挂载**——原版已挂过一次，而 mod 关键词的提示实例
+    //   不经原版 `_keywordHoverTips` 缓存（RitsuLib 每次 new），`Distinct()` 去不掉 → 卡面会出现
+    //   两份同名提示。已删除，**别再写回来**。
+
     // 被光道卡从抽牌堆弃光（弃置到弃牌堆）时触发（黄昏之抹杀/黄昏之双龙的弃光联动，问题13/15）。
     // 只在 LsUtil.Mill / MillSelected 的卡牌来源重载中触发，且来源必须是光道牌；
     // 能力/遗物来源的弃光、以及除光（消耗）都不触发。
@@ -157,6 +176,17 @@ public class LightswornSigil : ModRelicTemplate
 // GetUnlockedCards + CombatState.CreateCard + AddGeneratedCardToCombat(Random)；
 // RNG 用 CombatCardGeneration 通道保证种子可复现）。
 // Starter 稀有度不会被 RelicGrabBag 收录，虽然挂着池标也只在初始遗物里出现。
+//
+// ⚠ v0.5.3 问题5修复：打/防保底上限。
+// 旧实现每张牌独立 roll(205)，打击 50/205≈24.4% + 防御 50/205≈24.4% = 48.8% 打防。
+// 独立同分布下打防数量服从 B(need, 0.4878)，右尾很厚：
+//   实战最常见的 need=30（初始10张卡组）时 E=14.63 张(48.8%)、σ≈2.74，
+//   旧实现有 P(打防 > 18 张=60%) ≈ 7.9%，95 分位是 19 张(63.3%)，最坏理论上 30 张(100%)。
+// 用户要求「最多 60% 的卡是打/防」，即打防数必须 ≤ floor(need×0.6)。
+// 新实现：先算上限 cap=floor(need×0.6)，边生成边计数，打防数一旦触顶，后续全部改为卡池抽取。
+// 触顶后该次 roll 不再作废，而是归一化到卡池段继续使用（见下方 else 分支注释），
+// 因此**每张牌仍然恰好消耗一次 NextInt(205)** → RNG 序列与消耗次数确定，同一 seed 各端结果一致。
+// 只砍右尾、不设下限（用户只要求「最多」），运气极好时打防可以为 0。
 [RegisterRelic(typeof(LightswornRelicPool))]
 public class MustPlayYugioh : ModRelicTemplate
 {
@@ -188,24 +218,40 @@ public class MustPlayYugioh : ModRelicTemplate
         Rng rng = Owner.RunState.Rng.CombatCardGeneration;
         var combatState = Owner.Creature.CombatState;
         if (combatState == null) return;
+
+        // 问题5：打/防保底上限。need 张里最多 floor(need×0.6) 张是打击/防御，其余强制走卡池。
+        // 用整数下取整（cap = need*3/5）：这是唯一能对**所有** need 都保证「打防 ≤ 60%」的取整方式。
+        // 若用 ceil(need×0.6)，小 need 时会突破 60%（need=1→100%、2→100%、3→66.7%、4→75%、7→71.4%），
+        // 与用户「最多60%」的硬性要求冲突；floor 的最大占比恰为 60.0%（在 need 为 5 的倍数时取到，
+        // 例如实战最常见的 need=30 → cap=18=60%）。
+        int basicCap = need * 3 / 5;
+        int basicCount = 0;
+
         for (int i = 0; i < need; i++)
         {
             // 问题16：打击:防御:白:蓝:金 = 50:50:85:15:5（总205；打击/防御=本角色初始牌「打击」「防御」）
+            // 注意：roll 必须无条件消耗一次，否则触顶后 RNG 序列会与旧版本分叉（联机/种子复现要求）。
             int roll = rng.NextInt(205);
             CardModel card;
-            if (roll < 50)
+            if (roll < 100 && basicCount < basicCap)
             {
-                card = combatState.CreateCard(ModelDb.Card<LightBlade>(), Owner);
-            }
-            else if (roll < 100)
-            {
-                card = combatState.CreateCard(ModelDb.Card<LightWard>(), Owner);
+                // 问题5：打防额度未用尽才允许生成；roll<50 打击 / 50-99 防御 的原始切分保持不变。
+                basicCount++;
+                card = roll < 50
+                    ? combatState.CreateCard(ModelDb.Card<LightBlade>(), Owner)
+                    : combatState.CreateCard(ModelDb.Card<LightWard>(), Owner);
             }
             else
             {
-                // 白:蓝:金 = 85:15:5（0-84普通 / 85-99罕见 / 100稀有，按205取段）
-                CardRarity rarity = roll < 185 ? CardRarity.Common
-                    : roll < 200 ? CardRarity.Uncommon
+                // 白:蓝:金 = 85:15:5。
+                // 问题5：打防触顶后，原本落入打防段的 roll∈[0,100) 也会走到这里，若直接沿用
+                // 原边界（<185普通/<200罕见/稀有）会把白卡比例抬到 90%（185/205），偏离设计。
+                // 所以先把 roll 归一化到卡池段的 105 个取值上：roll∈[100,205) 直接减100；
+                // roll∈[0,100) 用整数等比缩放 roll*105/100 铺满同一区间（无浮点、纯整数 → 各端一致）。
+                // 归一后落在卡池段的比例恰为 80.98:14.63:4.39，与 85:15:5（即 80.95:14.29:4.76）几乎一致。
+                int poolRoll = roll < 100 ? roll * 105 / 100 : roll - 100;
+                CardRarity rarity = poolRoll < 85 ? CardRarity.Common
+                    : poolRoll < 100 ? CardRarity.Uncommon
                     : CardRarity.Rare;
                 List<CardModel> options = byRarity.TryGetValue(rarity, out List<CardModel>? opts) && opts.Count > 0
                     ? opts
@@ -359,6 +405,42 @@ public class LightswornCharacter : ModCharacterTemplate<LightswornCardPool, Ligh
 {
     private const string AssetDir = "res://lightsworn/images/character/";
 
+    // ================= 问题6：商店 / 火堆取景常量 =================
+    // 素材：battle.png 984×1000（RGBA，透明底）。实测不透明内容 bbox 覆盖整幅画布
+    // （x 0-983、y 0-999：展开的双翼与法杖顶到边缘，"图心"≈画布中心，故缩放锚点用图心即可）。
+    // 原版房间相机高约 720 逻辑像素、角色脚下约在房间中线偏下；战斗立绘当前用 0.33 缩放
+    // （见 TryCreateCreatureVisuals：984×0.33≈325 宽）。
+    //
+    // 商店：商人摊位是直立站姿，脚本里 Merchant 的 Sprite2D 基准被放在 (0,-H/2)
+    // （decompiled.cs:85042，H=纹素高=1000）→ 不覆盖样式时立绘会以"图片中心"贴在房间原点，
+    // 1:1 的 984×1000 直接溢出。这里显式给 Scale，把立绘收到双脚落在摊位上的尺寸：
+    //   0.34 → 984×0.34≈335 宽、1000×0.34≈340 高，与战斗立绘（0.33）几乎一致，观感统一；
+    //   Position.Y 用 -H*scale/2 = -170 把"图心"从房间原点抬到脚底贴地
+    //   （图心到图底 = H/2 = 500 纹素 → ×0.34 ≈ 170）。
+    private static VisualNodeStyle MerchantStyle => VisualNodeStyle.Create(
+        position: new Vector2(0f, -170f),
+        scale: new Vector2(0.34f, 0.34f));
+
+    // 火堆：用户要"坐在木头上"的感觉。battle.png 本身就是**坐姿**——双腿交叠、长裙铺开
+    // （实测 y≥780 处不透明内容收窄到 x 182-765、最底部 y≥960 只剩 x 375-447，
+    //  正是"裙摆铺在座面、双脚下垂"的轮廓）。所以不需要新素材，只需把这张坐姿图**放在木头上**：
+    //   1) 比商店略放大（0.38 vs 0.34）：坐姿立绘的视觉重心更低，放大后裙摆才够宽盖住木桩顶面，
+    //      避免"浮在木头上方"；984×0.38≈374 宽。
+    //   2) Position.Y = -H*scale*0.62 ≈ -236：把图心抬到"裙摆下沿压住木头"的高度。
+    //      取 0.62 而不是 0.5，是因为坐姿内容的**有效底边不在画布底**——最底部 40px 只有
+    //      一双鞋（x 375-447），而裙摆主体在 y 780-940。用 0.62 让图心比"脚底贴地"
+    //      再低约 0.12×1000×0.38≈46px，使裙摆正好搭在木头上、鞋略垂到木头前侧。
+    //   3) Offset 再向下 -8：火堆木桩的顶面在房间地面之上，微调贴合。
+    // 注：RitsuGodotNodeRestSiteCharacterFactory 的 Hitbox 是照**原尺寸纹素**给的
+    //   （decompiled.cs:85171/85185，size=img*1.05、top=-size.Y*0.6），不随 Scale 收缩，
+    //   所以点击热区仍覆盖整张立绘，无需额外处理。
+    private static Vector2 RestSiteScale => new(0.38f, 0.38f);
+
+    private static VisualNodeStyle RestSiteStyle => VisualNodeStyle.Create(
+        position: new Vector2(0f, -236f),
+        offset: new Vector2(0f, -8f),
+        scale: RestSiteScale);
+
     public override Color NameColor => new(0.98f, 0.87f, 0.44f);
     public override Color EnergyLabelOutlineColor => new(0.85f, 0.68f, 0.25f);
     public override Color MapDrawingColor => new(0.98f, 0.87f, 0.44f);
@@ -496,6 +578,58 @@ public class LightswornCharacter : ModCharacterTemplate<LightswornCardPool, Ligh
 
     // ---------- 地图标记 ----------
     public override string? CustomMapMarkerPath => AssetDir + "map_marker.png";
+
+    // ================= 商店 / 火堆形象（v0.5.3 问题6修复） =================
+    // ⚠ 根因与 v0.5.1 的 CustomIconPath / CustomEnergyCounterPath 完全同源：
+    //   RitsuLib 的 ModCharacterTemplate.ResolvedAssetProfile 会把**未覆盖的资源槽从占位角色
+    //   （PlaceholderCharacterId="ironclad"）继承**（见 STS2-RitsuLib.Runtime.xml:50865-50873、
+    //   decompiled.cs:105386 MergeScenes/MergeWorldProceduralVisuals）。而这两个槽位的取用点还会
+    //   **二次兜底到 ironclad**：CharacterWorldScenePathFactoryHelper.EnumerateCandidatePaths
+    //   在 decompiled.cs:111264-111271 明确写死「若角色 id 不是 ironclad，就再试一次 ironclad 的
+    //   Scenes.MerchantAnimPath / Scenes.RestSiteAnimPath」。所以不覆盖时：
+    //     商店 → 铁甲战士的 _merchant 场景；火堆 → 铁甲战士的 _rest_site 场景。
+    //   原版取值见 sts2.decompiled.cs:66821 / 66823：
+    //     CharacterModel.MerchantAnimPath => "merchant/characters/<id>_merchant"
+    //     CharacterModel.RestSiteAnimPath => "rest_site/characters/<id>_rest_site"
+    // 槽位名（已核对 RitsuLib 0.111.0）：
+    //   CustomMerchantAnimPath（商店） / CustomRestSiteAnimPath（火堆）
+    //   —— 声明见 STS2-RitsuLib.Runtime.xml:50544 / 50550（IModCharacterAssetOverrides），
+    //      虚拟机实现见 decompiled.cs:106601，Harmony 补丁见 decompiled.cs:109686 / 109718。
+    // 这两个槽位**允许直接给 Texture2D**（不必是场景）：
+    //   decompiled.cs:109534-109535 IsCompatibleResource 对二者都用 IsLoadableAsAny(..., "PackedScene",
+    //   typeof(PackedScene), typeof(Texture2D))；创建走 CreateFromSceneOrTexture（decompiled.cs:111203），
+    //   Texture2D 分支交给 RitsuGodotNodeFactories.CreateFromResource —— 由
+    //   RitsuNMerchantCharacterNodeFactory / RitsuNRestSiteCharacterNodeFactory 建节点
+    //   （decompiled.cs:85025 / 85143）。所以**不需要新建 tscn**，也就绕开了
+    //   「mod 导 pck 解析不了游戏本体 C# 脚本」的坑（见上方 TryCreateCreatureVisuals 注释）。
+    //
+    // 为什么不直接把 battle.png 丢给这两个槽位：
+    //   1) 工厂给的默认取景是「整图按原尺寸居中」——RitsuNMerchantCharacterNodeFactory.FromTexture
+    //      （decompiled.cs:85042）把 Sprite2D 放在 (0, -H/2)；火堆版（decompiled.cs:85193）放在
+    //      (0, -H/10)。984×1000 的立绘按 1:1 塞进 1280×720 的房间会**远远溢出屏幕**，
+    //      而且完全无法调比例——正是用户说的「比例不对」。
+    //   2) 用户要的是「在火堆有坐在木头上的感觉」，这需要**可控的偏移/缩放/裁切**。
+    //   所以改用 WorldProceduralVisuals（数据驱动，无需 tscn）把同一张 battle.png 绑到提示键上，
+    //   并用 VisualNodeStyle 精确给位置/缩放/裁切区域。
+    //   证据：CharacterWorldProceduralVisualSet（xml:52001-52012）就是为「让 mod 免于提供专用 tscn」
+    //   而设；builder 见 xml:52140-52188；样式类型 VisualNodeStyle 见 decompiled.cs:82565。
+    // 提示键（cue key）：火堆必须用原版三章循环名 overgrowth_loop / hive_loop / glory_loop
+    //   （sts2.decompiled.cs:400835-400841 在 NRestSiteCharacter._Ready 里按 CurrentActIndex 选名，
+    //     xml:52102-52107 也点名这三个）；商店用 relaxed_loop
+    //   （sts2.decompiled.cs:292198 NMerchantCharacter._Ready 里 PlayAnimation("relaxed_loop", loop:true)）。
+    //   另补 idle 兜底，防止某条状态机路径找不到键时变成空图。
+    public override CharacterWorldProceduralVisualSet? WorldProceduralVisuals =>
+        ModCharacterWorldSceneVisuals.Procedural()
+            // --- 商店：站立立绘，略小于战斗尺寸，脚底对齐摊位 ---
+            .Merchant(cues => cues
+                .Single("relaxed_loop", AssetDir + "battle.png", MerchantStyle)
+                .Single("idle", AssetDir + "battle.png", MerchantStyle))
+            // --- 火堆：同一张立绘下移+放大，让裙摆/腿部落在木头上 ---
+            .RestSite(cues => cues
+                .Single("overgrowth_loop", AssetDir + "battle.png", RestSiteStyle)
+                .Single("hive_loop", AssetDir + "battle.png", RestSiteStyle)
+                .Single("glory_loop", AssetDir + "battle.png", RestSiteStyle))
+            .Build();
 
     // ---------- 能量球：saint_energy_counter.tscn（见上方 CustomEnergyCounterPath 注释）；
     // 数字描边深棕=LightswornEnergyCounterOutlinePatch（OutlineColor getter 补丁，保留）。 ----------

@@ -54,8 +54,26 @@ public static class Ls
 
 // 自定义关键词：弃光 / 除光 / 暮光 / 珠泪融合 / 影融
 // v0.5.0：RitsuLib 铸造真实 CardKeyword 值（存档/克隆/原版查询全兼容）。
-// loc 键=`LIGHTSWORN_KEYWORD_{STEM}.title/.description`（card_keywords 表）；BeforeCardDescription ≈
-// BaseLib 的 [KeywordProperties(AutoKeywordPosition.Before)]（关键词行自动插到卡面描述前）。
+// loc 键=`LIGHTSWORN_KEYWORD_{STEM}.title/.description`（card_keywords 表）。
+//
+// ⚠ v0.5.4 用户订正（关键词不再作为独立词条行，改为正文内联着色）：
+//   用户点名的目标观感=「[gold]弃光[/gold]3。目标敌人获得1层虚弱和1层易伤。」——
+//   即机制名与数值写在正文里、**卡面没有独立的词条行**。官方范式实证（未掘宝石 HIDDEN_GEM）：
+//     正文 `获得{Replay:diff()}层[gold]重放[/gold]`；官方 `CardKeyword` 枚举里**根本没有 Replay**
+//     （只有 None/Exhaust/Ethereal/Innate/Unplayable/Retain/Sly/Eternal）——它是靠
+//     「正文内联 + HoverTipFactory.Static(StaticHoverTip.ReplayStatic) 悬浮提示」实现的，
+//     两个机制名（重放/君王之剑的 SwordSage）都**没有词条行**。
+//   据此把 MILL/BANISH/TWILIGHT 三个机制从 BeforeCardDescription 改为 None：
+//     · 卡面不再注入 `[gold]弃光[/gold]。` 词条行（消除"同一机制在卡面出现两次"）；
+//     · 悬浮提示**自动**出（原版 `CardModel.HoverTips` 遍历 Keywords → `HoverTipFactory.FromKeyword`
+//       → RitsuLib 路由到 ModKeywordRegistry 提示），**不要手挂**（详见 LightswornContent.cs LsCard 注释）；
+//     · 正文由本地化负责写成 `[gold]弃光[/gold]{Mill:diff()}` 形式（LocString 的 [gold] 是
+//       官方惯用的"语义指代/术语强调"用法，与 `[gold]抽牌堆[/gold]` 同类，**不影响数值渲染**）。
+//   TEARFUSION/SHADDOLLFUSION 保持 BeforeCardDescription：**不是**因为"长篇机制说明"（那是误解——
+//   placement 注入的是"金色标题+句号"的短行，长说明在悬浮提示里），而是因为有 11 张卡
+//   （真血公/手札抹杀/愚蠢的埋葬/影依猎犬/影依巫女/路径灵/文蒂/虚梦狱/乖放/心影依融合）
+//   **正文没有内联机制名**，词条行是它们唯一的卡面标记（审计=`tools\audit_fusion_inline.py`）。
+//   Exhaust 由引擎自动追加（CardKeywordOrder.afterDescription），不受本处改动影响。
 public static class LsKeywords
 {
     public static CardKeyword Mill;                // 弃光N：从抽牌堆顶部将N张牌弃置
@@ -67,14 +85,17 @@ public static class LsKeywords
     public static void RegisterAll()
     {
         ModKeywordRegistry registry = ModKeywordRegistry.For("lightsworn");
-        Mill = Register(registry, "MILL");
-        Banish = Register(registry, "BANISH");
-        Twilight = Register(registry, "TWILIGHT");
-        TearFusion = Register(registry, "TEARFUSION");
-        ShaddollFusion = Register(registry, "SHADDOLLFUSION");
+        // v0.5.4：正文内联式（不注入词条行）——弃光/除光/暮光
+        Mill = Register(registry, "MILL", ModKeywordCardDescriptionPlacement.None);
+        Banish = Register(registry, "BANISH", ModKeywordCardDescriptionPlacement.None);
+        Twilight = Register(registry, "TWILIGHT", ModKeywordCardDescriptionPlacement.None);
+        // 保留词条行：这些卡正文没有内联机制名，行是唯一卡面标记（见上）
+        TearFusion = Register(registry, "TEARFUSION", ModKeywordCardDescriptionPlacement.BeforeCardDescription);
+        ShaddollFusion = Register(registry, "SHADDOLLFUSION", ModKeywordCardDescriptionPlacement.BeforeCardDescription);
     }
 
-    private static CardKeyword Register(ModKeywordRegistry registry, string stem)
+    private static CardKeyword Register(ModKeywordRegistry registry, string stem,
+        ModKeywordCardDescriptionPlacement placement)
         => registry.RegisterCardKeywordOwnedByLocNamespace(stem, iconPath: null,
-            ModKeywordCardDescriptionPlacement.BeforeCardDescription, includeInCardHoverTip: true).CardKeywordValue;
+            placement, includeInCardHoverTip: true).CardKeywordValue;
 }

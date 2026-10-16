@@ -269,6 +269,8 @@ public class LightswornDragon : LsCard
 public class Janice : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DynamicVar("Amount", 5m)];
+    // 已知问题4（v0.5.4）：正文内联的"[gold]弃光[/gold]"（发动条件）需要悬浮提示可查
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [LsKeywords.Mill];
 
     public Janice() : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self) { }
 
@@ -314,7 +316,8 @@ public class Barrier : LsCard
 public class LightOfDestruction : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DynamicVar("Doom", 9m)];
-    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Innate];
+    // 已知问题4（v0.5.4）：正文内联的"[gold]弃光[/gold]"（触发条件）需要悬浮提示可查
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Innate, LsKeywords.Mill];
 
     public LightOfDestruction() : base(1, CardType.Power, CardRarity.Ancient, TargetType.Self) { }
 

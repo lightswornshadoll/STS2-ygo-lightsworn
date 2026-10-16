@@ -7,12 +7,12 @@
   "LIGHTSWORN_TO_MILL": "弃置（从抽牌堆选择）",
   "LIGHTSWORN_SANCTUARY_DISCARD": "神域：弃置1张「光道」牌（可不选）",
   "LIGHTSWORN_FLASH_PICK": "选择1张「光道」攻击牌（弃牌堆）",
-  "LIGHTSWORN_TEAR_MATERIAL": "珠泪融合：选择1~2张其他珠泪攻击牌或影依牌放回抽牌堆（触发卡自动作为素材）",
+  "LIGHTSWORN_TEAR_MATERIAL": "珠泪融合：选择1~2张其他珠泪攻击牌或影依牌放回抽牌堆（触发卡自动作为素材；素材数量须与融合条件完全一致，不满足条件的组合将作废）",
   "LIGHTSWORN_TEAR_FUSION": "珠泪融合：选择1张融合卡加入手牌",
   "LIGHTSWORN_TEAR_DISCARD_ATTACK": "丢弃1张攻击牌（可不选）",
   "LIGHTSWORN_TEAR_DUMP": "选择1张珠泪卡弃置",
   "LIGHTSWORN_REINOHART_DISCARD": "珠泪哀歌族 雷诺哈特：丢弃1张珠泪攻击牌（可不选）",
-  "LIGHTSWORN_SHADDOLL_MATERIAL": "选择影融素材",
+  "LIGHTSWORN_SHADDOLL_MATERIAL": "选择影融素材（数量须与神影依的融合条件完全一致，不满足条件的组合将作废）",
   "LIGHTSWORN_SHADDOLL_FUSION": "选择要生成的神影依",
   "LIGHTSWORN_SHADDOLL_DISCARD_MATERIAL": "丢弃1张影依卡"
 }
