@@ -1813,6 +1813,9 @@ AssetProfile → `CustomIconPath=null` → 游戏回退 `res://images/powers/<en
 
 ### 发布注意
 
-- 本轮改 **dll**（关键词声明/删手挂提示）与 **pck**（文案）→ 两端必须同升 **v0.5.4**；
-  **本轮未发布**（工坊条目仍为 v0.5.3）：发布 = 同步 dist 三件套到 `lightsworn_mod-tools\workshop\lightsworn\Content\` 后跑 `上传工坊.bat`。
+- 本轮改 **dll**（关键词声明/删手挂提示）与 **pck**（文案）→ 两端必须同升 **v0.5.4**。
+- **✅ 已发布（2026-10-16）**：git main `3404c26`；创意工坊 3819657802（Steam 日志
+  `Uploaded new content (ManifestID 5140002338743634096)` + `Upload finished : OK`；v0.5.3 为 1518804264528828898）。
+  发布流程=dist 三件套 → `lightsworn_mod-tools\workshop\lightsworn\Content\` → `py tools\update_workshop_v054.py`（changeNote）
+  → `ModUploader.exe upload -w <workspace>`；朋友端需重新更新订阅。
 - 无卡牌内部 ID 变更 → 旧存档兼容。
