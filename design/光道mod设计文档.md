@@ -2081,4 +2081,5 @@ AssetProfile → `CustomIconPath=null` → 游戏回退 `res://images/powers/<en
   - `Scale` 仍 0.5，可见区约 727×522；`CenterPos/Bounds/IntentPos/TalkPos` 不变。
 - 验证：pck 内 `.godot/imported/dark_world_grapha.png-5301…ctex` 解出 1536×1536，与原图**逐像素 diff=None**；
   构建 0 错误、memberref 双 PASS（methods=241）、0.107.1 实机 `Version=0.6.3` 加载零异常。
-- 产物 dll `8f238246…`(386048) / pck `5d82d0dc…`(22983560)；**未上传工坊**。
+- 产物 dll `8f238246…`(386048) / pck `5d82d0dc…`(22983560)。
+- **已发布**：git `5af0ff4` 已推送；创意工坊 v0.6.3 上传成功（ManifestID `4204301308830997520`，2026-10-17 22:55）。
