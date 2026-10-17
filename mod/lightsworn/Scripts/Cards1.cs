@@ -198,13 +198,14 @@ public class Wulf : LsCard
     }
 }
 
-// 光道之龙（小龙，问题2重做：从抽牌堆选光道弃置；被弃置（弃光或手牌弃置）时检索双龙；问题3：1费）
+// 光道之龙（小龙，问题2重做：从抽牌堆选光道弃置；被弃置（弃光或手牌弃置）时检索双龙。
+// v0.6.1 已知问题6：费用1→0，伤害9→6（升级仍+4））
 [RegisterCard(typeof(LightswornCardPool))]
 public class LightswornDragon : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(9, ValueProp.Move),
+        new DamageVar(6, ValueProp.Move),
         new DynamicVar("Dump", 1m),
     ];
 
@@ -213,7 +214,7 @@ public class LightswornDragon : LsCard
         HoverTipFactory.FromCardWithCardHoverTips<JudgementDragon>()
             .Concat(HoverTipFactory.FromCardWithCardHoverTips<PunishDragon>());
 
-    public LightswornDragon() : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy) { }
+    public LightswornDragon() : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy) { }
 
     protected override bool IsPlayable => LsUtil.DiscardPile(this).Cards.Any(LsUtil.IsLs);
     protected override bool ShouldGlowGoldInternal => IsPlayable;

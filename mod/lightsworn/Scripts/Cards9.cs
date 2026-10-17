@@ -10,8 +10,10 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Lightsworn;
 
 // ================= 暗黑界的龙神王 Boss 战斗内专属牌 =================
-// 四神将：1费攻击·保留，Token 稀有度 + showInCardLibrary:false
-//   → LightswornCardPool.FilterThroughEpochs 会把它们从一切"卡池来源"剔除（战斗奖励/商店/变形/事件选牌）。
+// 四神将（v0.6.1 已知问题3：攻击卡→诅咒卡，1费·保留，TargetType.None）：
+//   打出时对自己的主人（玩家）造成伤害——牌面写"造成X点伤害"，实际结算目标固定为自己。
+//   Curse 稀有度 + showInCardLibrary:false → LightswornCardPool.FilterThroughEpochs 会把它们从一切
+//   "卡池来源"剔除（战斗奖励/商店/变形/事件选牌）。
 // 只由 Boss 的「暗黑界的军势」/被动「暗黑界的诱惑」在战斗内生成，战斗结束随战斗状态回收。
 // 打出后进弃牌堆（不消耗），因此可以被「龙神回归」吸收给 Boss 回血。
 public abstract class DarkWorldAttackCard : LsCard
@@ -19,7 +21,7 @@ public abstract class DarkWorldAttackCard : LsCard
     private readonly int _damage;
 
     protected DarkWorldAttackCard(int damage)
-        : base(1, CardType.Attack, CardRarity.Token, TargetType.AnyEnemy, showInCardLibrary: false)
+        : base(1, CardType.Curse, CardRarity.Curse, TargetType.None, showInCardLibrary: false)
     {
         _damage = damage;
     }
@@ -34,8 +36,9 @@ public abstract class DarkWorldAttackCard : LsCard
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
+        // 诅咒牌：伤害指向自己（吃到自己的力量/格挡/易伤等玩家侧修正）
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCardCompat(this, cardPlay)
-            .Targeting(cardPlay.Target!).Execute(choiceContext);
+            .Targeting(Owner.Creature).Execute(choiceContext);
     }
 
     protected override void OnUpgrade() { }

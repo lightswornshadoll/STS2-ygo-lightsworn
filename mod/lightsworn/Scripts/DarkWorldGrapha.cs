@@ -1,4 +1,5 @@
 using Godot;
+using HarmonyLib;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Ascension;
@@ -20,6 +21,7 @@ using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Random;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.ValueProps;
+using STS2RitsuLib.Patching.Models;
 
 namespace Lightsworn;
 
@@ -30,7 +32,7 @@ namespace Lightsworn;
 [RegisterMonster]
 public class DarkWorldGrapha : ModMonsterTemplate
 {
-    public const int ReturnHealPerCard = 30;
+    public const int ReturnHealPerCard = 50;
 
     public const string ThunderMoveId = "DARK_WORLD_THUNDER";
     public const string ForcesMoveId = "DARK_WORLD_FORCES";
@@ -137,8 +139,9 @@ public class DarkWorldGrapha : ModMonsterTemplate
             .Execute(null);
     }
 
-    // 龙神回归：吸收玩家抽牌堆 + 弃牌堆中所有暗黑界攻击卡，每张回复 30 生命。
+    // 龙神回归：吸收玩家抽牌堆 + 弃牌堆 + 消耗堆中所有暗黑界诅咒卡，每张回复 50 生命。
     // 被吸收的卡移出战斗（不进消耗堆）；手牌是玩家的安全区，不吸收。
+    // v0.6.1 已知问题4：吸收范围追加消耗堆，回血 30/张 → 50/张。
     private async Task ReturnMove(IReadOnlyList<Creature> targets)
     {
         await CreatureCmd.TriggerAnim(Creature, "Cast", 0.5f);
@@ -147,6 +150,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
         {
             absorbed.AddRange(PileType.Draw.GetPile(player).Cards.Where(IsDarkWorldAttack));
             absorbed.AddRange(PileType.Discard.GetPile(player).Cards.Where(IsDarkWorldAttack));
+            absorbed.AddRange(PileType.Exhaust.GetPile(player).Cards.Where(IsDarkWorldAttack));
         }
 
         if (absorbed.Count > 0)
@@ -206,6 +210,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
         {
             count += PileType.Draw.GetPile(player).Cards.Count(IsDarkWorldAttack);
             count += PileType.Discard.GetPile(player).Cards.Count(IsDarkWorldAttack);
+            count += PileType.Exhaust.GetPile(player).Cards.Count(IsDarkWorldAttack);
         }
         return count;
     }
@@ -222,12 +227,14 @@ public class DarkWorldGrapha : ModMonsterTemplate
             if (unique) node.UniqueNameInOwner = true;
         }
 
-        // 1600×1200 横向构图；内容底边 y≈1122。0.5 缩放 → 宽约 728、高约 522，脚底贴场景原点。
+        // v0.6.3：换用用户重扣的 1536×1536 立绘（内容 bbox≈(52,296)-(1505,1339)，可见区 1453×1043）。
+        // 0.5 缩放 → 宽约 727、高约 522；内容底边相对纹理中心 571px → Position.Y=-285.5 时脚底贴场景原点；
+        // 内容中心相对纹理中心偏右 10.5px → Position.X=-5.25 让内容视觉居中。
         var sprite = new Sprite2D
         {
             Name = "Visuals",
             Texture = ResourceLoader.Load<Texture2D>("res://lightsworn/images/monsters/dark_world_grapha.png"),
-            Position = new Vector2(0f, -261f),
+            Position = new Vector2(-5.25f, -285.5f),
             Scale = new Vector2(0.5f, 0.5f),
         };
         AddOwned(sprite);
@@ -379,8 +386,10 @@ public class DarkWorldBrainwashPower : ModPowerTemplate
 }
 
 // ================= 被动：暗黑界的诱惑 =================
-// 每玩家回合的第一次弃置（不含回合结束清理）触发，按第一张牌类型分支，然后额外塞1张暗黑界攻击卡。
-// 只监听 CardCmd.Discard（AfterCardDiscarded）——回合结束 Flush 走 CardPileCmd.Add + AfterFlush，不经过这里。
+// 每玩家回合的第一次弃置（含弃光；不含回合结束清理）触发，按第一张牌类型分支，然后额外塞1张暗黑界诅咒卡。
+// 手牌弃置=CardCmd.Discard → AfterCardDiscarded；弃光=抽牌堆→弃牌堆 → AfterCardChangedPiles。
+// 两条钩子互斥（原版源码实证：手牌弃置不会走 Draw→Discard 分支），不会重复触发。
+// 回合结束 Flush 走 CardPileCmd.Add + AfterFlush，两条钩子都不经过。
 public class DarkWorldTemptationPower : ModPowerTemplate
 {
     private readonly HashSet<Player> _triggeredThisTurn = new();
@@ -401,10 +410,23 @@ public class DarkWorldTemptationPower : ModPowerTemplate
 
     public override async Task AfterCardDiscarded(PlayerChoiceContext choiceContext, CardModel card)
     {
+        if (card.Pile?.Type != PileType.Discard) return;
+        await TryTrigger(choiceContext, card);
+    }
+
+    // 弃光（从抽牌堆弃到弃牌堆）：v0.6.1 已知问题5——原实现只监听手牌弃置，弃光完全不触发。
+    // 该钩子没有 PlayerChoiceContext，用 BlockingPlayerChoiceContext（内部只做随机弃牌/生成，无玩家选择）。
+    public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy)
+    {
+        if (oldPileType != PileType.Draw || card.Pile?.Type != PileType.Discard) return;
+        await TryTrigger(new BlockingPlayerChoiceContext(), card);
+    }
+
+    private async Task TryTrigger(PlayerChoiceContext choiceContext, CardModel card)
+    {
         Player? player = card.Owner;
         if (!Owner.IsAlive) return;
         if (player?.Creature == null || player.Creature.Side != CombatSide.Player) return;
-        if (card.Pile?.Type != PileType.Discard) return;
         if (!_triggeredThisTurn.Add(player)) return;
         if (Owner.Monster == null) return;
 
@@ -435,7 +457,7 @@ public class DarkWorldTemptationPower : ModPowerTemplate
                 break;
         }
 
-        // ③ 每次触发额外塞 1 张随机暗黑界攻击卡。
+        // ③ 每次触发额外塞 1 张随机暗黑界诅咒卡。
         await DarkWorldBossCards.AddRandomAttackToDraw(choiceContext, player, Owner.Monster.Rng);
     }
 
@@ -481,7 +503,11 @@ internal static class DarkWorldBossCards
 }
 
 // ================= 遭遇（三层 Glory Boss 池） =================
-// Boss 发现顺序：原版 3 个三层 Boss 都见过后才会轮到 mod Boss（调试用控制台 fight <ID> 直达）。
+// 已知问题2（v0.6.1）：原版 Glory.BossDiscoveryOrder 只有女王/试验体/万象玻璃，
+// RunManager.GenerateRooms → ApplyDiscoveryOrderModifications 会把「第一个未见过」的原版 Boss
+// 直接强制成本局三层 Boss——mod Boss 不在该列表里，所以没打过格拉法的玩家永远先见女王。
+// RitsuLib 的 BossDiscoveryOrderPostfix 只做 act 有效性过滤，不会追加 mod Boss。
+// 这里给 Glory 的具体 getter 挂 postfix，把格拉法插到最前：未见过时必出，见过后自然回到原版顺序。
 [RegisterActEncounter(typeof(Glory))]
 public class DarkWorldGraphaBoss : ModEncounterTemplate
 {
@@ -496,4 +522,18 @@ public class DarkWorldGraphaBoss : ModEncounterTemplate
 
     protected override IReadOnlyList<(MonsterModel, string?)> GenerateMonsters() =>
         [(ModelDb.Monster<DarkWorldGrapha>().ToMutable(), null)];
+}
+
+internal sealed class DarkWorldGraphaDiscoveryPatch : IPatchMethod
+{
+    public static string PatchId => "lightsworn_grapha_boss_discovery";
+    public static string Description => "Prioritize Dark World Grapha in act 3 boss discovery until first seen";
+    public static ModPatchTarget[] GetTargets() =>
+        [new ModPatchTarget(typeof(Glory), "BossDiscoveryOrder", MethodType.Getter)];
+
+    public static void Postfix(ref IEnumerable<EncounterModel> __result)
+    {
+        EncounterModel grapha = ModelDb.Encounter<DarkWorldGraphaBoss>();
+        __result = new[] { grapha }.Concat(__result.Where(e => e.Id != grapha.Id));
+    }
 }

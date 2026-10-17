@@ -68,7 +68,7 @@
 | 多人    | HP 由 `Creature.ScaleHpForMultiplayer` 自动缩放                                   |
 | 奖励    | 默认原版 Boss 奖励；专属遗物待定                                                          |
 | 战斗背景  | 可复用章节背景（`UseActCombatBackground = true`）                                     |
-| 战斗立绘  | `images\monsters\dark_world_grapha.png`（1600×1200 RGBA）                      |
+| 战斗立绘  | `images\monsters\dark_world_grapha.png`（v0.6.3 换图：1536×1536 RGBA，内容 bbox 1453×1043） |
 | 地图节点  | `images\map\lightsworn\dark_world_grapha_boss_icon`（PNG 前缀，游戏自动拼 `_outline`） |
 | 历史图标  | `images\ui\run_history\dark_world_grapha_boss.png` + `_outline.png`          |
 

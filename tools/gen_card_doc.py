@@ -30,6 +30,9 @@ VAR_LABEL = {
     "Next": "触发张数", "Gain": "活力倍率", "Recall": "回手门槛", "Pick": "生成张数",
     "Buffer": "缓冲层数", "Hits": "攻击次数", "Vul": "易伤",
     "Max": "最多消耗数", "Artifact": "人工制品", "Guard": "格挡", "Temp": "临时力量",
+    # 完美打击范式（CalculatedDamage/CalculatedBlock）
+    "CalculationBase": "基础值", "ExtraDamage": "每张加成", "CalculationExtra": "每张加成",
+    "CalculatedDamage": "动态伤害", "CalculatedBlock": "动态格挡",
 }
 RARITY = {"Basic": "初始", "Common": "普通", "Uncommon": "非普通", "Rare": "稀有", "Ancient": "先古", "Token": "特殊"}
 TYPE = {"Attack": "攻击", "Skill": "技能", "Power": "能力"}
@@ -38,15 +41,23 @@ TARGET = {"Self": "自身", "AnyEnemy": "单体", "AllEnemies": "全体"}
 # 内联升级逻辑 / 特殊卡的覆盖表（依据 Cards1-4.cs 逐张核对，2026-10-05 v0.4.3）
 # base/up：基础与强化的展示文本；delta：并入自动解析的变量增量；note：追加到"升级变化"
 SPECIAL = {
+    "Gragonith": {
+        "note": "卡面数值动态显示；实际伤害在本次弃光后结算，可能高于手牌预览",
+        "delta": {"CalculatedDamage": 4},
+    },
+    "Shire": {
+        "note": "卡面数值动态显示（基础值 + 弃牌堆每张「光道」×1）",
+        "delta": {"CalculatedBlock": 2},
+    },
     "Garoth": {
         "base": "每当「光道」牌弃光后，追加弃光2。",
         "up": "每当「光道」牌弃光后，追加弃光2，并抽其中「光道」牌数量的牌。",
         "note": "强化后：追加弃光后按其中「光道」牌数量抽牌（初版效果回调，任意弃光触发已作废）",
     },
     "Decree": {
-        "base": "打出后，将此牌置于抽牌堆顶。\n[gold]从卡组被弃置时[/gold]：将1张保留、消耗的「裁决之龙」加入手牌。",
-        "up": "打出后，将此牌置于抽牌堆顶。\n[gold]从卡组被弃置时[/gold]：将1张保留、消耗的「裁决之龙+」加入手牌。",
-        "note": "被弃置时生成的裁决之龙Token为保留（原虚无作废）；强化后Token已升级",
+        "base": "打出后，将此牌置于抽牌堆顶。\n[gold]从卡组被弃置时[/gold]：将1张消耗的「裁决之龙」加入手牌。",
+        "up": "打出后，将此牌置于抽牌堆顶。\n[gold]从卡组被弃置时[/gold]：将1张消耗的「裁决之龙+」加入手牌。",
+        "note": "被弃置时生成的裁决之龙Token只带消耗（v0.6.1 去掉保留）；强化后Token已升级（裁决之龙+自带「保留」）",
     },
     "DarkMarch": {
         "base": "将弃牌堆中1张「光道」牌加入手牌。除光2。",
@@ -96,7 +107,7 @@ SPECIAL = {
     "ElShaddollMeshahrail": {"note": "神影依Token：影融生成（3张手牌素材，从卡组选的素材不能凑数），离开弃牌堆时消耗；每回合每张限生成1次"},
     "ReeshaddollWendikurhu": {"note": "神影依Token：影融生成（2张影依技能素材），离开弃牌堆时消耗；每回合每张限生成1次"},
     "ShaddollFusion": {"note": "强化后：处于精英战或Boss战时素材也可以从卡组选择（限「影依」牌）"},
-    "ElShaddollFusion": {"note": "生成的神影依获得1次重放（打出时效果额外执行1次）；强化后不减费（升级=影融+，产出强化版）"},
+    "ElShaddollFusion": {"note": "生成的神影依获得1次重放；强化后不减费（升级=影融+，产出强化版）"},
     "NepheShaddollFusion": {"note": "强化后移除消耗"},
     "FrozenHeartShadow": {"note": "生成的神影依伤害置0；强化后0费（选牌数不变）"},
     "SinisterShadowGames": {"note": "能力：影依牌被弃置时触发2次；强化后1费"},
@@ -138,7 +149,7 @@ def parse_cards():
 
             vars_ = {}  # var名 -> 基础值
             for vm in re.finditer(
-                r'new (DamageVar|BlockVar|CardsVar|DynamicVar|PowerVar<\w+>)\(("(\w+)", )?(\d+)m?[^)]*\)', body
+                r'new (DamageVar|BlockVar|CardsVar|DynamicVar|PowerVar<\w+>|CalculationBaseVar|CalculationExtraVar|ExtraDamageVar)\(("(\w+)", )?(\d+)m?[^)]*\)', body
             ):
                 kind, explicit, val = vm.group(1), vm.group(3), int(vm.group(4))
                 vname = None
@@ -147,8 +158,12 @@ def parse_cards():
                 elif kind.startswith("PowerVar"):
                     vname = kind[9:-1]  # PowerVar<SabrePower> -> SabrePower
                 else:
-                    vname = kind.replace("Var", "")  # Damage/Block/Cards
+                    vname = kind.replace("Var", "")  # Damage/Block/Cards/CalculationBase/CalculationExtra/ExtraDamage
                 vars_[vname] = val
+            # CalculatedDamage/CalculatedBlock 自身无数值，展示基数=CalculationBase（动态部分由 Extra 表示）
+            for cm in re.finditer(r'new (CalculatedDamageVar|CalculatedBlockVar)\(', body):
+                vname = "CalculatedDamage" if cm.group(1) == "CalculatedDamageVar" else "CalculatedBlock"
+                vars_[vname] = vars_.get("CalculationBase", 0)
 
             deltas, cost_delta = {}, 0
             up = re.search(r"protected override void OnUpgrade\(\)\s*=>\s*([^;]+);", body)
@@ -191,7 +206,9 @@ def change_line(card, vals, up_vals):
     sp = SPECIAL.get(card["cls"], {})
     deltas = {**card["deltas"], **sp.get("delta", {})}
     kw_deltas = {k: v for k, v in deltas.items() if k.startswith("kw:")}
-    deltas = {k: v for k, v in deltas.items() if not k.startswith("kw:")}
+    # CalculatedDamage/CalculatedBlock 只是 CalculationBase 的动态镜像，升级增量已在"基础值"里展示
+    deltas = {k: v for k, v in deltas.items()
+              if not k.startswith("kw:") and k not in ("CalculatedDamage", "CalculatedBlock")}
     parts = []
     if card["cost_delta"]:
         parts.append(f"费用 {card['cost']}→{card['cost'] + card['cost_delta']}")

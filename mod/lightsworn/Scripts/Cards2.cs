@@ -36,17 +36,18 @@ public class Garoth : LsCard
     protected override void OnUpgrade() { }
 }
 
-// 光道天使 塞勒斯特 基路伯（伤害4×3/4×4"对所有敌人"结算，删除溅射。
+// 光道天使 塞勒斯特 基路伯（伤害5×3/5×4"对所有敌人"结算，删除溅射。
 // 本批反馈问题2修复：多段伤害必须用原生多段攻击（WithHitCount）+ TargetingAllOpponents——
 // 原来逐段独立 DamageCmd.Execute=每段一个 AttackCommand，活力（VigorPower）的 BeforeAttack 只
 // 认第一个命令（AfterAttack 后层数消耗归零），后续段落吃不到活力加成；原生多段=单个 AttackCommand
 // 内部循环，BeforeAttack/AfterAttack 只包一次，全部段落都吃活力）
+// v0.6.1 已知问题8：基础伤害4→5（5×3 / 敲后5×4，仍靠 Hits+1 升级）
 [RegisterCard(typeof(LightswornCardPool))]
 public class Celestia : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(4, ValueProp.Move),
+        new DamageVar(5, ValueProp.Move),
         new DynamicVar("Hits", 3m),
         new DynamicVar("Mill", 4m),
     ];
@@ -71,29 +72,29 @@ public class Celestia : LsCard
 // 光道龙 格拉古尼斯（本批反馈：基础伤害14→18，敲后22（升级=伤害+4）；每张「光道」+2 的加成保留、
 // 升级后每张+3（订正：Scale 2→3 的升级保留，与伤害+4 并改）。
 // 凯旋：斩杀时自动回手，费用临时变为0（v0.4.39 追加，照原版击杀判定=DamageResult.WasTargetKilled）
-// ⚠ 已知问题1（v0.5.4 修复）：原实现"斩杀时卡回来了、但仍是2费"，根因=0费的**清理时机**。
-//   走一遍原版 OnPlayWrapper 的结算顺序即可复现：
-//     ① OnPlay 里 `CardPileCmd.Add(this, PileType.Hand)` 把卡从 Play 移到 Hand —— 这一步是成功的
-//        （用户实测：击杀帝皇蟹右侧钳子、左侧钳子仍存活时卡确实回手，此时 IsEnding 为 false，
-//         故 Add 不会失败；原注释里"战斗收尾导致回手失败"的推测**已被用户实测推翻**，见下）。
-//     ② OnPlay 返回后，OnPlayWrapper 尾部**无条件**执行
-//        `if (EnergyCost.AfterCardPlayedCleanup()) { ... }`，
-//        而 `AfterCardPlayedCleanup()` = `_localModifiers.RemoveAll(m => m.Expiration.HasFlag(WhenPlayed))`
-//        —— 它清的是 **`this` 这张卡**的修正，而 `this` 此刻正躺在手牌里。
-//     ③ 原实现用的 `SetUntilPlayed(0)` 其 Expiration=WhenPlayed → 被②原地抹掉 → 手牌里仍是2费。
-//   修复=改用 `CardModel.SetToFreeThisTurn()`（= `EnergyCost.SetThisTurnOrUntilPlayed(0)`，
-//   Expiration=EndOfTurn|WhenPlayed）：EndOfTurn 位让它在②的清理中存活，回合结束才自然失效
-//   ——与原版"暂时0费"语义一致；这也是原版自身给出的入口（SetToFreeThisTurn 即为此设计）。
+// ⚠ 已知问题1（v0.5.4 曾误修，v0.6.1 再修）：现象"斩杀时卡回手了、但仍是2费"，根因=0费的**清理时机**。
+//   原版 `CardModel.OnPlayWrapper` 在 OnPlay 返回后、结算末尾**无条件**执行
+//   `EnergyCost.AfterCardPlayedCleanup()`：
+//     `_localModifiers.RemoveAll(m => m.Expiration.HasFlag(WhenPlayed))`
+//   —— 它清的是 **this 这张卡**的修正，而此刻这张卡已经被 OnPlay 挪回手牌。
+//   `SetUntilPlayed(0)` 与 `SetToFreeThisTurn()`（=SetThisTurnOrUntilPlayed(0)）的 Expiration 都**含
+//   WhenPlayed 位**，因此都会被这行原地抹掉；v0.5.4 以为"EndOfTurn 位能保命"是错的（HasFlag(WhenPlayed)
+//   只看该位，不看是否还有别的位）。唯一能在清理后存活又不跨回合的写法=**`EnergyCost.SetThisTurn(0)`**
+//   （Expiration=EndOfTurn，不含 WhenPlayed），回合结束自然失效——这就是本卡"临时0费"的语义。
 //   同时保留"按 Add 的实际结果判定"：`IsEnding`（=所有 primary enemy 已死）为 true 时
 //   `CardPileCmd.Add` 会静默返回 success=false（守卫见 CardPileCmd.Add 开头），
 //   那种情况（例如直接击杀 boss 本体）确实什么都没发生，不应白给0费标记。
 [RegisterCard(typeof(LightswornCardPool))]
 public class Gragonith : LsCard
 {
+    // 完美打击范式（PerfectedStrike）：基础值 + 每张光道 × ExtraDamage，卡面动态显示总和。
+    // 面板预览按"当前弃牌堆"计算；实际伤害在 OnPlay 弃光3之后结算，所以实战数字可能比手牌预览更高。
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(18, ValueProp.Move),
-        new DynamicVar("Scale", 2m),
+        new CalculationBaseVar(18m),
+        new ExtraDamageVar(2m),
+        new CalculatedDamageVar(ValueProp.Move)
+            .WithMultiplier((card, _) => LsUtil.DiscardPile(card).Cards.Count(LsUtil.IsLs)),
         new DynamicVar("Mill", 3m),
     ];
     public override IEnumerable<CardKeyword> CanonicalKeywords => [LsKeywords.Mill];
@@ -103,8 +104,8 @@ public class Gragonith : LsCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await LsUtil.Mill(choiceContext, this, (int)DynamicVars["Mill"].BaseValue);
-        decimal bonus = LsUtil.DiscardPile(this).Cards.Count(LsUtil.IsLs) * DynamicVars["Scale"].BaseValue;
-        AttackCommand attack = await DamageCmd.Attack(DynamicVars.Damage.BaseValue + bonus).FromCardCompat(this, cardPlay)
+        // CalculatedDamage 在结算时重新 Calculate：弃光后的弃牌堆光道数会算进去（与旧版一致）
+        AttackCommand attack = await DamageCmd.Attack(DynamicVars.CalculatedDamage).FromCardCompat(this, cardPlay)
             .Targeting(cardPlay.Target!).Execute(choiceContext);
         // 斩杀时（原版击杀判定 WasTargetKilled）自动回手且费用临时变为0
         if (!attack.Results.SelectMany(r => r).Any(r => r.WasTargetKilled)) return;
@@ -113,39 +114,44 @@ public class Gragonith : LsCard
         // 该 API 静默失败（success=false），此时什么都没发生，不能白给0费标记
         CardPileAddResult added = await CardPileCmd.Add(this, PileType.Hand);
         if (!added.success) return;
-        // 已知问题1：SetUntilPlayed 的 WhenPlayed 修正会被 OnPlayWrapper 尾部的
-        // AfterCardPlayedCleanup() 原地清掉（该清理作用于 this=已在手牌的这张卡）；
-        // 必须用 SetToFreeThisTurn（EndOfTurn|WhenPlayed）才能让0费在手牌里真正生效
-        SetToFreeThisTurn();
+        // 已知问题1：必须用 SetThisTurn（Expiration=EndOfTurn，不含 WhenPlayed）——
+        // SetUntilPlayed / SetToFreeThisTurn 的 Expiration 都含 WhenPlayed，会被 OnPlayWrapper 尾部的
+        // AfterCardPlayedCleanup() 原地清掉（见类上方注释）。
+        EnergyCost.SetThisTurn(0);
+        InvokeEnergyCostChanged();
     }
 
-    // 本批：基础伤害18/敲后22（升级=伤害+4）；订正：每张「光道」+2→+3 的升级保留（两者并改）
+    // 基础伤害18→22；每张「光道」+2→+3（与原数值一致，只换成动态显示）
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(4);
-        DynamicVars["Scale"].UpgradeValueBy(1);
+        DynamicVars.CalculationBase.UpgradeValueBy(4);
+        DynamicVars.ExtraDamage.UpgradeValueBy(1);
     }
 }
 
-// 光道圣灵 夏尔（本批反馈：进白（普通）；格挡8/10，弃牌堆光道牌每张+1）
+// 光道圣灵 夏尔（本批反馈：进白（普通）；格挡8/10，弃牌堆光道牌每张+1。
+// v0.6.2：改用完美打击范式的动态格挡（CalculationBase + CalculationExtra × 弃牌堆光道数），卡面显示实时总值）
 [RegisterCard(typeof(LightswornCardPool))]
 public class Shire : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(8, ValueProp.Move),
-        new DynamicVar("Scale", 1m),
+        new CalculationBaseVar(8m),
+        new CalculationExtraVar(1m),
+        new CalculatedBlockVar(ValueProp.Move)
+            .WithMultiplier((card, _) => LsUtil.DiscardPile(card).Cards.Count(LsUtil.IsLs)),
     ];
 
     public Shire() : base(1, CardType.Skill, CardRarity.Common, TargetType.Self) { }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        decimal bonus = LsUtil.DiscardPile(this).Cards.Count(LsUtil.IsLs) * DynamicVars["Scale"].BaseValue;
-        await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block.BaseValue + bonus, ValueProp.Move, cardPlay);
+        await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.CalculatedBlock.Calculate(cardPlay.Target),
+            DynamicVars.CalculatedBlock.Props, cardPlay);
     }
 
-    protected override void OnUpgrade() => DynamicVars.Block.UpgradeValueBy(2);
+    // 基础格挡8→10；每张「光道」加成固定+1
+    protected override void OnUpgrade() => DynamicVars.CalculationBase.UpgradeValueBy(2);
 }
 
 // 光道德鲁伊 奥库斯（0费、消耗。弃光2+1层人工制品不变。本批反馈问题13：敲后2层人工
@@ -176,12 +182,13 @@ public class Orcus : LsCard
 }
 
 // 光道恶魔 魏丝（弃光后把手牌光道压回卡组顶；被弃置时从弃牌堆回收其他光道并临时0费；
-// 敲后强化改为弃光3。本批反馈问题19：费用1→0）
+// 敲后强化改为弃光3。本批反馈问题19：费用1→0。v0.6.1 已知问题7：追加8/12格挡（敲后+4））
 [RegisterCard(typeof(LightswornCardPool))]
 public class Weiss : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
+        new BlockVar(8, ValueProp.Move),
         new DynamicVar("Mill", 2m),
         new DynamicVar("Back", 1m),
     ];
@@ -197,10 +204,16 @@ public class Weiss : LsCard
             "LIGHTSWORN_TO_DRAW_TOP", (int)DynamicVars["Back"].BaseValue);
         foreach (CardModel card in chosen)
             await CardPileCmd.Add(card, PileType.Draw, CardPilePosition.Top);
+        await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block.BaseValue, ValueProp.Move, cardPlay);
         await LsUtil.Mill(choiceContext, this, (int)DynamicVars["Mill"].BaseValue);
     }
 
-    protected override void OnUpgrade() => DynamicVars["Mill"].UpgradeValueBy(1);
+    // 敲后：格挡8→12，弃光2→3
+    protected override void OnUpgrade()
+    {
+        DynamicVars.Block.UpgradeValueBy(4);
+        DynamicVars["Mill"].UpgradeValueBy(1);
+    }
 
     public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy)
     {
@@ -424,8 +437,9 @@ public class Kiryu : LsCard
 }
 
 // 光道的裁决（0费；打出后自己置于抽牌堆顶；任意来源把自己从抽牌堆弃到弃牌堆时，
-// 1张保留+消耗的裁决之龙Token加入手牌；敲后改为1张强化后的裁决之龙。
-// 本批反馈问题16：Token的「虚无」改为「保留」——回合结束不弃置，可留到下回合打出）
+// 1张消耗的裁决之龙Token加入手牌；敲后改为1张强化后的裁决之龙。
+// 本批反馈问题16：Token的「虚无」改为「保留」——回合结束不弃置，可留到下回合打出。
+// v0.6.1 已知问题12：去掉Token的「保留」——基础裁决之龙不需要保留；敲后的裁决之龙自带保留（OnUpgrade））
 [RegisterCard(typeof(LightswornCardPool))]
 public class Decree : LsCard
 {
@@ -439,14 +453,14 @@ public class Decree : LsCard
 
     protected override void OnUpgrade() { }
 
-    // 任意来源：当自己被从抽牌堆弃到弃牌堆时（弃光/弃置等），1张保留+消耗的裁决之龙Token加入手牌
-    // （敲后=1张强化后的裁决之龙；手牌满则不生成）
+    // 任意来源：当自己被从抽牌堆弃到弃牌堆时（弃光/弃置等），1张消耗的裁决之龙Token加入手牌
+    // （敲后=1张强化后的裁决之龙，强化版自带「保留」；手牌满则不生成）
     public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy)
     {
         if (card != this) return;
         if (oldPileType != PileType.Draw || card.Pile?.Type != PileType.Discard) return;
         if (!LsUtil.HandHasSpace(this)) return;
-        CardModel? token = await LsUtil.CreateToken<JudgementDragon>(new BlockingPlayerChoiceContext(), this, PileType.Hand, retain: true, exhaust: true);
+        CardModel? token = await LsUtil.CreateToken<JudgementDragon>(new BlockingPlayerChoiceContext(), this, PileType.Hand, exhaust: true);
         if (token != null && IsUpgraded)
         {
             token.UpgradeInternal();

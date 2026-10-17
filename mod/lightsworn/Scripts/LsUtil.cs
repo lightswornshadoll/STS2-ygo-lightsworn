@@ -32,7 +32,7 @@ public static class LsUtil
 
     // 弃光：从抽牌堆顶部将count张牌弃置。
     // 暮光（v0.4.11 重做）：弃光数量超过卡组剩余时，消耗2层暮光把弃牌堆洗回抽牌堆并补完剩余弃光（回1费）。
-    // 卡牌来源的弃光：若是「光道」牌，触发加洛斯能力（问题2：光道牌弃光后弃光2）；
+    // 卡牌来源的弃光：若是「光道」牌（=光道牌发动弃光），触发加洛斯能力（追加弃光2）；
     // 被弃置的 LsCard 会收到 OnMilledByLsCard 钩子（黄昏之抹杀/黄昏之双龙的"被光道牌从卡组弃掉"联动）。
     // 加洛斯的追加弃光走player来源重载，不会递归触发。除光无暮光联动。
     public static async Task<List<CardModel>> Mill(PlayerChoiceContext ctx, CardModel source, int count)
@@ -43,8 +43,9 @@ public static class LsUtil
             foreach (CardModel card in milled)
                 if (card is LsCard lsCard)
                     await lsCard.OnMilledByLsCard(ctx, source);
-            foreach (GarothPower power in source.Owner.Creature.Powers.OfType<GarothPower>().ToList())
-                await power.OnLightswornMilled(ctx, source.Owner);
+            if (milled.Count > 0)
+                foreach (GarothPower power in source.Owner.Creature.Powers.OfType<GarothPower>().ToList())
+                    await power.OnLightswornMilled(ctx, source.Owner);
         }
         return milled;
     }

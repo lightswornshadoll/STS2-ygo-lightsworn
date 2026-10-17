@@ -23,6 +23,7 @@ public static class Entry
         patcher.RegisterPatch<StartingRelicChoicePatch>();            // 初始遗物二选一
         patcher.RegisterPatch<LightswornEnergyCounterOutlinePatch>(); // 能量球描边色（球体本体走 RitsuLib 场景路径，见角色类）
         patcher.RegisterPatch<HonestPowerLegacyPatch>();              // 欧尼斯特：0.107.x 五参 ModifyDamageMultiplicative
+        patcher.RegisterPatch<DarkWorldGraphaDiscoveryPatch>();       // 三层 Boss 发现顺序优先格拉法（未见过时必出）
 
         if (!RitsuLibFramework.ApplyRequiredPatcher(patcher, static () => { }, "Lightsworn core patches failed"))
             Log.Error("[Lightsworn] core patches failed; some features may be unavailable");

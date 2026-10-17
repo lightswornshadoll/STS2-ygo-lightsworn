@@ -1959,3 +1959,126 @@ AssetProfile → `CustomIconPath=null` → 游戏回退 `res://images/powers/<en
 - 实机（0.107.1）：收藏页「初始」实拍=第一行含 **游戏王 + 光道圣徽**、第二行含
   **更好的游戏王 + 光道权杖**（权杖为未见过暗色）；用户确认“遗物没问题了”。
 - 产物：dll `f59e1695…`(353280) / json `b9d4023f…`(561) / pck `e419e893…`(21032072)；v0.5.6 **未发布**。
+
+---
+
+## v1.51 第四十三轮「已知问题」14 条（2026-10-17，v0.6.1）
+
+**背景**：用户看朋友共享屏幕玩 v0.6.0，把问题记在 `design\已知问题.txt`（14 条，未带日志）。
+全部按代码定位修复；本轮是 **v0.6.0 Boss 的第一轮实机反馈**。
+
+### 1. 光道龙 格拉古尼斯：斩杀回手仍不是0费（**v0.5.4 的修法是错的**）
+
+- **根因**：`CardModel.OnPlayWrapper` 在 OnPlay 返回后执行 `EnergyCost.AfterCardPlayedCleanup()` =
+  `RemoveAll(m => m.Expiration.HasFlag(WhenPlayed))`。v0.5.4 改用的 `SetToFreeThisTurn()`
+  = `SetThisTurnOrUntilPlayed(0)`，其 Expiration=`EndOfTurn|WhenPlayed`，**HasFlag(WhenPlayed) 为 true**
+  → 同样被当场删掉。v0.5.4 注释里"EndOfTurn 位能让它存活"的判断错误。
+- **修复**：改用 `EnergyCost.SetThisTurn(0)`（Expiration=EndOfTurn，不含 WhenPlayed）+ `InvokeEnergyCostChanged()`。
+  回合结束自然失效，语义仍是"临时0费"。
+
+### 2. 三层 Boss 优先格拉法（朋友没打过格拉法却出女王）
+
+- **根因**：`RunManager.GenerateRooms` → `ActModel.ApplyDiscoveryOrderModifications` 会把
+  `Glory.BossDiscoveryOrder` 里**第一个未见过**的 Boss 强制成本局 Boss；原版列表只有女王/试验体/万象玻璃，
+  mod Boss 不在其中。RitsuLib 的 `BossDiscoveryOrderPostfix` 只做 act 有效性过滤，不追加 mod Boss。
+  所以没打过格拉法的玩家必先见女王/其他原版 Boss，格拉法只能等三个原版都见过后靠随机。
+- **修复**：新增 `DarkWorldGraphaDiscoveryPatch`（Entry 注册）——给 `Glory.BossDiscoveryOrder` 的
+  **具体 getter** 挂 postfix，把格拉法插到结果最前。`ApplyDiscoveryOrderModifications` 读到的是这个 getter，
+  因此未见过时必出格拉法；见过一次后自动回落到原版顺序。
+
+### 3. 四神将改为诅咒卡，打出时伤害指向玩家
+
+- `DarkWorldAttackCard`：`1费 / CardType.Curse / CardRarity.Curse / TargetType.None`（保留 Retain）；
+  `OnPlay` 的 `DamageCmd.Attack(...).Targeting(Owner.Creature)`——固定打自己。
+- **副作用（有意）**：「暗黑界的诱惑」的被动分支按**第一张牌类型**结算，四神将从 Attack 变 Curse 后，
+  弃置它们会走 default 分支（复制同名牌洗入抽牌堆），不再给 Boss 力量。这是类型改成诅咒后的自然结果。
+- 文案四条统一为"打出时：对自己造成X点伤害。" + 弃置效果。
+
+### 4. 龙神回归（用户称"龙神的吸收"）
+
+- 吸收范围：抽牌堆 + 弃牌堆 **+ 消耗堆**；回血 **30 → 50/张**。
+- 意图 `DarkWorldReturnIntent` 的 `Amount` 用同一常量，数字自动同步；`CountAbsorbableCards` 同步加消耗堆。
+
+### 5. 暗黑界的诱惑：弃光不触发
+
+- **根因**：只监听了 `AfterCardDiscarded`（手牌弃置），弃光走 `CardPileCmd.Add(Draw→Discard)` 不经过它。
+- **修复**：新增 `AfterCardChangedPiles` 覆写，判 `old=Draw && new=Discard` 后走同一 `TryTrigger`。
+  两条钩子互斥（原版源码实证），`_triggeredThisTurn` 仍保证每玩家回合一次。能力描述同步
+  "第一次弃置或弃光卡牌时…随机暗黑界**诅咒**卡"。
+
+### 6-8. 数值
+
+- 光道之龙：费用 1→0，伤害 9→6（升级仍 +4）。
+- 光道恶魔 魏丝：追加 `BlockVar(8)`，敲后 +4（8/12），描述插入 `{Block:diff()}`。
+- 光道天使 基路伯：`DamageVar` 4→5 → 5×3 / 敲后 5×4（升级仍是 Hits+1）。
+
+### 9-12 / 14. 文案与 Token
+
+- 太阳交换：已有 `IsPlayable` 要求手牌有「光道」→ 删"（若有）"。
+- 惩戒之龙：删"（人工制品可抵挡）"（行为不变：PowerType.Debuff 本来就被人工制品挡）。
+- 虚影依 神子晶：删"（不触发其被弃置时效果）"（DiscardExhaust 本来就不触发）。
+- 神影依融合：删"（将这张牌额外打出1次）"（重放定义本身如此）。
+- 光道的裁决：`CreateToken<JudgementDragon>` 去掉 `retain: true`；基础 Token 只有消耗，
+  敲后 `UpgradeInternal` 会让裁决之龙自带「保留」。描述删"保留、"。
+
+### 13. 光道战士 加洛斯：**行为本来就是来源=光道牌，只改文案**
+
+- 代码：`LsUtil.Mill(ctx, source, n)` 里 `if (IsLs(source))` 才通知 `GarothPower.OnLightswornMilled`；
+  追加弃光2走 `MillCore(garothAny:false)`；强化版按**追加弃光的那2张里**的光道数抽牌——与用户描述一致。
+- 文案原写「每当『光道』牌**被**弃光后」有歧义（像"光道牌被弃"），改为「每当『光道』牌弃光后」。
+- 顺手补守卫：本次弃光 0 张（抽牌堆空）不触发加洛斯，避免空触发。
+
+### 验证
+
+- 构建 0 错误；0.107 refs 试编译（`-p:LsCompatTrial=true`）0 错误；
+  memberref 审计 0.107.1 + 0.111.0 **双 PASS**（methods=228）。
+- pck 解包核对：GAROTH/WEISS/DECREE/TOHUSHADDOLL_GRYSTA/EL_SHADDOLL_FUSION/四张 DARK_WORLD/GOLDD
+  与 temptation 能力描述逐字正确。
+- 0.107.1 实机：`Version=0.6.1`、`Lightsworn mod initialized!`、core 4 patches applied / 0 failed、
+  无 LocException / 无 Lightsworn 异常。
+- 产物：dll `635ccab5…`(385536) / pck `d869dde6…`(22938216)；**未上传工坊**。
+
+---
+
+## v1.52 动态数值显示：光道龙 / 光道圣灵（2026-10-17，v0.6.2）
+
+**需求**：用户要求两张卡的数值像战士「完美打击」一样在卡面动态变化。
+
+### 实现（完美打击 / 堆栈范式）
+
+| 卡 | 变量 | 卡面文本 |
+|---|---|---|
+| 光道龙 格拉古尼斯 | `CalculationBaseVar(18)` + `ExtraDamageVar(2)` + `CalculatedDamageVar(Move).WithMultiplier(弃牌堆光道数)` | `造成{CalculatedDamage:diff()}点伤害。弃牌堆中每有1张「光道」牌，伤害+{ExtraDamage:diff()}。` |
+| 光道圣灵 夏尔 | `CalculationBaseVar(8)` + `CalculationExtraVar(1)` + `CalculatedBlockVar(Move).WithMultiplier(弃牌堆光道数)` | `获得{CalculatedBlock:diff()}点格挡。弃牌堆中每有1张「光道」牌，格挡+{CalculationExtra:diff()}。` |
+
+- 结算：光道龙 `DamageCmd.Attack(DynamicVars.CalculatedDamage)`（原版专为动态伤害提供的重载，在每段结算时重新 `Calculate`）；
+  夏尔 `CreatureCmd.GainBlock(..., CalculatedBlock.Calculate(cardPlay.Target), CalculatedBlock.Props, cardPlay)`。
+- 升级保持原数值：光道龙 `CalculationBase +4` / `ExtraDamage +1`（18/22、+2/+3）；夏尔 `CalculationBase +2`（8/10、+1 不变）。
+- **已知预览差**：光道龙在手牌里的动态数字按"当前弃牌堆"计算，而实际伤害在本次弃光3之后结算，
+  所以实际伤害可能比手牌预览高（最多3张光道）。这是"自身先弃光再伤害"的固有顺序，预览无法预知弃光内容。
+- 工具链：`tools\gen_card_doc.py` 已支持 `CalculationBaseVar/CalculationExtraVar/ExtraDamageVar/CalculatedDamageVar/CalculatedBlockVar`
+  的解析；卡牌图鉴重新生成（v0.6.2）。SPECIAL 同步修正 Decree（去掉"保留"）与 ElShaddollFusion（去掉重放括号解释）两条旧覆盖。
+
+### 验证
+
+- 构建 0 错误；0.107 试编译 PASS；memberref 双 PASS（methods=241）。
+- 0.107.1 实机 v0.6.2 加载零异常；用户实机查看卡面确认"没问题"。
+- 产物 dll `ef46c924…`(386048) / pck `d7e92839…`(22938216)；**未上传工坊**。
+
+---
+
+## v1.53 格拉法战斗立绘换图（2026-10-17，v0.6.3）
+
+**用户素材**：`D:\download\chrome_download\光道mod素材\暗黑界的龙神王\暗黑界的龙神王 格拉法.png`
+（用户重新抠图，替代旧版白边/锯齿明显的立绘）。
+
+- 新图：**1536×1536 RGBA**，内容 alpha bbox = `(52,296)-(1505,1339)`（可见区 **1453×1043**，与旧图 1456×1044 几乎一致）。
+- 直接覆盖 `lightsworn\images\monsters\dark_world_grapha.png`（路径/AssetProfile 不变），
+  先 `Godot --headless --import` 重导（坑13），再 ExportPck。
+- `TryCreateCreatureVisuals` 对位修正（Sprite2D 居中锚点）：
+  - `Position.Y = -285.5`：内容底边相对纹理中心 571px × 0.5 = 285.5 → 脚底仍贴场景原点；
+  - `Position.X = -5.25`：内容中心相对纹理中心偏右 10.5px × 0.5 → 视觉居中；
+  - `Scale` 仍 0.5，可见区约 727×522；`CenterPos/Bounds/IntentPos/TalkPos` 不变。
+- 验证：pck 内 `.godot/imported/dark_world_grapha.png-5301…ctex` 解出 1536×1536，与原图**逐像素 diff=None**；
+  构建 0 错误、memberref 双 PASS（methods=241）、0.107.1 实机 `Version=0.6.3` 加载零异常。
+- 产物 dll `8f238246…`(386048) / pck `5d82d0dc…`(22983560)；**未上传工坊**。
