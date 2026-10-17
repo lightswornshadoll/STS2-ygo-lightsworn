@@ -7,8 +7,14 @@
   "DARK_WORLD_BRAINWASH_POWER.smartDescription": "打出的下一张牌无效（费用照付，牌进入弃牌堆）。可叠加；每层吞掉一张牌。（剩余[blue]{Amount}[/blue]层）",
   "LIGHTSWORN_POWER_DARK_WORLD_TEMPTATION_POWER.title": "暗黑界的诱惑",
   "DARK_WORLD_TEMPTATION_POWER.title": "暗黑界的诱惑",
-  "LIGHTSWORN_POWER_DARK_WORLD_TEMPTATION_POWER.description": "每玩家回合第一次弃置卡牌时，根据第一张牌的类型触发：攻击→获得1点力量；技能→洗入1张「暗黑界的洗脑」；能力→随机弃置2张手牌；其他→复制1张同名牌洗入抽牌堆。然后，将1张随机暗黑界攻击卡洗入其抽牌堆。回合结束的手牌清理不触发。",
-  "DARK_WORLD_TEMPTATION_POWER.description": "每玩家回合第一次弃置卡牌时，根据第一张牌的类型触发：攻击→获得1点力量；技能→洗入1张「暗黑界的洗脑」；能力→随机弃置2张手牌；其他→复制1张同名牌洗入抽牌堆。然后，将1张随机暗黑界攻击卡洗入其抽牌堆。回合结束的手牌清理不触发。",
-  "LIGHTSWORN_POWER_DARK_WORLD_TEMPTATION_POWER.smartDescription": "每玩家回合第一次弃置卡牌时，根据第一张牌的类型触发：攻击→获得1点力量；技能→洗入1张「暗黑界的洗脑」；能力→随机弃置2张手牌；其他→复制1张同名牌洗入抽牌堆。然后，将1张随机暗黑界攻击卡洗入其抽牌堆。回合结束的手牌清理不触发。",
-  "DARK_WORLD_TEMPTATION_POWER.smartDescription": "每玩家回合第一次弃置卡牌时，根据第一张牌的类型触发：攻击→获得1点力量；技能→洗入1张「暗黑界的洗脑」；能力→随机弃置2张手牌；其他→复制1张同名牌洗入抽牌堆。然后，将1张随机暗黑界攻击卡洗入其抽牌堆。回合结束的手牌清理不触发。"
+  "LIGHTSWORN_POWER_DARK_WORLD_TEMPTATION_POWER.description": "每玩家回合第一次弃置卡牌时，根据第一张牌的类型触发：攻击→获得2点力量；技能→洗入1张「暗黑界的洗脑」；能力→随机弃置2张手牌；其他→复制1张同名牌洗入抽牌堆。然后，将1张随机暗黑界攻击卡洗入其抽牌堆。回合结束的手牌清理不触发。",
+  "DARK_WORLD_TEMPTATION_POWER.description": "每玩家回合第一次弃置卡牌时，根据第一张牌的类型触发：攻击→获得2点力量；技能→洗入1张「暗黑界的洗脑」；能力→随机弃置2张手牌；其他→复制1张同名牌洗入抽牌堆。然后，将1张随机暗黑界攻击卡洗入其抽牌堆。回合结束的手牌清理不触发。",
+  "LIGHTSWORN_POWER_DARK_WORLD_TEMPTATION_POWER.smartDescription": "每玩家回合第一次弃置卡牌时，根据第一张牌的类型触发：攻击→获得2点力量；技能→洗入1张「暗黑界的洗脑」；能力→随机弃置2张手牌；其他→复制1张同名牌洗入抽牌堆。然后，将1张随机暗黑界攻击卡洗入其抽牌堆。回合结束的手牌清理不触发。",
+  "DARK_WORLD_TEMPTATION_POWER.smartDescription": "每玩家回合第一次弃置卡牌时，根据第一张牌的类型触发：攻击→获得2点力量；技能→洗入1张「暗黑界的洗脑」；能力→随机弃置2张手牌；其他→复制1张同名牌洗入抽牌堆。然后，将1张随机暗黑界攻击卡洗入其抽牌堆。回合结束的手牌清理不触发。",
+  "LIGHTSWORN_POWER_DARK_WORLD_EROSION_POWER.title": "暗黑界的侵蚀",
+  "DARK_WORLD_EROSION_POWER.title": "暗黑界的侵蚀",
+  "LIGHTSWORN_POWER_DARK_WORLD_EROSION_POWER.description": "战斗开始时，将2张（高进阶3张）随机暗黑界诅咒置入你的手牌。你每从手牌弃置2张牌，将1张随机暗黑界诅咒置入你的手牌。",
+  "DARK_WORLD_EROSION_POWER.description": "战斗开始时，将2张（高进阶3张）随机暗黑界诅咒置入你的手牌。你每从手牌弃置2张牌，将1张随机暗黑界诅咒置入你的手牌。",
+  "LIGHTSWORN_POWER_DARK_WORLD_EROSION_POWER.smartDescription": "战斗开始时，将2张（高进阶3张）随机暗黑界诅咒置入你的手牌。你每从手牌弃置2张牌，将1张随机暗黑界诅咒置入你的手牌。",
+  "DARK_WORLD_EROSION_POWER.smartDescription": "战斗开始时，将2张（高进阶3张）随机暗黑界诅咒置入你的手牌。你每从手牌弃置2张牌，将1张随机暗黑界诅咒置入你的手牌。"
 }

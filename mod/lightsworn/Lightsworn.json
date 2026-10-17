@@ -3,7 +3,7 @@
   "name": "光道 Lightsworn",
   "author": "light",
   "description": "游戏王「光道」主题角色mod。弃牌堆=墓地，消耗堆=除外。弃光堆墓/回收/黄昏三轴，含珠泪/影依等系列共105张卡。新增三层Boss「暗黑界的龙神王 格拉法」。支持联机（所有玩家需同版本 mod + RitsuLib）。",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "min_game_version": "0.107.1",
   "has_pck": true,
   "has_dll": true,

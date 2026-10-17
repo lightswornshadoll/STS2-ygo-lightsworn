@@ -28,6 +28,9 @@ namespace Lightsworn;
 // ================= 暗黑界的龙神王 格拉法（三层超规格 Boss） =================
 // 设计基线：design\暗黑界龙神王boss设计.md（方案 B：雷→军势→登极→回归→取引→洗脑）。
 // 基础 800 血（高进阶 880）；6 招固定循环；无阶段转换。
+// v0.6.4：起手手牌塞 2/3 张诅咒；新增「暗黑界的侵蚀」（每弃 2 张手牌塞 1 张诅咒回手）；
+// 三招伤害 ×1.3；取引改为生成 2 张诅咒并弃光手牌诅咒；洗脑数量 = ceil(当前回合/2)；
+// 诱惑的攻击分支改为 +2 力量。
 // 全部随机数使用 monster.Rng（联机确定性）；被动按玩家回合记「本回合是否已触发」。
 [RegisterMonster]
 public class DarkWorldGrapha : ModMonsterTemplate
@@ -45,13 +48,17 @@ public class DarkWorldGrapha : ModMonsterTemplate
     private const int ThunderDebuff = 3;
     private const int ForcesCards = 3;
     private const int DealingsDebuff = 5;
-    private const int BrainwashCards = 3;
+    private const int DealingsCurses = 2;
 
-    // 进阶伤害（DeadlyEnemies）：与原版 Boss 一致，只有攻击伤害随进阶提高；
-    // 意图读取的是同一组属性，所以显示数字会同步变。
-    private int ThunderDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 9, 8);
-    private int ForcesDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 11, 10);
-    private int AscensionDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 33, 30);
+    // v0.6.4：三招伤害统一按旧值 ×1.3 后四舍五入（8→10、9→12、10→13、11→14、30→39、33→43）。
+    // 四张暗黑界诅咒卡的自伤不算“Boss 攻击伤害”，保持不变。
+    private int ThunderDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 12, 10);
+    private int ForcesDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 14, 13);
+    private int AscensionDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 43, 39);
+
+    // 洗脑数量 = ceil(当前回合数 / 2)。RoundNumber 在敌方回合结束、玩家回合开始时递增：
+    // 第一次洗脑（B6）为 3 张，第二次（B12）为 6 张，依此类推。
+    private int BrainwashCount => CombatState == null ? 1 : (CombatState.RoundNumber + 1) / 2;
 
     public override int MinInitialHp => AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 880, 800);
     public override int MaxInitialHp => MinInitialHp;
@@ -64,9 +71,11 @@ public class DarkWorldGrapha : ModMonsterTemplate
 
     public override async Task AfterAddedToRoom()
     {
-        if (Creature.Powers.Any(p => p is DarkWorldTemptationPower)) return;
-        await PowerCmd.Apply<DarkWorldTemptationPower>(
-            new ThrowingPlayerChoiceContext(), Creature, 1, Creature, null);
+        PlayerChoiceContext ctx = new ThrowingPlayerChoiceContext();
+        if (!Creature.Powers.Any(p => p is DarkWorldTemptationPower))
+            await PowerCmd.Apply<DarkWorldTemptationPower>(ctx, Creature, 1, Creature, null);
+        if (!Creature.Powers.Any(p => p is DarkWorldErosionPower))
+            await PowerCmd.Apply<DarkWorldErosionPower>(ctx, Creature, 1, Creature, null);
     }
 
     protected override MonsterMoveStateMachine GenerateMoveStateMachine()
@@ -82,7 +91,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
         MoveState dealings = new(DealingsMoveId, DealingsMove,
             new DebuffIntent(strong: true), new CardDebuffIntent());
         MoveState brainwash = new(BrainwashMoveId, BrainwashMove,
-            new StatusIntent(BrainwashCards));
+            new DarkWorldBrainwashIntent(() => BrainwashCount));
 
         thunder.FollowUpState = forces;
         forces.FollowUpState = ascension;
@@ -95,7 +104,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
             [thunder, forces, ascension, returnMove, dealings, brainwash], thunder);
     }
 
-    // 暗黑界之雷：8×3 伤害；施加 3 易伤 + 3 虚弱。
+    // 暗黑界之雷：10×3 伤害（高进阶 12×3）；施加 3 易伤 + 3 虚弱。
     private async Task ThunderMove(IReadOnlyList<Creature> targets)
     {
         await DamageCmd.Attack(ThunderDamage).FromMonster(this)
@@ -113,7 +122,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
         }
     }
 
-    // 暗黑界的军势：10 伤害；给每个玩家洗入 3 张随机暗黑界攻击卡。
+    // 暗黑界的军势：13 伤害（高进阶 14）；给每个玩家洗入 3 张随机暗黑界诅咒卡。
     private async Task ForcesMove(IReadOnlyList<Creature> targets)
     {
         await DamageCmd.Attack(ForcesDamage).FromMonster(this)
@@ -130,7 +139,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
         }
     }
 
-    // 暗黑界的登极：30 伤害（吃易伤/力量）。
+    // 暗黑界的登极：39 伤害（高进阶 43，吃易伤/力量）。
     private async Task AscensionMove(IReadOnlyList<Creature> targets)
     {
         await DamageCmd.Attack(AscensionDamage).FromMonster(this)
@@ -160,8 +169,9 @@ public class DarkWorldGrapha : ModMonsterTemplate
         }
     }
 
-    // 暗黑界的取引：施加 5 虚弱 + 5 易伤；玩家抽 2，然后随机弃置 2 张手牌。
-    // 强制弃置走 CardCmd.Discard → 正常触发「暗黑界的诱惑」与四神将的弃置效果。
+    // 暗黑界的取引：施加 5 虚弱 + 5 易伤；随机生成 2 张暗黑界诅咒到手牌，
+    // 然后弃置手牌中所有暗黑界诅咒。强制弃置走 CardCmd.Discard → 正常触发诅咒自身、
+    // 「暗黑界的诱惑」与「暗黑界的侵蚀」的弃置效果。
     private async Task DealingsMove(IReadOnlyList<Creature> targets)
     {
         await CreatureCmd.TriggerAnim(Creature, "Cast", 0.4f);
@@ -171,31 +181,32 @@ public class DarkWorldGrapha : ModMonsterTemplate
             if (!player.Creature.IsAlive) continue;
             await PowerCmd.Apply<WeakPower>(ctx, player.Creature, DealingsDebuff, Creature, null);
             await PowerCmd.Apply<VulnerablePower>(ctx, player.Creature, DealingsDebuff, Creature, null);
-            await CardPileCmd.Draw(ctx, 2m, player);
 
-            List<CardModel> hand = PileType.Hand.GetPile(player).Cards.ToList();
-            List<CardModel> discarded = new();
-            for (int i = 0; i < 2 && hand.Count > 0; i++)
+            for (int i = 0; i < DealingsCurses; i++)
+                await DarkWorldBossCards.AddRandomAttackToHand(ctx, player, Rng);
+
+            List<CardModel> curses = PileType.Hand.GetPile(player).Cards
+                .Where(IsDarkWorldAttack).ToList();
+            foreach (CardModel curse in curses)
             {
-                CardModel? pick = Rng.NextItem(hand);
-                if (pick == null) break;
-                hand.Remove(pick);
-                discarded.Add(pick);
+                // 军神被弃置时会把 2 张手牌洗回抽牌堆；这些牌已经不在手牌，跳过。
+                // 逐张弃置还能让侵蚀在每 2 张后塞回来的新诅咒留在手里（不在快照里）。
+                if (curse.Pile?.Type != PileType.Hand) continue;
+                await CardCmd.Discard(ctx, curse);
             }
-            if (discarded.Count > 0)
-                await CardCmd.Discard(ctx, discarded);
         }
     }
 
-    // 暗黑界的洗脑：给每个玩家洗入 3 张「暗黑界的洗脑」状态。
+    // 暗黑界的洗脑：给每个玩家洗入 ceil(当前回合/2) 张「暗黑界的洗脑」状态。
     private async Task BrainwashMove(IReadOnlyList<Creature> targets)
     {
         await CreatureCmd.TriggerAnim(Creature, "Cast", 0.4f);
+        int count = BrainwashCount;
         PlayerChoiceContext ctx = new ThrowingPlayerChoiceContext();
         foreach (Player player in CombatState.Players)
         {
             if (!player.Creature.IsAlive) continue;
-            for (int i = 0; i < BrainwashCards; i++)
+            for (int i = 0; i < count; i++)
                 await DarkWorldBossCards.AddBrainwashingToDraw(ctx, player);
         }
     }
@@ -333,6 +344,35 @@ public sealed class DarkWorldReturnIntent : StatusIntent
     }
 }
 
+// 洗脑意向：数量随当前回合增长（ceil(n/2)）。
+// StatusIntent 的 CardCount 是只读构造参数，这里用 Func<int> 在渲染/结算时现算，
+// 并同时覆写数字标签与悬浮描述，避免悬浮提示里仍显示构造时的 0。
+public sealed class DarkWorldBrainwashIntent : StatusIntent
+{
+    private readonly Func<int> _count;
+
+    public DarkWorldBrainwashIntent(Func<int> count) : base(0)
+    {
+        _count = count;
+    }
+
+    public override LocString GetIntentLabel(IEnumerable<Creature> targets, Creature owner)
+    {
+        LocString label = new("intents", "FORMAT_STATUS_CARD_COUNT");
+        label.Add("CardCount", _count());
+        return label;
+    }
+
+    protected override LocString GetIntentDescription(IEnumerable<Creature> targets, Creature owner)
+    {
+        LocString description = new("intents", "STATUS.description");
+        ICombatState? combatState = owner.CombatState;
+        description.Add("IsMultiplayer", combatState != null && combatState.RunState.Players.Count > 1);
+        description.Add("CardCount", _count());
+        return description;
+    }
+}
+
 // ================= 洗脑 debuff =================
 // 「打出的下一张牌无效」：ModifyCardPlayCount 返回 0 → 费用照付、牌进弃牌堆、不执行任何 OnPlay 效果。
 // 本身是可见 Debuff → 人工制品在 PowerCmd.Apply 阶段会正常抵消（每层人工制品挡一次施加）。
@@ -438,7 +478,7 @@ public class DarkWorldTemptationPower : ModPowerTemplate
         {
             case CardType.Attack:
                 await PowerCmd.Apply<StrengthPower>(
-                    choiceContext, Owner, 1, Owner, null);
+                    choiceContext, Owner, 2, Owner, null);
                 break;
 
             case CardType.Skill:
@@ -477,10 +517,68 @@ public class DarkWorldTemptationPower : ModPowerTemplate
     }
 }
 
+// ================= 被动：暗黑界的侵蚀 =================
+// 战斗开始时把 2 张（高进阶 3 张）随机暗黑界诅咒直接塞进玩家手牌；
+// 之后每从手牌弃置 2 张牌，就把 1 张随机暗黑界诅咒塞回玩家手牌（按玩家独立计数，余数保留）。
+// 关键时序：AfterAddedToRoom 早于 CombatManager.IsInProgress=true，不能在那里生成战斗卡；
+// BeforeCombatStart 在 IsInProgress=true 之后、开局抽牌之前执行，是起手塞牌的正确钩子。
+// 回合结束的手牌清理走 Flush，不经过 AfterCardDiscarded，因此不会白送诅咒（与诱惑一致）。
+public class DarkWorldErosionPower : ModPowerTemplate
+{
+    private readonly Dictionary<Player, int> _discardedSinceLastCurse = new();
+    private bool _startCursesAdded;
+
+    public override PowerType Type => PowerType.Buff;
+    public override PowerStackType StackType => PowerStackType.Single;
+
+    public override PowerAssetProfile AssetProfile => new(
+        IconPath: "res://lightsworn/images/powers/darkworlderosion.png",
+        BigIconPath: "res://lightsworn/images/powers/darkworlderosion_big.png");
+
+    private static int StartCurseCount =>
+        AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 3, 2);
+
+    public override async Task BeforeCombatStart()
+    {
+        if (_startCursesAdded) return;
+        _startCursesAdded = true;
+        if (Owner.CombatState == null || Owner.Monster == null) return;
+
+        PlayerChoiceContext ctx = new ThrowingPlayerChoiceContext();
+        foreach (Player player in Owner.CombatState.Players)
+        {
+            if (!player.Creature.IsAlive) continue;
+            for (int i = 0; i < StartCurseCount; i++)
+                await DarkWorldBossCards.AddRandomAttackToHand(ctx, player, Owner.Monster.Rng);
+        }
+    }
+
+    public override async Task AfterCardDiscarded(PlayerChoiceContext choiceContext, CardModel card)
+    {
+        if (card.Pile?.Type != PileType.Discard) return;
+        Player? player = card.Owner;
+        if (player?.Creature == null || player.Creature.Side != CombatSide.Player) return;
+        if (!Owner.IsAlive || Owner.Monster == null) return;
+
+        int count = _discardedSinceLastCurse.TryGetValue(player, out int previous)
+            ? previous + 1
+            : 1;
+        if (count < 2)
+        {
+            _discardedSinceLastCurse[player] = count;
+            return;
+        }
+
+        _discardedSinceLastCurse[player] = count - 2;
+        await DarkWorldBossCards.AddRandomAttackToHand(
+            choiceContext, player, Owner.Monster.Rng);
+    }
+}
+
 // ================= 战斗内生成工具 =================
 internal static class DarkWorldBossCards
 {
-    public static async Task AddRandomAttackToDraw(PlayerChoiceContext ctx, Player player, Rng rng)
+    private static CardModel CreateRandomAttackCard(Player player, Rng rng)
     {
         CardModel canonical = rng.NextInt(4) switch
         {
@@ -489,9 +587,25 @@ internal static class DarkWorldBossCards
             2 => ModelDb.Card<DarkWorldSillva>(),
             _ => ModelDb.Card<DarkWorldGoldd>(),
         };
-        CardModel card = player.Creature.CombatState!.CreateCard(canonical, player);
+        return player.Creature.CombatState!.CreateCard(canonical, player);
+    }
+
+    public static async Task AddRandomAttackToDraw(PlayerChoiceContext ctx, Player player, Rng rng)
+    {
+        CardModel card = CreateRandomAttackCard(player, rng);
         await CardPileCmd.AddGeneratedCardToCombat(
             card, PileType.Draw, player, CardPilePosition.Random);
+    }
+
+    public static async Task AddRandomAttackToHand(PlayerChoiceContext ctx, Player player, Rng rng)
+    {
+        CardModel card = CreateRandomAttackCard(player, rng);
+        // 手牌上限 10：满手时改为进入弃牌堆，避免把 UI/牌堆撑坏。
+        PileType target = PileType.Hand.GetPile(player).Cards.Count < CardPile.MaxCardsInHand
+            ? PileType.Hand
+            : PileType.Discard;
+        await CardPileCmd.AddGeneratedCardToCombat(
+            card, target, player, CardPilePosition.Random);
     }
 
     public static async Task AddBrainwashingToDraw(PlayerChoiceContext ctx, Player player)

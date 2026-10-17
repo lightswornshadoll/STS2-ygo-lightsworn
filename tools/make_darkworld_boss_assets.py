@@ -79,6 +79,17 @@ except Exception as e:
     failures.append(('darkworldtemptation', str(e)))
     print('FAILED power darkworldtemptation', e)
 
+# v0.6.4「暗黑界的侵蚀」：用「暗黑界之门」卡图做图标。
+try:
+    import tempfile
+    tmp = os.path.join(tempfile.gettempdir(), 'dw_erosion_card.png')
+    gate_card = crop_card('33017655', tmp)
+    make_round(gate_card, 'darkworlderosion')
+    print('power darkworlderosion <- 33017655')
+except Exception as e:
+    failures.append(('darkworlderosion', str(e)))
+    print('FAILED power darkworlderosion', e)
+
 bad = []
 for name, code, cn in CARDS:
     path = os.path.join(CARD_DIR, name + '.png')
@@ -88,7 +99,7 @@ for name, code, cn in CARDS:
     im = Image.open(path)
     if im.size != (250, 190):
         bad.append((name, im.size))
-for stem in ('darkworldbrainwash', 'darkworldtemptation'):
+for stem in ('darkworldbrainwash', 'darkworldtemptation', 'darkworlderosion'):
     for suffix, size in (('', 64), ('_big', 256)):
         path = os.path.join(POWER_DIR, stem + suffix + '.png')
         if not os.path.isfile(path):
