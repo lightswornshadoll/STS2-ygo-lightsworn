@@ -131,15 +131,18 @@ public abstract class LsCard : ModCardTemplate
     }
 }
 
-// ============ 光道圣徽（原初始遗物，v0.4.9 起进遗物池：每场战斗第一回合开始时弃光3） ============
-// 稀有度从 Starter 改为 Uncommon 后才会被 RelicGrabBag 收录（掉落/商店只收白蓝金商店四档），
-// 商店价走 Rarity 默认 MerchantCost=225。图标=RelicAssetProfile（原 BaseLib RelicImageOverridePatch 的替代）。
+// ============ 光道圣徽（初始遗物二选一之一：每场战斗第一回合开始时弃光3） ============
+// 本批反馈：与「你必须玩游戏王」一样是初始遗物（Starter）——不再进随机遗物池，
+// 二选一选中它时丢弃游戏王（见 StartingRelicChoice）。
+// 欧洛巴斯之触的精炼映射：光道圣徽 → 先古遗物「光道权杖」（LightswornScepter）。
+// 图标=RelicAssetProfile（原 BaseLib RelicImageOverridePatch 的替代）。
 [RegisterRelic(typeof(LightswornRelicPool))]
+[RegisterTouchOfOrobasRefinement(typeof(LightswornScepter))]
 public class LightswornSigil : ModRelicTemplate
 {
     private bool _usedThisCombat;
 
-    public override RelicRarity Rarity => RelicRarity.Uncommon;
+    public override RelicRarity Rarity => RelicRarity.Starter;
 
     public override RelicAssetProfile AssetProfile => new(
         IconPath: "res://lightsworn/images/relics/sigil.png",
@@ -170,6 +173,32 @@ public class LightswornSigil : ModRelicTemplate
     }
 }
 
+// ============ 先古遗物：光道权杖（光道圣徽的欧洛巴斯精炼版） ============
+// 用户钦定效果：每回合开始时弃光3，抽出其中「光道」卡数量的卡。
+// 图标=圣女战斗立绘 battle.png 的权杖顶部裁切（tools\make_scepter_relic_icon.py，64/256）。
+// 弃光走玩家来源（遗物不是卡牌，不触发光道卡的弃光钩子；加洛斯的"任意弃光"照常联动）。
+[RegisterRelic(typeof(LightswornRelicPool))]
+public class LightswornScepter : ModRelicTemplate
+{
+    public override RelicRarity Rarity => RelicRarity.Ancient;
+
+    public override RelicAssetProfile AssetProfile => new(
+        IconPath: "res://lightsworn/images/relics/scepter.png",
+        IconOutlinePath: "res://lightsworn/images/relics/scepter.png",
+        BigIconPath: "res://lightsworn/images/relics/scepter_big.png");
+
+    public override async Task AfterPlayerTurnStartEarly(PlayerChoiceContext choiceContext, Player player)
+    {
+        // 联机：只在自己的回合开始触发（该钩子对每个玩家的回合开始各广播一轮）
+        if (player != Owner) return;
+        Flash();
+        List<CardModel> milled = await LsUtil.Mill(choiceContext, player, 3);
+        int draws = milled.Count(LsUtil.IsLs);
+        if (draws > 0)
+            await CardPileCmd.Draw(choiceContext, draws, Owner);
+    }
+}
+
 // ============ 初始遗物：你必须玩游戏王（游戏王规则：卡组不满40张，战斗开始时补到40） ============
 // 效果文本由用户钦定。生成来源=角色专属卡池；问题16：打击:防御:白:蓝:金 = 50:50:85:15:5
 // （打击/防御直接生成初始牌「打击」「防御」），随机位置插入抽牌堆（Metamorphosis 原版范式：
@@ -187,10 +216,12 @@ public class LightswornSigil : ModRelicTemplate
 // 触顶后该次 roll 不再作废，而是归一化到卡池段继续使用（见下方 else 分支注释），
 // 因此**每张牌仍然恰好消耗一次 NextInt(205)** → RNG 序列与消耗次数确定，同一 seed 各端结果一致。
 // 只砍右尾、不设下限（用户只要求「最多」），运气极好时打防可以为 0。
+// 欧洛巴斯之触的精炼映射：你必须玩游戏王 → 先古遗物「更好的游戏王」（BetterMustPlayYugioh）。
 [RegisterRelic(typeof(LightswornRelicPool))]
+[RegisterTouchOfOrobasRefinement(typeof(BetterMustPlayYugioh))]
 public class MustPlayYugioh : ModRelicTemplate
 {
-    private const int MinDeckSize = 40;
+    protected const int MinDeckSize = 40;
 
     public override RelicRarity Rarity => RelicRarity.Starter;
 
@@ -258,6 +289,53 @@ public class MustPlayYugioh : ModRelicTemplate
                     : pool;
                 card = combatState.CreateCard(rng.NextItem(options)!, Owner);
             }
+            await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Draw, Owner, CardPilePosition.Random);
+        }
+        Flash();
+    }
+}
+
+// ============ 先古遗物：更好的游戏王（「你必须玩游戏王」的欧洛巴斯精炼版） ============
+// 用户钦定效果：只生成白/蓝/金卡，比例 5:3:2（不再生成打击/防御等基础牌）。
+// 与基础版共用同一套图标（AssetProfile 继承）、同名机制，仅稀有度升为先古。
+// RNG 仍走 CombatCardGeneration 通道；每张牌固定消耗一次 NextInt(10) + 一次 NextItem，
+// 联机各端同种子结果一致。
+[RegisterRelic(typeof(LightswornRelicPool))]
+public class BetterMustPlayYugioh : MustPlayYugioh
+{
+    public override RelicRarity Rarity => RelicRarity.Ancient;
+
+    public override async Task BeforeCombatStart()
+    {
+        CardPile draw = PileType.Draw.GetPile(Owner);
+        int need = MinDeckSize - draw.Cards.Count;
+        if (need <= 0) return;
+
+        // 只取白/蓝/金三档（打击/防御等基础牌不参与）
+        List<CardModel> pool = Owner.Character.CardPool
+            .GetUnlockedCards(Owner.UnlockState, Owner.RunState.CardMultiplayerConstraint)
+            .Where(c => c.CanBeGeneratedInCombat)
+            .Where(c => c.Rarity is CardRarity.Common or CardRarity.Uncommon or CardRarity.Rare)
+            .ToList();
+        if (pool.Count == 0) return;
+        Dictionary<CardRarity, List<CardModel>> byRarity = pool.GroupBy(c => c.Rarity)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        Rng rng = Owner.RunState.Rng.CombatCardGeneration;
+        var combatState = Owner.Creature.CombatState;
+        if (combatState == null) return;
+
+        for (int i = 0; i < need; i++)
+        {
+            // 白:蓝:金 = 5:3:2（roll 无条件消耗一次，保证联机/种子复现）
+            int roll = rng.NextInt(10);
+            CardRarity rarity = roll < 5 ? CardRarity.Common
+                : roll < 8 ? CardRarity.Uncommon
+                : CardRarity.Rare;
+            List<CardModel> options = byRarity.TryGetValue(rarity, out List<CardModel>? opts) && opts.Count > 0
+                ? opts
+                : pool;
+            CardModel card = combatState.CreateCard(rng.NextItem(options)!, Owner);
             await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Draw, Owner, CardPilePosition.Random);
         }
         Flash();
@@ -470,8 +548,13 @@ public class LightswornCharacter : ModCharacterTemplate<LightswornCardPool, Ligh
         ModelDb.Card<Barrier>(),
     ];
 
-    // v0.4.9：初始遗物换为「你必须玩游戏王」，圣徽转入遗物池（稀有度已改 Uncommon）
-    protected override IEnumerable<RelicModel> LocalStartingRelics => [ModelDb.Relic<MustPlayYugioh>()];
+    // v0.5.5：两件初始遗物都写进 StartingRelics —— 百科大全的「初始」页只枚举
+    // `Character.StartingRelics`（再追加每件的欧洛巴斯先古版），不读 Rarity.Starter 全表；
+    // 因此圣徽/权杖要出现在收藏里，圣徽必须是 canonical starting relic。
+    // 实际开局仍在 FinalizeStartingRelics 前把圣徽移除（见 StartingRelicChoice），
+    // 玩家只会持有二选一选中的那件；收藏页则能看到 游戏王/圣徽/更好的游戏王/光道权杖 四件。
+    protected override IEnumerable<RelicModel> LocalStartingRelics =>
+        [ModelDb.Relic<MustPlayYugioh>(), ModelDb.Relic<LightswornSigil>()];
 
     // ---------- 静态立绘战斗形象 ----------
     protected override NCreatureVisuals? TryCreateCreatureVisuals()

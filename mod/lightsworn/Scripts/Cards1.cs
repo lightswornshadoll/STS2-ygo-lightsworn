@@ -329,12 +329,13 @@ public class LightOfDestruction : LsCard
     protected override void OnUpgrade() => DynamicVars["Doom"].UpgradeValueBy(3);
 }
 
-// 光道贼猫 雷喵（本批反馈重做：0费、升蓝、消耗——从弃牌堆将最多{Picks}张「光道」牌洗回抽牌堆，
+// 光道贼猫 雷喵（0费、升蓝——从弃牌堆将最多{Picks}张「光道」牌洗回抽牌堆，
 // 每有1种不同名的「光道」牌，获得1点费用。原"洗回→抽等量牌"作废）
+// 本批反馈：原"敲后 Picks+1"改为敲前效果（基础 Picks=3、带消耗）；敲后改为取消「消耗」。
 [RegisterCard(typeof(LightswornCardPool))]
 public class Rinyan : LsCard
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new DynamicVar("Picks", 2m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new DynamicVar("Picks", 3m)];
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
     public Rinyan() : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.Self) { }
@@ -354,8 +355,8 @@ public class Rinyan : LsCard
             await PlayerCmd.GainEnergy(distinct, Owner);
     }
 
-    // 升级=洗回上限2→3（Picks 变量；行为型升级先例=暮萨满）
-    protected override void OnUpgrade() => DynamicVars["Picks"].UpgradeValueBy(1);
+    // 本批反馈：敲后取消「消耗」（Picks 保持 3）
+    protected override void OnUpgrade() => RemoveKeyword(CardKeyword.Exhaust);
 }
 
 // 光道暗杀者 莱登（本批反馈：弃光后若弃置到「光道」牌→在本回合结束前获得2点临时力量

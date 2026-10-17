@@ -1,0 +1,12 @@
+{
+  "LIGHTSWORN_CARD_DARK_WORLD_KELT.title": "暗黑界的鬼神",
+  "LIGHTSWORN_CARD_DARK_WORLD_KELT.description": "造成{Damage:diff()}点伤害。\n[gold]从手牌被弃置时[/gold]：对自己造成12点伤害。",
+  "LIGHTSWORN_CARD_DARK_WORLD_LATINUM.title": "暗黑界的斗神",
+  "LIGHTSWORN_CARD_DARK_WORLD_LATINUM.description": "造成{Damage:diff()}点伤害。\n[gold]从手牌被弃置时[/gold]：龙神王获得3点力量。",
+  "LIGHTSWORN_CARD_DARK_WORLD_SILLVA.title": "暗黑界的军神",
+  "LIGHTSWORN_CARD_DARK_WORLD_SILLVA.description": "造成{Damage:diff()}点伤害。\n[gold]从手牌被弃置时[/gold]：随机将2张手牌洗入抽牌堆。",
+  "LIGHTSWORN_CARD_DARK_WORLD_GOLDD.title": "暗黑界的武神",
+  "LIGHTSWORN_CARD_DARK_WORLD_GOLDD.description": "造成{Damage:diff()}点伤害。\n[gold]从手牌被弃置时[/gold]：对自己施加1层虚弱和1层易伤。",
+  "LIGHTSWORN_CARD_DARK_WORLD_BRAINWASHING.title": "暗黑界的洗脑",
+  "LIGHTSWORN_CARD_DARK_WORLD_BRAINWASHING.description": "抽到时自动打出：获得1层[gold]洗脑[/gold]。\n[gold]洗脑[/gold]：打出的下一张牌无效（可叠加、跨回合保留）。"
+}

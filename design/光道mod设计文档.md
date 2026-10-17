@@ -1819,3 +1819,143 @@ AssetProfile → `CustomIconPath=null` → 游戏回退 `res://images/powers/<en
   发布流程=dist 三件套 → `lightsworn_mod-tools\workshop\lightsworn\Content\` → `py tools\update_workshop_v054.py`（changeNote）
   → `ModUploader.exe upload -w <workspace>`；朋友端需重新更新订阅。
 - 无卡牌内部 ID 变更 → 旧存档兼容。
+
+
+---
+
+## v1.49 第四十二轮反馈：六条（2026-10-17，v0.5.5，已知问题.txt 下发）
+
+**用户条目**：①雷喵敲后效果改敲前、敲后取消消耗；②裁决/惩戒伤害 30、敲后保留；双龙强化改为生成强化版；神光 30×3；
+③惩戒只回攻击/技能/能力牌；④游戏王/圣徽都做成初始遗物，二选一丢另一个、skip 保留第一个；
+⑤新增先古遗物「更好的游戏王」「光道权杖」；⑥探查做 Boss 所需美术/设计。
+
+### 1. 雷喵（Rinyan）
+
+- 基础 `Picks` 2→3（原升级 +1 改为基础效果）；`OnUpgrade` 从 `Picks+1` 改为 `RemoveKeyword(CardKeyword.Exhaust)`。
+- 结果：基础 0 费、洗回最多 3 张、带「消耗」；强化后张数不变、移除「消耗」。
+- 文案无需改（`{Picks:diff()}` 自动显示 3；消耗关键词由原版自动显示）。
+
+### 2. 裁决之龙 / 惩戒之龙 / 双龙 / 神光之龙
+
+- 裁决之龙：`DamageVar` 22→30；`OnUpgrade` 从伤害 +6 改为 `AddKeyword(CardKeyword.Retain)`。
+- 惩戒之龙：`DamageVar` 22→30；`OnUpgrade` 同上改为「保留」；回收过滤加
+  `c.Type is CardType.Attack or CardType.Skill or CardType.Power`（诅咒/状态等不回）。
+- 黄昏之双龙：敲后不再 `AddKeyword(Retain)` 给生成的龙，而是对生成的
+  `JudgementDragon`/`PunishDragon` 执行 `UpgradeInternal()+FinalizeUpgradeInternal()`（生成强化版对应卡；
+  两条龙的「保留」由强化版自带）。cards.json 与卡牌图鉴同步为“改为生成强化版”。
+- 神光之龙：`DamageVar` 22→30；升级仍为 +4（30×3/34×3）+ 保留。
+- ⚠ 设计提醒（留给用户裁决）：`光道的裁决` 的 Token 本来就带「保留」；现在裁决之龙的强化只剩「保留」，
+  所以「光道的裁决」敲后生成的强化版与基础版**不再有伤害差**。如希望这条升级仍有意义，
+  建议给该 Token 换一个升级收益（例如费用 0→保留+抽 1，或提高 Token 伤害），本轮未擅自改。
+
+### 3. 初始遗物（游戏王 / 圣徽）
+
+- `LightswornSigil.Rarity` 从 `Uncommon` 改为 `Starter`——与 `MustPlayYugioh` 一样是初始遗物，不再进随机遗物池。
+- 二选一逻辑保持：界面选项 `[游戏王, 圣徽]`；选圣徽→`RelicCmd.Replace(游戏王, 圣徽)`（丢弃另一个）；
+  跳过→保留第一个游戏王。读档不走该流程，选择随存档持久。
+- 说明：角色 `LocalStartingRelics` 仍只列游戏王；圣徽作为二选一的另一选项，稀有度已是 Starter。
+
+### 4. 先古遗物（欧洛巴斯之触）
+
+- 新增 `BetterMustPlayYugioh : MustPlayYugioh`：`Rarity => Ancient`；沿用基础版图标；
+  `BeforeCombatStart` 只生成白/蓝/金卡，比例 **5:3:2**（每张固定 `NextInt(10)`，联机同种子可复现；不再生成打击/防御）。
+- 新增 `LightswornScepter`：`Rarity => Ancient`；每回合开始 `LsUtil.Mill(player, 3)`，
+  按弃置牌中「光道」牌数量抽牌（Owner 过滤，联机只在自己回合触发）。
+- **欧洛巴斯精炼映射**（RitsuLib 正规入口）：
+  - `[RegisterTouchOfOrobasRefinement(typeof(BetterMustPlayYugioh))]` 挂在 `MustPlayYugioh`
+  - `[RegisterTouchOfOrobasRefinement(typeof(LightswornScepter))]` 挂在 `LightswornSigil`
+  - 玩家最终持有的初始遗物是哪个，欧洛巴斯之触就替换成对应先古版（`TouchOfOrobasGetUpgradedStarterRelicPatch`）。
+- 图标：权杖从 `images/character/battle.png` 裁杖头（`tools\make_scepter_relic_icon.py`，裁切框 105,195–305,395），
+  输出 64/256 圆形透明底 `relics/scepter.png`、`scepter_big.png`；更好的游戏王直接复用 `yugioh.png/_big`。
+- 本地化：`relics.json` 新增 `LIGHTSWORN_RELIC_BETTER_MUST_PLAY_YUGIOH.title/.description`、
+  `LIGHTSWORN_RELIC_LIGHTSWORN_SCEPTER.title/.description`。
+
+### 5. Boss 探查
+
+- 新增 `design\boss制作需求.md`：技术结构（Encounter+Monster+RitsuLib 注册）、美术清单与实测规格
+  （Boss 立绘、地图节点 350×307+描边、历史图标 85×85+描边、背景层约 2048×960）、
+  设计清单（招式表/阶段/进阶/多人/奖励/文本）、静态图 vs Spine 路线与 MVP 模板。
+
+### 验证（本轮）
+
+- 构建：`dotnet build` **0 错误**（12 警告为历史基线）。
+- memberref 审计：0.107.1 与 0.111.0 **双 PASS**（methods=188）。
+- 部署：robocopy `/MIR /IS /IT` → 游戏（本机实际为 **0.107.1 正式版**）启动日志
+  `Version=0.5.5.0`、`Lightsworn mod initialized!`、新遗物
+  `BetterMustPlayYugioh / LightswornScepter` 均注册；整局测试仅 1 条与 mod 无关的
+  `current_run.save.backup` 删除失败 ERROR，**无 Lightsworn Exception**。
+- pck：`tools\pck.py list` 确认含 `scepter.png / scepter_big.png`；解包 `relics.json` 两条新词条逐字正确。
+- **实机 UI 逐条验证（wininput 驱动，截图 tools\_v055_*.png）**：
+  - 初始遗物二选一弹窗同时显示「你必须玩游戏王 / 光道圣徽」；点 Skip 后遗物栏只剩游戏王（第一个），
+    圣徽未进栏 → “skip 保留第一个”成立。
+  - 控制台 `event OROBAS` 直达欧洛巴斯：第三个选项文本=**「将你必须玩游戏王替换为更好的游戏王」**
+    → RitsuLib 精炼映射已生效；选中并继续后，更好的游戏王进遗物栏，**图标与基础版同为 yugioh 漩涡**，
+    悬浮描述=“只生成普通、罕见、稀有卡牌补足，比例为5:3:2”。
+  - 控制台 `relic add LIGHTSWORN_RELIC_LIGHTSWORN_SCEPTER` → 权杖图标正常显示；
+    `fight CULTISTS_NORMAL` 第1回合结束弃牌堆=3张（每回合弃光3生效），手牌 5 张。
+  - 卡面：雷喵=“最多3张…消耗。”；升级雷喵+=“最多3张…”且**无「消耗」**、无消耗悬浮提示；
+    裁决之龙/惩戒之龙基础=30 伤害；升级后卡面出现「保留」关键词行与悬浮说明；
+    神光之龙=“造成30点伤害，重复3次”；惩戒之龙文案=“所有非「光道」的攻击、技能、能力牌”。
+- 产物：dll `4a6b78bf…`(352768) / json `5db7ec77…`(561) / pck `d7ca15da…`(21032120)。
+
+### 发布注意
+
+- 本轮改 dll + pck → 联机两端必须同为 **v0.5.5**；旧存档兼容（无内部 ID 变更）。
+- 新增先古遗物依赖 RitsuLib 的欧洛巴斯精炼补丁（随 RitsuLib 0.6.7 已启用）。
+
+
+---
+
+## v1.50 第四十二轮追加订正四条（2026-10-17，v0.5.6）
+
+**用户条目**：①神光之龙敲后不加伤害、只加保留；②神光/光道天使多段伤害文本改官方句式；
+③黄昏之双龙敲后文案用「裁决之龙+」格式；④百科大全遗物收集看不到其他 mod 遗物。
+
+### 1. 神光之龙
+
+- `OnUpgrade` 删除 `DynamicVars.Damage.UpgradeValueBy(4)`，只保留 `AddKeyword(CardKeyword.Retain)`。
+- 结果：基础/敲后都是 **30×3**；敲后额外获得「保留」。卡牌图鉴同步“伤害不变（仍30×3）”。
+
+### 2. 多段伤害官方句式
+
+- 官方中文卡面写法实测（游戏 `localization/zhs/cards.json`，如 CONFLAGRATION/EXTERMINATE）：
+  `对所有敌人造成{Damage:diff()}点伤害{Repeat:diff()}次。` —— **不用“重复Y次”**。
+- 光道天使 基路伯：`对所有敌人造成{Damage:diff()}点伤害{Hits:diff()}次。`
+- 神光之龙：`对所有敌人造成{Damage:diff()}点伤害{Hits:diff()}次，并施加3层虚弱和3层易伤…`
+  修复了之前“造成30点伤害，重复3次”的非官方语序。
+
+### 3. 「卡名+」写法
+
+- 黄昏之双龙：`否则：将1张「裁决之龙{IfUpgraded:show:+|}」和1张「惩戒之龙{IfUpgraded:show:+|}」置入弃牌堆。`
+  基础显示「裁决之龙」/「惩戒之龙」，敲后显示「裁决之龙+」/「惩戒之龙+」；
+  不再出现“（改为生成强化版）”。
+- 顺带把「光道的裁决」的 `强化后的…「裁决之龙」` 也统一为 `「裁决之龙{IfUpgraded:show:+|}」`。
+- 卡牌图鉴 `gen_card_doc.py` 的 SPECIAL 覆盖同步。
+
+### 4. 百科大全遗物收集：圣徽/权杖不可见（根因 + 修复）
+
+**根因**（反编译 `NRelicCollectionCategory.LoadRelics` 实证）：
+- 「初始」页**不读** `ModelDb.AllRelics.Where(Rarity == Starter)`，而是：
+  1. `ModelDb.AllCharacters.SelectMany(c => c.StartingRelics)`；
+  2. 再对每件起始遗物调用 `TouchOfOrobas.GetUpgradedStarterRelic()` 追加先古版；
+  3. 然后 **直接 return**。
+- 所以只有写进 `Character.StartingRelics` 的遗物（及其欧洛巴斯先古版）会出现在初始页。
+  游戏王在 `LocalStartingRelics` 里 → 游戏王 + 更好的游戏王可见；
+  圣徽只改了 `Rarity=Starter`、没写进 `StartingRelics` → 圣徽和光道权杖都不显示。
+- 猫狗双全（Common）/幻色珍珠（Event）本来就在“普通/事件”分区，不在初始页。
+
+**修复**（`LightswornContent.cs` + `StartingRelicChoice.cs`）：
+- `LocalStartingRelics` 改为 `[MustPlayYugioh, LightswornSigil]` —— 让收藏页的初始页能枚举到
+  游戏王/圣徽，以及它们各自的先古版（更好的游戏王/光道权杖）。
+- 实际开局两件都会先发下来；`FinalizeThenOffer` 在 `AfterObtained` 之前把
+  `LightswornSigil` 从“持有游戏王”的玩家身上 Remove 掉（按 state.Players 顺序、各端一致），
+  玩家仍然只持有游戏王，然后走原二选一（选圣徽=Replace 游戏王；skip=保留游戏王）。
+- 这样收藏页四件齐全，实际开局/存档不会同时持有两件初始遗物。
+
+### 验证
+
+- 构建 0 错误；memberref 审计 0.107.1+0.111.0 **双 PASS**（methods=189）。
+- pck 解包核对：CELESTIA/SHINING/TWIN/DECREE 四条文案逐字正确。
+- 实机（0.107.1）：收藏页「初始」实拍=第一行含 **游戏王 + 光道圣徽**、第二行含
+  **更好的游戏王 + 光道权杖**（权杖为未见过暗色）；用户确认“遗物没问题了”。
+- 产物：dll `f59e1695…`(353280) / json `b9d4023f…`(561) / pck `e419e893…`(21032072)；v0.5.6 **未发布**。

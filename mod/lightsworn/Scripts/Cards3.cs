@@ -210,12 +210,13 @@ public class MinervaSaint : LsCard
 }
 
 // 裁决之龙（0费；弃牌堆中存在4种不同「光道」牌时才能打出，不再算消耗堆。本批：稀有度改蓝卡）
+// 本批反馈：伤害22→30；敲后不再加伤害，改为获得「保留」。
 [RegisterCard(typeof(LightswornCardPool))]
 public class JudgementDragon : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(22, ValueProp.Move),
+        new DamageVar(30, ValueProp.Move),
         new DynamicVar("Mill", 4m),
     ];
     public override IEnumerable<CardKeyword> CanonicalKeywords => [LsKeywords.Mill];
@@ -235,17 +236,19 @@ public class JudgementDragon : LsCard
         }
     }
 
-    protected override void OnUpgrade() => DynamicVars.Damage.UpgradeValueBy(6);
+    // 本批反馈：敲后改为获得「保留」（伤害保持30）
+    protected override void OnUpgrade() => AddKeyword(CardKeyword.Retain);
 }
 
 // 惩戒之龙（问题5重做：0费；消耗堆中存在4种以上「光道」牌时才能打出；将弃牌堆与消耗堆所有非光道卡
 // 返回卡组，每有一张所有敌人获得随机1层负面状态；造成伤害并获得暮光）
+// 本批反馈：伤害22→30；敲后改为获得「保留」；回收范围收窄为攻击/技能/能力牌（诅咒、状态等不回）。
 [RegisterCard(typeof(LightswornCardPool))]
 public class PunishDragon : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(22, ValueProp.Move),
+        new DamageVar(30, ValueProp.Move),
         new DynamicVar("Twilight", 1m),
     ];
 
@@ -259,8 +262,12 @@ public class PunishDragon : LsCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         // 将弃牌堆与消耗堆中的所有非「光道」卡返回抽牌堆
-        List<CardModel> nonLs = LsUtil.DiscardPile(this).Cards.Where(c => !LsUtil.IsLs(c))
-            .Concat(LsUtil.ExhaustPile(this).Cards.Where(c => !LsUtil.IsLs(c))).ToList();
+        // 本批反馈：只回攻击/技能/能力牌——诅咒、状态、其他类型一律留在原牌堆
+        List<CardModel> nonLs = LsUtil.DiscardPile(this).Cards
+            .Where(c => !LsUtil.IsLs(c) && (c.Type is CardType.Attack or CardType.Skill or CardType.Power))
+            .Concat(LsUtil.ExhaustPile(this).Cards
+                .Where(c => !LsUtil.IsLs(c) && (c.Type is CardType.Attack or CardType.Skill or CardType.Power)))
+            .ToList();
         foreach (CardModel card in nonLs)
             await CardPileCmd.Add(card, PileType.Draw);
         // 每有一张，所有敌人获得随机一层负面状态（人工制品可抵挡）
@@ -277,19 +284,20 @@ public class PunishDragon : LsCard
             (int)DynamicVars["Twilight"].BaseValue, Owner.Creature, this);
     }
 
-    protected override void OnUpgrade() => DynamicVars.Damage.UpgradeValueBy(6);
+    // 本批反馈：敲后改为获得「保留」（伤害保持30）
+    protected override void OnUpgrade() => AddKeyword(CardKeyword.Retain);
 }
 
 // 神光之龙（0费消耗；弃牌堆存在「裁决之龙」和「惩戒之龙」时才能打出；
-// 消耗弃牌堆所有卡→对所有敌人造成22点×3次伤害（敲后26点×3）并施加3层虚弱和易伤→从消耗堆把两种龙各1张加入手牌。
-// 本批反馈问题24：伤害改成22x3/26x3（原生多段攻击 WithHitCount，全部段落吃活力加成）；
-// 敲后保留（问题20的「保留」升级不变）。原型=YGO 46186135；卡名不含「光道」，不打光道标，同裁决/惩戒）
+// 消耗弃牌堆所有卡→对所有敌人造成30点伤害3次并施加3层虚弱和易伤→从消耗堆把两种龙各1张加入手牌。
+// 本批反馈：伤害30×3；敲后不加伤害，只获得「保留」（30×3；原生多段攻击 WithHitCount，全部段落吃活力加成）。
+// 原型=YGO 46186135；卡名不含「光道」，不打光道标，同裁决/惩戒）
 [RegisterCard(typeof(LightswornCardPool))]
 public class ShiningDragon : LsCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(22, ValueProp.Move),
+        new DamageVar(30, ValueProp.Move),
         new DynamicVar("Hits", 3m),
     ];
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
@@ -313,7 +321,7 @@ public class ShiningDragon : LsCard
             .Where(c => !ReferenceEquals(c, this)).ToList();
         foreach (CardModel card in inDiscard)
             await LsCompat.ExhaustCompat(choiceContext, card);
-        // ② 对所有敌人造成伤害（问题24：22×3/26×3，原生多段攻击让全部段落吃活力）
+        // ② 对所有敌人造成伤害（本批：30×3/34×3，原生多段攻击让全部段落吃活力）
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCardCompat(this, cardPlay)
             .TargetingAllOpponents(Owner.Creature.CombatState!)
             .WithHitCount((int)DynamicVars["Hits"].BaseValue)
@@ -342,10 +350,6 @@ public class ShiningDragon : LsCard
         }
     }
 
-    // 敲后：伤害22→26（段数不变）并获得「保留」
-    protected override void OnUpgrade()
-    {
-        DynamicVars.Damage.UpgradeValueBy(4);
-        AddKeyword(CardKeyword.Retain);
-    }
+    // 本批反馈：敲后不加伤害，只获得「保留」（伤害保持30、段数3）
+    protected override void OnUpgrade() => AddKeyword(CardKeyword.Retain);
 }

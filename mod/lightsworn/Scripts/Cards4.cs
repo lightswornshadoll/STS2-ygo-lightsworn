@@ -345,13 +345,23 @@ public class TwinTwilightDragon : LsCard
         else
         {
             // 手牌中没有惩戒之龙：生成1张裁决之龙和1张惩戒之龙到弃牌堆。
-            // 问题27：去掉虚无（不再回合结束消耗）；敲后生成的牌获得「保留」
+            // 问题27：去掉虚无（不再回合结束消耗）。
+            // 本批反馈：两条龙的「保留」改由强化版自带，敲后改为生成**强化后的对应卡**
+            // （范式同融合产出：UpgradeInternal + FinalizeUpgradeInternal）。
             CardModel? jd = await LsUtil.CreateToken<JudgementDragon>(choiceContext, this, PileType.Discard);
             CardModel? pd = await LsUtil.CreateToken<PunishDragon>(choiceContext, this, PileType.Discard);
             if (IsUpgraded)
             {
-                jd?.AddKeyword(CardKeyword.Retain);
-                pd?.AddKeyword(CardKeyword.Retain);
+                if (jd is { IsUpgraded: false })
+                {
+                    jd.UpgradeInternal();
+                    jd.FinalizeUpgradeInternal();
+                }
+                if (pd is { IsUpgraded: false })
+                {
+                    pd.UpgradeInternal();
+                    pd.FinalizeUpgradeInternal();
+                }
             }
         }
     }

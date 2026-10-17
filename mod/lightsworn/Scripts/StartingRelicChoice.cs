@@ -22,8 +22,9 @@ namespace Lightsworn;
 
 // ============ 初始遗物二选一（v0.4.16；v0.4.17 修选人后开局黑屏；v0.5.1 联机一致性重做） ============
 // 新开局用原版「选择遗物」覆盖界面（NChooseARelicSelection）让玩家在「你必须玩游戏王」和
-// 「光道圣徽」里挑一个当初始遗物；跳过 = 保持「你必须玩游戏王」。圣徽在遗物池的掉落不受影响
-// （被选为初始遗物时 RelicCmd.Obtain 会把它从本局 RelicGrabBag 移除，IsStackable=false，不会刷出第二个）。
+// 「光道圣徽」里挑一个当初始遗物。两者都是 Starter 稀有度的初始遗物（不进随机遗物池）；
+// 选中圣徽时 Replace 掉游戏王（=丢弃另一个），跳过则默认保留第一个「你必须玩游戏王」。
+// 欧洛巴斯之触会按最终持有的初始遗物替换成对应先古版（游戏王→更好的游戏王 / 圣徽→光道权杖）。
 //
 // 实现 = 换掉 RunManager.FinalizeStartingRelics 返回的 Task：先原样跑完原逻辑（初始遗物逐个
 // AfterObtained），然后**在同样的确定性时点预定全部目标玩家的选择 ID**（见下），最后把弹窗挪进独立任务。
@@ -75,6 +76,18 @@ internal sealed class StartingRelicChoicePatch : IPatchMethod
 
     private static async Task FinalizeThenOffer(RunManager runManager, RunState state, List<Player> targets)
     {
+        // 圣徽写进 Character.StartingRelics 只是为了让百科大全的「初始」页能看到
+        // 圣徽/光道权杖（收藏页只枚举 StartingRelics + 欧洛巴斯先古版）。
+        // 实际开局两件都发下来了 → 在 AfterObtained 之前把圣徽移除，玩家只留游戏王，
+        // 再走下面的二选一（选圣徽 = Replace 游戏王；skip = 保持游戏王）。
+        // 各端按 state.Players 顺序执行同一套移除，联机确定性一致。
+        foreach (Player player in state.Players)
+        {
+            if (!player.Relics.Any(r => r is MustPlayYugioh)) continue;
+            foreach (LightswornSigil sigil in player.Relics.OfType<LightswornSigil>().ToList())
+                await RelicCmd.Remove(sigil);
+        }
+
         // 原版 FinalizeStartingRelics 的全部逻辑（走到这里的 run 已确认含光道玩家）
         foreach (Player player in state.Players)
         {
