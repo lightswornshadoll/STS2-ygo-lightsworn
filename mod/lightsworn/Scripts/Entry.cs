@@ -29,5 +29,9 @@ public static class Entry
             Log.Error("[Lightsworn] core patches failed; some features may be unavailable");
         else
             Log.Info("Lightsworn mod initialized!");
+
+        // 三层 Boss 抉择事件：Act 2→3 过渡完成后、地图出现前插入（replay=false，避免初始化时误触发）。
+        RitsuLibFramework.SubscribeLifecycle<ActEnteredEvent>(
+            ThirdActBossChoiceTrigger.OnActEntered, replayCurrentState: false);
     }
 }

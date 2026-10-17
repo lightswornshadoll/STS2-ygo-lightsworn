@@ -6,5 +6,13 @@
   "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.INITIAL.options.TAKE_PEARLS.title": "收下珍珠，道谢离去",
   "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.INITIAL.options.TAKE_PEARLS.description": "获得遗物[gold]幻色珍珠[/gold]。",
   "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.JOIN.description": "「跟我们走……真的吗？」\n三双湿润的眼睛同时亮了起来。\n塞壬将一颗泪珠凝成卡牌的模样，轻轻放进你的卡组；小美人鱼用珍珠串起卡组的锁链；梅洛高兴地唱起了不成调的歌。\n临别时，小美人鱼又从水底捞起一片[red]腐朽的鳞片[/red]塞进你的卡组，「陆地的路很长，」她轻声说，「疼的时候，就当我们在陪你。」\n「呐——要是难过了，就把我们[red]融合[/red]起来吧。」梅洛凑过来补了一句。\n「在眼泪流干之前，我们会一直陪着你的。」",
-  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.PEARLS.description": "你婉拒了同行的邀请。\n「这样呀……」塞壬的耳朵耷拉了一下，但很快又笑起来，「那，至少带上这些。」\n小美人鱼把那颗[gold]幻色珍珠[/gold]塞进你手里，冰凉温润，在光下泛着彩虹色的光晕。\n「陆地的路很长，」她轻声说，「别让自己太辛苦。」\n人鱼们向你挥别，沉入珍珠色的水光之中。"
+  "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.PEARLS.description": "你婉拒了同行的邀请。\n「这样呀……」塞壬的耳朵耷拉了一下，但很快又笑起来，「那，至少带上这些。」\n小美人鱼把那颗[gold]幻色珍珠[/gold]塞进你手里，冰凉温润，在光下泛着彩虹色的光晕。\n「陆地的路很长，」她轻声说，「别让自己太辛苦。」\n人鱼们向你挥别，沉入珍珠色的水光之中。",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.title": "岔路：第三层的王座",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.description": "第二层的首领已经倒下，通往第三层的门在你面前展开。\n黑暗深处传来两种气息：一种来自[purple]异界[/purple]，带着不属于这座尖塔的龙威；另一种是尖塔本身古老而熟悉的脉搏。\n你握住门把手，知道自己的选择将决定谁坐在第三层的王座上。",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_MOD.title": "让异界的存在登临",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_MOD.description": "第三层的首领将从[purple]mod 首领[/purple]中随机选出。",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_VANILLA.title": "遵从这个世界的法则",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_VANILLA.description": "第三层的首领将从[gold]原版首领[/gold]中随机选出。",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.DONE.description": "你的选择沿着阶梯向下沉去。\n第三层深处，一个身影缓缓睁开眼睛——[gold]{Boss}[/gold] 将成为你的对手。",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.NO_BOSS.description": "你试图改变第三层的命运，却发现那里没有可供选择的首领。\n（未找到任何可用的 Boss，本事件不会改写第三层。）"
 }

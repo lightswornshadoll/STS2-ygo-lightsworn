@@ -629,8 +629,13 @@ public class DarkWorldGraphaBoss : ModEncounterTemplate
 
     public override IEnumerable<MonsterModel> AllPossibleMonsters => [ModelDb.Monster<DarkWorldGrapha>()];
 
+    // 地图节点图标走原版 PNG Boss 的约定：BossNodePath 是无扩展名的 _icon 基路径，
+    // 游戏自己拼 ".png" / "_outline.png"。不能填进 RitsuLib 的 AssetProfile.BossNodeSpinePath：
+    // 那个补丁会先做 ResourceLoader.Exists(路径) 校验，无扩展名路径在 Godot 里恒为 false，
+    // 自定义路径被丢弃后回退到不存在的默认 Spine 路径 → 地图上不显示图标。
+    public override string BossNodePath => "res://lightsworn/images/map/lightsworn/dark_world_grapha_boss_icon";
+
     public override EncounterAssetProfile AssetProfile => new(
-        BossNodeSpinePath: "res://lightsworn/images/map/lightsworn/dark_world_grapha_boss_icon",
         RunHistoryIconPath: "res://lightsworn/images/ui/run_history/dark_world_grapha_boss.png",
         RunHistoryIconOutlinePath: "res://lightsworn/images/ui/run_history/dark_world_grapha_boss_outline.png");
 

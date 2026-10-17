@@ -31,7 +31,8 @@ public class LightswornJudgeBoss : ModEncounterTemplate
     protected override IReadOnlyList<(MonsterModel, string?)> GenerateMonsters()
         => [(ModelDb.Monster<LightswornJudge>().ToMutable(), null)];
     // 背景：默认 UseActCombatBackground = true（复用章节背景）；要专属背景再覆盖 AssetProfile
-    // 地图节点/历史图标：EncounterAssetProfile
+    // 地图节点图标（PNG 方案）：照原版 Boss 直接 override BossNodePath（见下方表格与坑38）；
+    // 历史图标：EncounterAssetProfile.RunHistoryIconPath / RunHistoryIconOutlinePath
 }
 ```
 
@@ -55,7 +56,7 @@ public class LightswornJudgeBoss : ModEncounterTemplate
 | 素材          | 规格                                       | 放哪里 / 命名                                                              | 备注                                                                                                               |
 | ----------- | ---------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Boss 战斗形象   | 透明底全身立绘，建议 **1200×1600 以上**（越大越好，游戏内会缩放） | `mod\lightsworn\lightsworn\images\monsters\<boss_id>.png`             | 2D 静态方案：运行时建 `NCreatureVisuals`，参考本 mod 圣女的 `TryCreateCreatureVisuals()`；不要用引用游戏 C# 脚本的 tscn（导 pck 会丢脚本，坑 13/23） |
-| Boss 地图节点图标 | **350×307 PNG** + 同尺寸 `_outline` 描边图     | `images\map\lightsworn\<encounter_id>_icon.png` / `_icon_outline.png` | 原版实测（lagavulin_matriarch_boss_icon = 350×307）；也可用 Spine 节点，但 PNG 最省事                                             |
+| Boss 地图节点图标 | **350×307 PNG** + 同尺寸 `_outline` 描边图     | `images\map\lightsworn\<encounter_id>_icon.png` / `_icon_outline.png` | 原版实测（lagavulin_matriarch_boss_icon = 350×307）；**PNG 方案必须在遭遇类里 `override BossNodePath => "res://images/map/lightsworn/<...>_icon"`（无扩展名基路径，游戏自行拼 `.png`/`_outline.png`）**；不要填进 RitsuLib 的 `AssetProfile.BossNodeSpinePath`（其存在性校验会丢弃无扩展名路径，见开发手册坑38） |
 | 历史记录小图标     | **85×85 PNG** + 同尺寸 `_outline`           | `images\ui\run_history\<encounter_id>.png` / `_outline.png`           | 原版实测 85×85；RitsuLib 的 `EncounterAssetProfile.RunHistoryIconPath` 可改路径                                            |
 | 意图/血条/UI    | 不用画                                      | —                                                                     | 全部用原版通用资源（攻击/防御/增益/减益/召唤/睡眠等意图图标）                                                                                |
 | 卡牌/遗物奖励     | 不用画                                      | —                                                                     | 用现有奖励池；除非你要专属 Boss 遗物（另加 64/256 遗物图标 + 大图）                                                                       |
@@ -66,6 +67,9 @@ public class LightswornJudgeBoss : ModEncounterTemplate
 > ② 历史/顶栏图标是 85×85 彩色成品，可照常画。  
 > ③ 原版 Boss 的“专属背景”并不新画纹理：Lagavulin 的 14 个图层场景（15 张纹理）全部复用 `images/rooms/underdocks/` 的章节图，  
 > 专属的只是图层组合 + 视差 + 雾/水/灯光 shader。  
+> ④ **PNG 地图图标不要走 `AssetProfile.BossNodeSpinePath`**：RitsuLib 应用该路径前会 `ResourceLoader.Exists`，
+> 而无扩展名的 `..._icon` 基路径在 Godot 里恒为 false → 路径被丢弃 → 地图节点空白（v0.6.5 格拉法实测）。
+> 正确写法=在遭遇类里 `public override string BossNodePath => "res://.../_icon";`，历史图标才用 `AssetProfile`。
 > 完整参考（含尺寸、Spine 动画名、可复现导出脚本）：`design\boss美术参考\lagavulin_matriarch\`。
 
 > 如果做 **Spine** 动画版：额外需要 `.skel` / `.atlas` / 图集 PNG / `_skel_data.tres`，  

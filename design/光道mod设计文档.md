@@ -2083,3 +2083,32 @@ AssetProfile → `CustomIconPath=null` → 游戏回退 `res://images/powers/<en
   构建 0 错误、memberref 双 PASS（methods=241）、0.107.1 实机 `Version=0.6.3` 加载零异常。
 - 产物 dll `8f238246…`(386048) / pck `5d82d0dc…`(22983560)。
 - **已发布**：git `5af0ff4` 已推送；创意工坊 v0.6.3 上传成功（ManifestID `4204301308830997520`，2026-10-17 22:55）。
+
+---
+
+## v1.54 格拉法地图节点图标修复（2026-10-18，v0.6.5）
+
+**用户反馈**：龙神王在地图上没有和其他 Boss 一样的图标（Boss 节点空白，但图是画好的）。
+
+**根因**：`DarkWorldGraphaBoss` 把 PNG 图标基路径填进了 RitsuLib `EncounterAssetProfile.BossNodeSpinePath`。
+RitsuLib 的 `EncounterBossNodePathPatch` 在应用自定义路径前会做 `AssetPathDiagnostics.Exists`
+（内部 `ResourceLoader.Exists`）；而原版 PNG Boss 的 `BossNodePath` 是**无扩展名**的 `..._icon` 基路径
+（游戏在 `NBossMapPoint._Ready` 里自行拼 `.png` / `_outline.png`），Godot 对无扩展名路径恒返回 false
+→ 自定义路径被丢弃 → `BossNodePath` 回退到不存在的默认 Spine 路径
+`res://animations/map/<entry>/<entry>_node_skel_data.tres` → `BossNodeSpineResource=null`，
+`MapNodeAssetPaths` 又按默认路径拼出同样不存在的 PNG → `NBossMapPoint` 的 PlaceholderImage/Outline 纹理为 null
+→ 地图节点无图标。
+
+**修复**：`DarkWorldGraphaBoss` 直接
+`public override string BossNodePath => "res://lightsworn/images/map/lightsworn/dark_world_grapha_boss_icon";`
+（与 VantomBoss / LagavulinMatriarchBoss 等原版 PNG Boss 完全一致）；`AssetProfile` 只保留
+`RunHistoryIconPath` / `RunHistoryIconOutlinePath`。开发手册新增坑38，`boss制作需求.md` 同步更正。
+
+**验证**：
+- 运行时自检（临时订阅 `ModelRegistryInitializedEvent`，诊断代码已删除）打印：
+  `BossNodePath=res://lightsworn/images/map/lightsworn/dark_world_grapha_boss_icon`、`spine=False`、
+  `asset=..._icon.png exists=True`、`asset=..._icon_outline.png exists=True`。
+- 两张地图贴图为纯白蒙版（350×307，不透明像素 RGB 全 255），符合 act 染色要求。
+- 构建 0 错误；LsCompatTrial 0.107 PASS；memberref 0.107.1+0.111.0 双 PASS（methods=261）。
+- 0.107.1 实机 `Version=0.6.5` + `Lightsworn mod initialized!`，零异常。
+- 产物 dll `dee7eed5…`(394752) / pck `1d0ff6fd…`(23072000) / json `5a30416b…`；**未上传工坊**。

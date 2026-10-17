@@ -64,3 +64,8 @@ tools/_g5/
 design/boss美术参考/
 tools/_bossref_raw/
 tools/_bossref_out/
+
+# ===== 三层 Boss 抉择事件实测证据截图（2026-10-18，本地留档）=====
+tools/_act3_*.png
+tools/_forced_event.png
+tools/_reload_state.png
