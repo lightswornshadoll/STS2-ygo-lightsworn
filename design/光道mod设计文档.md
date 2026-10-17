@@ -2111,4 +2111,28 @@ RitsuLib 的 `EncounterBossNodePathPatch` 在应用自定义路径前会做 `Ass
 - 两张地图贴图为纯白蒙版（350×307，不透明像素 RGB 全 255），符合 act 染色要求。
 - 构建 0 错误；LsCompatTrial 0.107 PASS；memberref 0.107.1+0.111.0 双 PASS（methods=261）。
 - 0.107.1 实机 `Version=0.6.5` + `Lightsworn mod initialized!`，零异常。
-- 产物 dll `dee7eed5…`(394752) / pck `1d0ff6fd…`(23072000) / json `5a30416b…`；**未上传工坊**。
+- 产物 dll `dee7eed5…`(394752) / pck `1d0ff6fd…`(23072000) / json `5a30416b…`。
+- **已发布**：git `58f90ed` 已推送；创意工坊 v0.6.5 上传成功（ManifestID `4893811961852270346`，2026-10-18 03:23）。
+
+---
+
+## v1.55 三层 Boss 抉择事件（2026-10-18，v0.6.5）
+
+**文件**：`Scripts\Act3BossChoice.cs`（`ThirdActBossChoiceEncounter` + `ThirdActBossChoiceTrigger`）。
+
+- **触发**：第二层 Boss 奖励领完、`ActEnteredEvent` 发布（Act 2→3 完成、第三层地图已打开）后，
+  `CurrentActIndex==2` 且当前 Act 有本 mod Boss 时触发；每局一次（`_shownForRun`）。
+- **表现**：关地图 → `RoomFadeOut` → `EnterRoom(EventRoom)` → `RoomFadeIn`；事件结束地图重新打开，
+  第三层起始先古节点仍可进入（不标记 Ancient 节点）。
+- **选项**：`CHOOSE_MOD`（本 mod 程序集里的 Glory Boss 池）/ `CHOOSE_VANILLA`（游戏本体程序集池）；
+  其他 mod 注册的 Boss 不参与（避免误改别家内容）。空池回退全部池；仍空则显示 `NO_BOSS` 页面、不改写。
+- **改写**：`MapCmd.SetBossEncounter`（重建地图/顶栏图标）；进阶双 Boss 时先 `SetSecondBossEncounter`
+  （排除与第一个同 ID）。
+- **随机/联机**：用事件模型自带 `Rng`（确定性）；`IsShared=true` 走共享事件投票，全队同一选择。
+- **注册细节**：`[RegisterActEvent(typeof(Glory))]` + `IsAllowed=false`——只用于手动 `EnterRoom`，
+  不进第三层随机事件池，避免影响一、二层事件/房间 RNG。
+- **文案**：`LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.*`（zhs+eng）；`DONE` 页的 `{Boss}` 替换为所选 Boss 名。
+- **立绘**：复用 `images\monsters\dark_world_grapha.png`（`CustomInitialPortraitPath`）；
+  以后做专用事件图只改这一处（**文件名不含 mod 前缀，漏写=进房黑屏**）。
+
+**验证**：与 v1.54 同一构建（dll `dee7eed5…`）；0.107.1 实机事件手动触发/选项/地图重开通过（证据 `tools\_act3_*.png`，不入库）。
