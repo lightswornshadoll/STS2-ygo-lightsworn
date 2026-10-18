@@ -33,6 +33,11 @@ public class InfernoidMaterialPower : ModPowerTemplate
     private bool _batching;
     private bool _checking;
 
+    // 弃置计数按玩家隔离（多人各算各的，能力文案不写明）。
+    // 只统计“弃置”：手牌弃置 + 弃光（Draw→Discard）；打出、回合结束手牌清理、放回弃牌堆都不算。
+    private const int DiscardCurseThreshold = 30;
+    private readonly Dictionary<Player, int> _discardCounts = new();
+
     public int Material => Amount;
 
     public bool PendingNaamah => _pendingNaamah;
@@ -67,8 +72,19 @@ public class InfernoidMaterialPower : ModPowerTemplate
         IconPath: "res://lightsworn/images/powers/infernoidmaterial.png",
         BigIconPath: "res://lightsworn/images/powers/infernoidmaterial_big.png");
 
+    // 手牌弃置：CardCmd.Discard 在牌已进入弃牌堆后单独发这个钩子。
+    public override async Task AfterCardDiscarded(PlayerChoiceContext choiceContext, CardModel card)
+    {
+        await CountDiscardedCardAsync(card.Owner, choiceContext);
+    }
+
     public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy)
     {
+        // 弃光：抽牌堆→弃牌堆。手牌→弃牌堆的弃置走 AfterCardDiscarded，避免重复计数；
+        // 打出（Play→Discard）与回合结束手牌清理（Hand→Discard，不经过 AfterCardDiscarded）不算。
+        if (oldPileType == PileType.Draw && card.Pile?.Type == PileType.Discard)
+            await CountDiscardedCardAsync(card.Owner, null);
+
         if (_pendingNaamah) return;
         if (card is not InfernoidCurseCard curse) return;
         if (curse.Level <= 1) return;
@@ -95,6 +111,26 @@ public class InfernoidMaterialPower : ModPowerTemplate
         Flash();
         if (!_batching)
             await CheckThresholdsAsync();
+    }
+
+    // 每名玩家各自累计弃置数；每满 30 张，把 1 张随机诅咒洗入该玩家的抽牌堆。
+    private async Task CountDiscardedCardAsync(Player? player, PlayerChoiceContext? choiceContext)
+    {
+        if (player == null || Owner.CombatState == null) return;
+        if (!Owner.CombatState.Players.Contains(player)) return;
+        if (!player.Creature.IsAlive || Owner.Monster == null) return;
+
+        _discardCounts.TryGetValue(player, out int count);
+        count++;
+        if (count < DiscardCurseThreshold)
+        {
+            _discardCounts[player] = count;
+            return;
+        }
+
+        _discardCounts[player] = count - DiscardCurseThreshold;
+        PlayerChoiceContext ctx = choiceContext ?? new BlockingPlayerChoiceContext();
+        await InfernoidTierraCards.AddRandomCurseToDraw(ctx, player, Owner.Monster.Rng);
     }
 
     public void BeginBatch() => _batching = true;

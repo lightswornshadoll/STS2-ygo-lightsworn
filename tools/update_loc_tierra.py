@@ -16,8 +16,11 @@ def load(path):
 def save(path, data):
     text = json.dumps(data, ensure_ascii=False, indent=2)
     text = text.replace('\n', '\r\n')
+    # 保持原文件末尾是否有换行，避免无意义 diff
+    with io.open(path, 'rb') as f:
+        had_newline = f.read().endswith(b'\n')
     with io.open(path, 'w', encoding='utf-8', newline='') as f:
-        f.write(text)
+        f.write(text + ('\r\n' if had_newline else ''))
 
 
 def update(lang, filename, entries):
@@ -133,6 +136,7 @@ powers = {
         '点亮第{T5}个节点：弃光3，并将3张随机狱火机诅咒置入弃牌堆。' + chr(10) +
         '点亮第{T8}个节点：从除外区选至多3张非狱火机与3张狱火机放回弃牌堆。' + chr(10) +
         '点亮第{T10}个节点：丢弃全部手牌，每弃1张将1张随机狱火机诅咒置入弃牌堆。Boss 下个回合攻击结算完毕时，节点重置为{Base}。' + chr(10) +
+        '每弃置30张牌，将1张随机狱火机诅咒洗入抽牌堆。' + chr(10) +
         '当前节点：{Amount}/{Max}。'),
     'STAR_CREATION_POWER': (
         '创星',

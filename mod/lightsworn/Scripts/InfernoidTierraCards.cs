@@ -285,10 +285,34 @@ internal static class InfernoidTierraCards
         typeof(InfernoidOnuncu),
     ];
 
+    // 随机生成优先给玩家当前没有的种类（手牌/抽牌堆/弃牌堆/除外堆都算“有”）；
+    // 10 种都在场时退回全随机。
+    private static readonly PileType[] CurseSearchPiles =
+    [
+        PileType.Hand, PileType.Draw, PileType.Discard, PileType.Exhaust,
+    ];
+
+    private static bool PlayerHasCurseType(Player player, Type type)
+    {
+        foreach (PileType pileType in CurseSearchPiles)
+        {
+            foreach (CardModel card in pileType.GetPile(player).Cards)
+            {
+                if (card is InfernoidCurseCard curse && curse.GetType() == type)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public static InfernoidCurseCard? CreateRandomCurse(Player player, Rng rng)
     {
-        int index = rng.NextInt(CurseTypes.Length);
-        CardModel canonical = CurseTypes[index] switch
+        List<Type> candidates = CurseTypes.Where(t => !PlayerHasCurseType(player, t)).ToList();
+        if (candidates.Count == 0)
+            candidates.AddRange(CurseTypes);
+
+        Type chosen = rng.NextItem(candidates) ?? CurseTypes[0];
+        CardModel canonical = chosen switch
         {
             Type t when t == typeof(InfernoidDecatron) => ModelDb.Card<InfernoidDecatron>(),
             Type t when t == typeof(InfernoidBeelzebub) => ModelDb.Card<InfernoidBeelzebub>(),
