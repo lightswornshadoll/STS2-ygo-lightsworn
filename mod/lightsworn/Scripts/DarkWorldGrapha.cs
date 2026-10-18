@@ -374,9 +374,9 @@ public sealed class DarkWorldBrainwashIntent : StatusIntent
 }
 
 // ================= 洗脑 debuff =================
-// 「打出的下一张牌无效」：ModifyCardPlayCount 返回 0 → 费用照付、牌进弃牌堆、不执行任何 OnPlay 效果。
+// 「打出的下一张攻击/技能/能力牌无效」：ModifyCardPlayCount 返回 0 → 费用照付、牌进弃牌堆、不执行任何 OnPlay 效果。
+// 只吞攻击/技能/能力（v0.7.3 反馈）：诅咒、状态（含自动打出的「暗黑界的洗脑」本身）照常结算。
 // 本身是可见 Debuff → 人工制品在 PowerCmd.Apply 阶段会正常抵消（每层人工制品挡一次施加）。
-// 状态牌（洗脑本身）不消耗层数，避免抽到第二张洗脑时把它自己吞掉。
 public class DarkWorldBrainwashPower : ModPowerTemplate
 {
     public override PowerType Type => PowerType.Debuff;
@@ -390,7 +390,7 @@ public class DarkWorldBrainwashPower : ModPowerTemplate
     {
         if (playCount <= 0) return playCount;
         if (card.Owner?.Creature != Owner) return playCount;
-        if (card.Type == CardType.Status) return playCount;
+        if (card.Type is not (CardType.Attack or CardType.Skill or CardType.Power)) return playCount;
         if (Amount <= 0) return playCount;
 
         Flash();

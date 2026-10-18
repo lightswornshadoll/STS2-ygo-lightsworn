@@ -31,9 +31,10 @@ public sealed class ThirdActBossChoiceEncounter : ModEventTemplate
     // 改写的是全队共用的第三层 Boss，必须走共享事件投票，多人两端才会执行同一个选择。
     public override bool IsShared => true;
 
-    // 复用格拉法立绘（pck 里已有）；以后要做专用 event 图时只改这里。
+    // 专用事件立绘：星光璀璨的远方宇宙（v0.7.3 用户指定素材）。
+    // ⚠ 路径文件名不含 mod 前缀（坑23）；换图后必须 Godot --headless --import 再 ExportPck（坑13）。
     public override string? CustomInitialPortraitPath
-        => "res://lightsworn/images/monsters/dark_world_grapha.png";
+        => "res://lightsworn/images/events/farthest_universe.png";
 
     protected override IReadOnlyList<EventOption> GenerateInitialOptions()
     {
@@ -85,9 +86,8 @@ public sealed class ThirdActBossChoiceEncounter : ModEventTemplate
 
         MapCmd.SetBossEncounter(runState, chosen);
 
-        LocString done = L10NLookup($"{Id.Entry}.pages.DONE.description");
-        done.Add("Boss", chosen.Title);
-        SetEventFinished(done);
+        // 不再向玩家显露第三层 Boss 的名字（v0.7.3 反馈）：结局页只描述踏入宇宙/留在原地。
+        SetEventFinished(L10NLookup($"{Id.Entry}.pages.DONE.description"));
         return Task.CompletedTask;
     }
 

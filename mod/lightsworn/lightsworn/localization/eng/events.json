@@ -7,12 +7,12 @@
   "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.INITIAL.options.TAKE_PEARLS.description": "获得遗物[gold]幻色珍珠[/gold]。",
   "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.JOIN.description": "「跟我们走……真的吗？」\n三双湿润的眼睛同时亮了起来。\n塞壬将一颗泪珠凝成卡牌的模样，轻轻放进你的卡组；小美人鱼用珍珠串起卡组的锁链；梅洛高兴地唱起了不成调的歌。\n临别时，小美人鱼又从水底捞起一片[red]腐朽的鳞片[/red]塞进你的卡组，「陆地的路很长，」她轻声说，「疼的时候，就当我们在陪你。」\n「呐——要是难过了，就把我们[red]融合[/red]起来吧。」梅洛凑过来补了一句。\n「在眼泪流干之前，我们会一直陪着你的。」",
   "LIGHTSWORN_EVENT_PEARL_WORLD_ENCOUNTER.pages.PEARLS.description": "你婉拒了同行的邀请。\n「这样呀……」塞壬的耳朵耷拉了一下，但很快又笑起来，「那，至少带上这些。」\n小美人鱼把那颗[gold]幻色珍珠[/gold]塞进你手里，冰凉温润，在光下泛着彩虹色的光晕。\n「陆地的路很长，」她轻声说，「别让自己太辛苦。」\n人鱼们向你挥别，沉入珍珠色的水光之中。",
-  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.title": "Crossroads: The Throne of Act III",
-  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.description": "The Act II boss has fallen, and the gate to Act III opens before you.\nTwo presences stir in the dark: one from the [purple]otherworld[/purple], carrying a dragon's authority that does not belong to this Spire; the other is the Spire's own ancient, familiar pulse.\nYou take the handle, knowing your choice will decide who sits on the throne of Act III.",
-  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_MOD.title": "Let the Otherworld Ascend",
-  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_MOD.description": "The Act III boss will be chosen at random from [purple]mod bosses[/purple].",
-  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_VANILLA.title": "Follow the Laws of This World",
-  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_VANILLA.description": "The Act III boss will be chosen at random from [gold]vanilla bosses[/gold].",
-  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.DONE.description": "Your choice sinks down the stairwell.\nDeep in Act III, a figure slowly opens its eyes—[gold]{Boss}[/gold] will be your opponent.",
-  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.NO_BOSS.description": "You reach for Act III's fate, but find no boss to choose from.\n(No eligible boss was found; the event will not change Act III.)"
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.title": "The Farthest Universe",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.description": "The Act II boss has fallen, and the stairway to Act III breaks open at its end.\nBeyond it lies a [purple]starry universe[/purple], its dust turning silently in the endless dark, vaster than any window of the Spire.\nOne step forward would carry you into that universe; yet the Spire whispers beneath your feet, urging you to keep to its ancient, familiar order.\nWill you step into this universe?",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_MOD.title": "Step Into the Universe",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_MOD.description": "The Act III boss will come from [purple]the far side of the universe[/purple].",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_VANILLA.title": "Remain Where You Stand",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.INITIAL.options.CHOOSE_VANILLA.description": "Act III will still follow the laws of this world.",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.DONE.description": "You take a step, and the starlight closes behind you.\nDeep in Act III, something slowly opens its eyes.",
+  "LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER.pages.NO_BOSS.description": "You reach into the starry sea, but find only emptiness.\n(No eligible boss was found; the event will not change Act III.)"
 }

@@ -171,7 +171,10 @@ try:
     crop_t.save(tierra_tmp)
     round_icon(crop_t, 'tierrafusionnullify')
     round_icon(crop_t, 'tierrafusioncomplete')
-    round_icon(p1, 'tierraphasegate', (640, 240, 960, 560))
+    # 阶段门 buff 图标 =「炼狱的狂宴」（Void Feast）
+    feast = Image.open(os.path.join(YGOPRO, '31548814.jpg')).convert('RGB')
+    feast_crop = feast.crop((X0, Y0, X1, Y0 + CROP_H)).resize((250, 190), Image.LANCZOS)
+    round_icon(feast_crop, 'tierraphasegate')
     round_icon(p2, 'tierraapocalypse', (590, 200, 970, 580))
     # 二阶段四招中的洪水/虚梦/灾天用原卡图
     for name, code, stem in (

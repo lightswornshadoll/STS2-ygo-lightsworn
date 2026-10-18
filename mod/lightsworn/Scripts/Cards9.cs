@@ -59,7 +59,7 @@ public abstract class DarkWorldAttackCard : LsCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class DarkWorldKelt : DarkWorldAttackCard
 {
-    public DarkWorldKelt() : base(12) { }
+    public DarkWorldKelt() : base(6) { }
 
     protected override async Task OnDiscardedFromHand(PlayerChoiceContext choiceContext)
     {
@@ -74,7 +74,7 @@ public class DarkWorldKelt : DarkWorldAttackCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class DarkWorldLatinum : DarkWorldAttackCard
 {
-    public DarkWorldLatinum() : base(8) { }
+    public DarkWorldLatinum() : base(4) { }
 
     protected override async Task OnDiscardedFromHand(PlayerChoiceContext choiceContext)
     {
@@ -89,7 +89,7 @@ public class DarkWorldLatinum : DarkWorldAttackCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class DarkWorldSillva : DarkWorldAttackCard
 {
-    public DarkWorldSillva() : base(11) { }
+    public DarkWorldSillva() : base(5) { }
 
     protected override async Task OnDiscardedFromHand(PlayerChoiceContext choiceContext)
     {
@@ -108,7 +108,7 @@ public class DarkWorldSillva : DarkWorldAttackCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class DarkWorldGoldd : DarkWorldAttackCard
 {
-    public DarkWorldGoldd() : base(11) { }
+    public DarkWorldGoldd() : base(5) { }
 
     protected override async Task OnDiscardedFromHand(PlayerChoiceContext choiceContext)
     {

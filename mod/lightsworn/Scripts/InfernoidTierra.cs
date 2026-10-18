@@ -108,7 +108,7 @@ public class InfernoidTierra : ModMonsterTemplate
         {
             InfernoidMaterialPower? material =
                 await PowerCmd.Apply<InfernoidMaterialPower>(ctx, Creature, 1, Creature, null);
-            material?.SetAmount(1);
+            material?.SetAmount(Math.Max(1, Creature.CombatState?.Players.Count ?? 1));
         }
         Log.Info($"[LsTierra] AfterAddedToRoom powers={string.Join(",", Creature.Powers.Select(p => p.Id.Entry))}");
     }
@@ -121,6 +121,9 @@ public class InfernoidTierra : ModMonsterTemplate
         _startCursesAdded = true;
         if (Creature.CombatState == null) return;
         PlayerChoiceContext ctx = new ThrowingPlayerChoiceContext();
+        // 多人：节点条按玩家人数初始化（3人=3节点）。CombatState 在这里已可用。
+        if (MaterialPower is InfernoidMaterialPower material && Creature.CombatState != null)
+            material.SetAmount(Math.Max(1, Creature.CombatState.Players.Count));
         foreach (Player player in Creature.CombatState.Players)
         {
             if (!player.Creature.IsAlive) continue;
@@ -276,8 +279,9 @@ public class InfernoidTierra : ModMonsterTemplate
 
         await ResolveTributeAndCurse(ctx, level);
 
-        // 10 级特效：拿玛动作（含 Tribute / 塞诅咒）全部结算完之后才融合完成。
-        // 十进管复制 10 级动作只复制“动作”，不触发阈值特效。
+        // 10 级动作（拿玛）：动作、Tribute、塞诅咒全部结算完之后，节点才重置为 1。
+        // 「到达 10 立刻弃手牌」已由 InfernoidMaterialPower 在点亮第 10 个节点时结算。
+        // 十进管复制 10 级动作只复制“动作”，不触发重置。
         if (level == 10 && !isCopy && MaterialPower is InfernoidMaterialPower material)
             await material.CompleteFusionAsync(ctx);
     }
@@ -565,14 +569,15 @@ public class InfernoidTierra : ModMonsterTemplate
         }
 
         // 一阶段素材 bbox=(100,137)-(1340,1413)：内容中心 x=720（相对画布中心 -48）、
-        // 内容底边相对纹理中心 +645。0.48 缩放 → Position=(-23, -309.6) 时脚底贴场景原点；
-        // 高度约 612，给头顶意图留出约 20px 空间（0.5 缩放时 Boss 太高，意图会被顶栏裁掉）。
+        // 内容底边相对纹理中心 +645。0.48 缩放 → Position=(-23, -309.6) 时脚底贴场景原点。
+        // FlipH：原画头朝左（背对玩家），镜像后头朝玩家一侧。
         var sprite = new Sprite2D
         {
             Name = "Visuals",
             Texture = ResourceLoader.Load<Texture2D>("res://lightsworn/images/monsters/infernoid_tierra.png"),
             Position = new Vector2(-23f, -309.6f),
             Scale = new Vector2(0.48f, 0.48f),
+            FlipH = true,
         };
         AddOwned(sprite);
 
@@ -588,7 +593,8 @@ public class InfernoidTierra : ModMonsterTemplate
         var centerPos = new Marker2D { Name = "CenterPos", Position = new Vector2(0f, -310f) };
         AddOwned(centerPos);
 
-        var intentPos = new Marker2D { Name = "IntentPos", Position = new Vector2(0f, -620f) };
+        // 立绘很高，意图容器以该点为中心；-620 时容器上半截会被顶栏裁掉（实测只能看见一半）。
+        var intentPos = new Marker2D { Name = "IntentPos", Position = new Vector2(0f, -560f) };
         AddOwned(intentPos);
 
         var talkPos = new Marker2D { Name = "TalkPos", Position = new Vector2(0f, -470f) };
@@ -629,11 +635,13 @@ public class InfernoidTierra : ModMonsterTemplate
         cast.TrackInsertKey(ct, 0.42, basePos);
         lib.AddAnimation("cast", cast);
 
+        // 一阶段死亡时 RitsuLib 会把 "Dead" 转发到我们的 "die" 动画。只淡到半透明：
+        // 阶段门让 Boss 不会真的消失，玩家在下一次「创星」前能看到残留的躯体。
         var die = new Animation { Length = 1.20f };
         int dt = die.AddTrack(Animation.TrackType.Value);
         die.TrackSetPath(dt, "Visuals:modulate:a");
         die.TrackInsertKey(dt, 0.00, 1.0f);
-        die.TrackInsertKey(dt, 1.00, 0.0f);
+        die.TrackInsertKey(dt, 1.00, 0.35f);
         lib.AddAnimation("die", die);
 
         anim.AddAnimationLibrary("", lib);
@@ -657,15 +665,30 @@ public class InfernoidTierra : ModMonsterTemplate
         Vector2 delta = newPos - oldPos;
         sprite.Texture = texture;
         sprite.Position = newPos;
+        sprite.FlipH = false;   // 镜像只属于一阶段立绘
 
-        // 一阶段死亡时 RitsuLib 会把 "Dead" 转发到我们的 "die" 动画，把 modulate.a 淡到 0。
-        // StartReviveAnim 对非 Spine/非玩家单位不做恢复，这里手动停掉动画并恢复不透明度。
+        // 一阶段死亡时 RitsuLib 会把 "Dead" 转发到我们的 "die" 动画，把 modulate.a 淡到 0.35（半透明残留）。
+        // 创星动作开始时换成二阶段立绘：停掉动画并恢复不透明度。
         AnimationPlayer? anim = node?.GetSpecialNode<AnimationPlayer>("AnimationPlayer");
         anim?.Stop();
         sprite.Modulate = new Color(1f, 1f, 1f, 1f);
         sprite.Visible = true;
 
         if (anim == null) return;
+        // 一阶段的 die 末帧是 alpha 0.35（死亡后保留半透明残影）。
+        // 二阶段真正死亡时应完全淡出，所以在换图时把 die 末帧改回 0。
+        Animation? die = anim.GetAnimation("die");
+        if (die != null)
+        {
+            for (int track = 0; track < die.GetTrackCount(); track++)
+            {
+                if (die.TrackGetPath(track).ToString() != "Visuals:modulate:a") continue;
+                int keys = die.TrackGetKeyCount(track);
+                if (keys > 0)
+                    die.TrackSetKeyValue(track, keys - 1, 0f);
+            }
+        }
+
         foreach (string name in anim.GetAnimationList())
         {
             Animation? animation = anim.GetAnimation(name);
@@ -696,7 +719,7 @@ public class InfernoidTierra : ModMonsterTemplate
             .SelectMany(e => e.Powers)
             .OfType<StarCreationPower>()
             .FirstOrDefault();
-        star?.OnCurseDetonated(materialKey);
+        star?.OnCurseDetonated(player, materialKey);
     }
 }
 
@@ -716,7 +739,7 @@ public sealed class PhaseOneSelectState : MonsterState
     {
         InfernoidMaterialPower? material = _monster.MaterialPower;
         if (material?.PendingNaamah == true) return InfernoidTierra.NaamahMoveId;
-        int level = material?.Material ?? 1;
+        int level = material?.ActionLevel ?? 1;
         return level switch
         {
             2 => InfernoidTierra.BeelzebubMoveId,
@@ -749,7 +772,8 @@ public sealed class PhaseTwoSelectState : MonsterState
 
     public override string GetNextState(Creature owner, Rng rng)
     {
-        if (_monster.StarPower?.Gauge >= 10) return InfernoidTierra.StarCreationMoveId;
+        StarCreationPower? star = _monster.StarPower;
+        if (star != null && star.Gauge >= star.MaxGauge) return InfernoidTierra.StarCreationMoveId;
         return _monster.PhaseTwoIndex switch
         {
             1 => InfernoidTierra.FloodMoveId,

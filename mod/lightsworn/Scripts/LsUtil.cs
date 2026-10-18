@@ -906,7 +906,8 @@ public static class LsUtil
         return _playLockedThisTurn.Contains(card);
     }
 
-    // 每层随机选一种原版负面状态（易伤/虚弱/脆弱/中毒/灾厄），施加到所有目标各1层。
+    // 每层随机选一种原版负面状态（易伤/虚弱/中毒/灾厄），施加到所有目标各1层；
+    // 每次另有 1% 概率改为击晕所有目标（残响同款 CreatureCmd.Stun，不属于可被人工制品抵消的能力）。
     // 均为 PowerType.Debuff 的可见能力：人工制品（ArtifactPower）会自动抵挡。
     // RNG 必须用玩家侧 RunState（坑5：creature.Player 对怪物为 null）。
     public static async Task ApplyRandomDebuffs(PlayerChoiceContext ctx, Player player, List<Creature> targets, int stacks)
@@ -915,12 +916,17 @@ public static class LsUtil
         Creature applier = player.Creature;
         for (int i = 0; i < stacks; i++)
         {
-            switch (player.RunState.Rng.CombatCardSelection.NextInt(5))
+            if (player.RunState.Rng.CombatCardSelection.NextInt(100) == 0)
+            {
+                foreach (Creature target in targets.Where(t => t.IsAlive))
+                    await CreatureCmd.Stun(target);
+                continue;
+            }
+            switch (player.RunState.Rng.CombatCardSelection.NextInt(4))
             {
                 case 0: await PowerCmd.Apply<VulnerablePower>(ctx, targets, 1, applier, null); break;
                 case 1: await PowerCmd.Apply<WeakPower>(ctx, targets, 1, applier, null); break;
-                case 2: await PowerCmd.Apply<FrailPower>(ctx, targets, 1, applier, null); break;
-                case 3: await PowerCmd.Apply<PoisonPower>(ctx, targets, 1, applier, null); break;
+                case 2: await PowerCmd.Apply<PoisonPower>(ctx, targets, 1, applier, null); break;
                 default: await PowerCmd.Apply<DoomPower>(ctx, targets, 1, applier, null); break;
             }
         }

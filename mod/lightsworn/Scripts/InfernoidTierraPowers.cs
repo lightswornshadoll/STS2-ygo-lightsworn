@@ -16,24 +16,49 @@ using STS2RitsuLib.Patching.Models;
 
 namespace Lightsworn;
 
-// ================= 一阶段核心：融合素材数 = 动作等级 =================
-// 数值只升不降：初始 1；每张新的不同名、非十进管的狱火机诅咒进入玩家消耗堆 +1（上限 10）。
-// 同名复制品不加；8 级回收只把牌从除外区挪回弃牌堆，不改变素材数；10 级融合完成回 1。
-// 3/5/8 在素材数“正好达到”时立即触发一次（7→9 会跳过 8）；10 只标记 pending，
-// 由 Boss 的下一次出招（拿玛）结算完后再触发融合完成。
+// ================= 一阶段核心：逆生命树节点数 = 动作等级 =================
+// 数值只升不降：初始 1；每张新的不同名、非十进管的狱火机诅咒进入玩家消耗堆时点亮 1 个节点（上限 10）。
+// 同名复制品不加；8 级回收只把牌从除外区挪回弃牌堆，不改变节点数；10 级拿玛攻击后回 1。
+// 3/5/8 在节点数“正好达到”时立即触发一次（7→9 会跳过 8）；10 到达时立刻弃光玩家手牌并生成诅咒，
+// 并把下一次出招标记为拿玛（PendingNaamah）；拿玛动作结算完之后才重置为 1。
 public class InfernoidMaterialPower : ModPowerTemplate
 {
-    private readonly HashSet<string> _names = new();
+    // 种类按玩家隔离：同一名狱火机在不同玩家手里各算一次；节点条全局共享。
+    private readonly Dictionary<Player, HashSet<string>> _namesByPlayer = new();
     private bool _threshold3;
     private bool _threshold5;
     private bool _threshold8;
     private bool _pendingNaamah;
+    private bool _fusionCompleteTriggered;
     private bool _batching;
     private bool _checking;
 
     public int Material => Amount;
 
     public bool PendingNaamah => _pendingNaamah;
+
+    private int PlayerCount => Math.Max(1, Owner.CombatState?.Players.Count ?? 1);
+
+    public int MaxNodes => 10 * PlayerCount;
+
+    /// <summary>动作等级=节点数按玩家数折算回 1-10（3人初始3节点=1级，9节点=3级）。</summary>
+    public int ActionLevel => Math.Clamp((Material + PlayerCount - 1) / PlayerCount, 1, 10);
+
+    public override LocString Description
+    {
+        get
+        {
+            LocString text = base.Description;
+            int players = PlayerCount;
+            text.Add("T3", 3 * players);
+            text.Add("T5", 5 * players);
+            text.Add("T8", 8 * players);
+            text.Add("T10", 10 * players);
+            text.Add("Base", players);
+            text.Add("Max", 10 * players);
+            return text;
+        }
+    }
 
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
@@ -51,15 +76,22 @@ public class InfernoidMaterialPower : ModPowerTemplate
         if (card.Owner?.Creature?.Side != CombatSide.Player) return;
         if (!Owner.IsAlive) return;
 
-        if (!_names.Add(curse.MaterialKey)) return;
-        if (Amount >= 10)
+        Player? player = card.Owner;
+        if (player == null) return;
+        if (!_namesByPlayer.TryGetValue(player, out HashSet<string>? names))
+        {
+            names = new HashSet<string>();
+            _namesByPlayer[player] = names;
+        }
+        if (!names.Add(curse.MaterialKey)) return;
+        if (Amount >= MaxNodes)
         {
             _pendingNaamah = true;
             Flash();
             return;
         }
 
-        SetAmount(Amount + 1);
+        SetAmount(Math.Min(MaxNodes, Amount + 1));
         Flash();
         if (!_batching)
             await CheckThresholdsAsync();
@@ -80,27 +112,59 @@ public class InfernoidMaterialPower : ModPowerTemplate
         try
         {
             PlayerChoiceContext ctx = new BlockingPlayerChoiceContext();
-            if (Amount == 3 && !_threshold3)
+            int players = PlayerCount;
+            if (Amount == 3 * players && !_threshold3)
             {
                 _threshold3 = true;
                 await TriggerFusionSeal(ctx);
             }
-            if (Amount == 5 && !_threshold5)
+            if (Amount == 5 * players && !_threshold5)
             {
                 _threshold5 = true;
                 await TriggerGraveFill(ctx);
             }
-            if (Amount == 8 && !_threshold8)
+            if (Amount == 8 * players && !_threshold8)
             {
                 _threshold8 = true;
                 await TriggerRecovery(ctx);
             }
-            if (Amount >= 10)
+            if (Amount >= 10 * players && !_fusionCompleteTriggered)
+            {
+                _fusionCompleteTriggered = true;
                 _pendingNaamah = true;
+                await TriggerFusionCompletionAsync(ctx);
+            }
         }
         finally
         {
             _checking = false;
+        }
+    }
+
+    // 节点数到达 10 时立刻结算：弃光每名玩家当前手牌，每弃 1 张将 1 张随机诅咒置入弃牌堆。
+    // 弃置期间屏蔽诅咒触发；Boss 的下一次出招固定为拿玛，所以这里只触发“弃手牌”，不重置节点。
+    private async Task TriggerFusionCompletionAsync(PlayerChoiceContext ctx)
+    {
+        if (Owner.CombatState == null) return;
+        foreach (Player player in Owner.CombatState.Players)
+        {
+            if (!player.Creature.IsAlive) continue;
+            List<CardModel> hand = PileType.Hand.GetPile(player).Cards.ToList();
+            if (hand.Count == 0) continue;
+
+            InfernoidCurseCard.SuppressionDepth++;
+            try
+            {
+                await CardCmd.Discard(ctx, hand);
+            }
+            finally
+            {
+                InfernoidCurseCard.SuppressionDepth--;
+            }
+
+            Rng rng = player.RunState.Rng.CombatCardSelection;
+            for (int i = 0; i < hand.Count; i++)
+                await InfernoidTierraCards.AddRandomCurseToDiscard(ctx, player, rng);
         }
     }
 
@@ -187,8 +251,8 @@ public class InfernoidMaterialPower : ModPowerTemplate
         }
     }
 
-    // 拿玛动作结算完之后：除外区所有狱火机诅咒回弃牌堆；素材回 1；阈值重置；
-    // 玩家下回合抽牌后弃光手牌，每弃 1 张塞 1 张诅咒进弃牌堆。
+    // 拿玛动作结算完之后：除外区所有狱火机诅咒回弃牌堆；节点回 1；阈值重置。
+    // 10 节点的弃手牌已在到达 10 的瞬间结算（TriggerFusionCompletionAsync），这里不再重复。
     public async Task CompleteFusionAsync(PlayerChoiceContext ctx)
     {
         if (Owner.CombatState == null) return;
@@ -200,26 +264,21 @@ public class InfernoidMaterialPower : ModPowerTemplate
                 await CardPileCmd.Add(card, PileType.Discard);
         }
 
-        _names.Clear();
+        _namesByPlayer.Clear();
         _threshold3 = false;
         _threshold5 = false;
         _threshold8 = false;
         _pendingNaamah = false;
-        SetAmount(1);
+        _fusionCompleteTriggered = false;
+        SetAmount(PlayerCount);
         Flash();
-
-        foreach (Player player in Owner.CombatState.Players)
-        {
-            if (!player.Creature.IsAlive) continue;
-            await PowerCmd.Apply<TierraFusionCompletePower>(ctx, player.Creature, 1m, Owner, null);
-        }
     }
 }
 
 // ================= 二阶段核心：创星 =================
-// 显示为 0-10（内部 Amount=显示值+1，保证 0 时能力仍可见）。
-// 每个 Boss 回合结束 +2；阶段 2 内每真正引爆一种新的狱火机诅咒 +1。
-// 到 10 后 Boss 的下一招变为「创星·灭世」；灭世后重置 0 / 种类清空。
+// 显示为 0 - 10×玩家数（内部 Amount=显示值+1，保证 0 时能力仍可见）。
+// 每个 Boss 回合结束 +2×玩家数；阶段 2 内每名玩家每真正引爆一种新的狱火机诅咒 +1。
+// 到 10×玩家数后 Boss 的下一招变为「创星·灭世」；灭世后重置 0 / 种类清空。
 public class StarCreationPower : ModPowerTemplate
 {
     private static readonly Dictionary<string, string> TypeNames = new()
@@ -236,12 +295,17 @@ public class StarCreationPower : ModPowerTemplate
         ["InfernoidOnuncu"] = "拿玛",
     };
 
-    private readonly HashSet<string> _types = new();
+    // 种类按玩家隔离：同一名狱火机在不同玩家手里各算一次；创星条全局共享。
+    private readonly Dictionary<Player, HashSet<string>> _typesByPlayer = new();
     private bool _skipNextTurnEnd;
 
-    public int Gauge => Math.Clamp(Amount - 1, 0, 10);
+    private int PlayerCount => Math.Max(1, Owner.CombatState?.Players.Count ?? 1);
 
-    public int TriggeredTypeCount => _types.Count;
+    public int MaxGauge => 10 * PlayerCount;
+
+    public int Gauge => Math.Clamp(Amount - 1, 0, MaxGauge);
+
+    public int TriggeredTypeCount => _typesByPlayer.Values.Sum(s => s.Count);
 
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
@@ -257,25 +321,39 @@ public class StarCreationPower : ModPowerTemplate
         get
         {
             LocString text = base.Description;
-            string names = _types.Count == 0
+            string names = TriggeredTypeCount == 0
                 ? "无"
-                : string.Join("、", _types.Select(k => TypeNames.TryGetValue(k, out string? n) ? n : k));
+                : string.Join("、", _typesByPlayer.Values
+                    .SelectMany(s => s)
+                    .GroupBy(k => k)
+                    .OrderBy(g => g.Key)
+                    .Select(g =>
+                    {
+                        string name = TypeNames.TryGetValue(g.Key, out string? n) ? n : g.Key;
+                        return g.Count() > 1 ? $"{name}×{g.Count()}" : name;
+                    }));
             text.Add("Gauge", Gauge);
+            text.Add("Max", MaxGauge);
             text.Add("Types", names);
-            text.Add("TypeCount", _types.Count);
+            text.Add("TypeCount", TriggeredTypeCount);
             return text;
         }
     }
 
     public void SkipNextTurnEnd() => _skipNextTurnEnd = true;
 
-    /// <summary>由诅咒引爆管线调用；只统计阶段 2 内真正引爆的新种类。</summary>
-    public void OnCurseDetonated(string materialKey)
+    /// <summary>由诅咒引爆管线调用；只统计阶段 2 内该玩家真正引爆的新种类。</summary>
+    public void OnCurseDetonated(Player player, string materialKey)
     {
         if (Owner.Monster is not InfernoidTierra tierra || tierra.Phase != 2) return;
-        if (Gauge >= 10) return;
-        if (!_types.Add(materialKey)) return;
-        SetAmount(Math.Min(11, Amount + 1));
+        if (Gauge >= MaxGauge) return;
+        if (!_typesByPlayer.TryGetValue(player, out HashSet<string>? types))
+        {
+            types = new HashSet<string>();
+            _typesByPlayer[player] = types;
+        }
+        if (!types.Add(materialKey)) return;
+        SetAmount(Math.Min(MaxGauge + 1, Amount + 1));
         Flash();
     }
 
@@ -288,8 +366,8 @@ public class StarCreationPower : ModPowerTemplate
             _skipNextTurnEnd = false;
             return;
         }
-        if (Gauge >= 10) return;
-        SetAmount(Math.Min(11, Amount + 2));
+        if (Gauge >= MaxGauge) return;
+        SetAmount(Math.Min(MaxGauge + 1, Amount + 2 * PlayerCount));
         Flash();
         await Task.CompletedTask;
     }
@@ -297,7 +375,7 @@ public class StarCreationPower : ModPowerTemplate
     public void ResetGauge()
     {
         SetAmount(1);
-        _types.Clear();
+        _typesByPlayer.Clear();
         _skipNextTurnEnd = true;
         Flash();
     }
@@ -306,12 +384,11 @@ public class StarCreationPower : ModPowerTemplate
 // ================= 阶段门：一阶段生命打空时不死亡，转入「创星」 =================
 // 仿 TestSubject 的 AdaptablePower：死亡事件照常发生，但怪物不被移出战斗、战斗不结束；
 // 死亡钩子把 NextMove 换成「创星」，创星动作里重置生命并切换到二阶段。
+// 该能力对玩家可见：战斗一开始就说明“一阶段死亡会进入二阶段”。
 public class InfernoidTierraPhaseGatePower : ModPowerTemplate
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Single;
-
-    protected override bool IsVisibleInternal => false;
 
     public override PowerAssetProfile AssetProfile => new(
         IconPath: "res://lightsworn/images/powers/tierraphasegate.png",
@@ -603,39 +680,6 @@ public class TierraFloodTributePower : ModPowerTemplate
     {
         if (side != CombatSide.Player || !participants.Contains(Owner)) return;
         _armed = false;
-        await PowerCmd.Remove(this);
-    }
-}
-
-// 10 级融合完成：玩家下回合抽牌后弃光手牌，每弃 1 张塞 1 张诅咒进弃牌堆（不触发引爆）。
-public class TierraFusionCompletePower : ModPowerTemplate
-{
-    public override PowerType Type => PowerType.Debuff;
-    public override PowerStackType StackType => PowerStackType.Single;
-
-    public override PowerAssetProfile AssetProfile => new(
-        IconPath: "res://lightsworn/images/powers/tierrafusioncomplete.png",
-        BigIconPath: "res://lightsworn/images/powers/tierrafusioncomplete_big.png");
-
-    public override async Task AfterPlayerTurnStartEarly(PlayerChoiceContext ctx, Player player)
-    {
-        if (player != Owner.Player) return;
-        List<CardModel> hand = PileType.Hand.GetPile(player).Cards.ToList();
-        if (hand.Count > 0)
-        {
-            InfernoidCurseCard.SuppressionDepth++;
-            try
-            {
-                await CardCmd.Discard(ctx, hand);
-            }
-            finally
-            {
-                InfernoidCurseCard.SuppressionDepth--;
-            }
-        }
-        Rng rng = player.RunState.Rng.CombatCardSelection;
-        for (int i = 0; i < hand.Count; i++)
-            await InfernoidTierraCards.AddRandomCurseToDiscard(ctx, player, rng);
         await PowerCmd.Remove(this);
     }
 }

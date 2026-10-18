@@ -23,7 +23,7 @@ namespace Lightsworn;
 public abstract class InfernoidCurseCard : LsCard
 {
     protected InfernoidCurseCard()
-        : base(0, CardType.Curse, CardRarity.Curse, TargetType.None, showInCardLibrary: false)
+        : base(-1, CardType.Curse, CardRarity.Curse, TargetType.None, showInCardLibrary: false)
     {
     }
 
