@@ -645,14 +645,15 @@ public class DarkWorldGraphaBoss : ModEncounterTemplate
 
 internal sealed class DarkWorldGraphaDiscoveryPatch : IPatchMethod
 {
-    public static string PatchId => "lightsworn_grapha_boss_discovery";
-    public static string Description => "Prioritize Dark World Grapha in act 3 boss discovery until first seen";
+    public static string PatchId => "lightsworn_act3_boss_discovery";
+    public static string Description => "Prioritize Lightsworn act 3 bosses (Grapha, then Tierra) in boss discovery until first seen";
     public static ModPatchTarget[] GetTargets() =>
         [new ModPatchTarget(typeof(Glory), "BossDiscoveryOrder", MethodType.Getter)];
 
     public static void Postfix(ref IEnumerable<EncounterModel> __result)
     {
         EncounterModel grapha = ModelDb.Encounter<DarkWorldGraphaBoss>();
-        __result = new[] { grapha }.Concat(__result.Where(e => e.Id != grapha.Id));
+        EncounterModel tierra = ModelDb.Encounter<InfernoidTierraBoss>();
+        __result = new[] { grapha, tierra }.Concat(__result.Where(e => e.Id != grapha.Id && e.Id != tierra.Id));
     }
 }

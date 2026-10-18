@@ -14,5 +14,9 @@
   "LIGHTSWORN_REINOHART_DISCARD": "珠泪哀歌族 雷诺哈特：丢弃1张珠泪攻击牌（可不选）",
   "LIGHTSWORN_SHADDOLL_MATERIAL": "选择影融素材（数量须与神影依的融合条件完全一致，不满足条件的组合将作废）",
   "LIGHTSWORN_SHADDOLL_FUSION": "选择要生成的神影依",
-  "LIGHTSWORN_SHADDOLL_DISCARD_MATERIAL": "丢弃1张影依卡"
+  "LIGHTSWORN_SHADDOLL_DISCARD_MATERIAL": "丢弃1张影依卡",
+  "LIGHTSWORN_TIERRA_TRIBUTE": "献祭：从弃牌堆选择1张非狱火机消耗",
+  "LIGHTSWORN_TIERRA_RECOVER_NONINFERNOID": "回收：从消耗堆选择至多3张非狱火机放回弃牌堆（可不选）",
+  "LIGHTSWORN_TIERRA_RECOVER_INFERNOID": "回收：从消耗堆选择至多3张狱火机放回弃牌堆（可不选）",
+  "LIGHTSWORN_TIERRA_SEAL_FUSION": "融合封印：选择至多3张本回合尚未生成的融合卡（本回合视为已生成）"
 }

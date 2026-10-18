@@ -1,0 +1,6 @@
+{
+  "LIGHTSWORN_TIERRA_TRIBUTE": "献祭：从弃牌堆选择1张非狱火机消耗",
+  "LIGHTSWORN_TIERRA_RECOVER_NONINFERNOID": "回收：从消耗堆选择至多3张非狱火机放回弃牌堆（可不选）",
+  "LIGHTSWORN_TIERRA_RECOVER_INFERNOID": "回收：从消耗堆选择至多3张狱火机放回弃牌堆（可不选）",
+  "LIGHTSWORN_TIERRA_SEAL_FUSION": "融合封印：选择至多3张本回合尚未生成的融合卡（本回合视为已生成）"
+}

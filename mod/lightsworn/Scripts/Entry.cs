@@ -23,7 +23,8 @@ public static class Entry
         patcher.RegisterPatch<StartingRelicChoicePatch>();            // 初始遗物二选一
         patcher.RegisterPatch<LightswornEnergyCounterOutlinePatch>(); // 能量球描边色（球体本体走 RitsuLib 场景路径，见角色类）
         patcher.RegisterPatch<HonestPowerLegacyPatch>();              // 欧尼斯特：0.107.x 五参 ModifyDamageMultiplicative
-        patcher.RegisterPatch<DarkWorldGraphaDiscoveryPatch>();       // 三层 Boss 发现顺序优先格拉法（未见过时必出）
+        patcher.RegisterPatch<TierraHalfDamageLegacyPatch>();         // 提耶拉·虚梦：0.107.x 五参伤害减半
+        patcher.RegisterPatch<DarkWorldGraphaDiscoveryPatch>();       // 三层 Boss 发现顺序优先 mod Boss（格拉法→提耶拉）
 
         if (!RitsuLibFramework.ApplyRequiredPatcher(patcher, static () => { }, "Lightsworn core patches failed"))
             Log.Error("[Lightsworn] core patches failed; some features may be unavailable");
