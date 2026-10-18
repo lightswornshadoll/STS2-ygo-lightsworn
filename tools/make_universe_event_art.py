@@ -4,7 +4,7 @@
 from PIL import Image
 import os
 
-SRC = r"D:\download\chrome_download\光道mod素材\最远方的宇宙.png"
+SRC = r"D:\download\chrome_download\光道mod素材\最远方的宇宙.jpeg"
 OUT = r"D:\1-workdata\lightsworn_mod\mod\lightsworn\lightsworn\images\events\farthest_universe.png"
 PREVIEW = r"D:\1-workdata\lightsworn_mod\tools\probe_universe_event_art.jpg"
 os.makedirs(os.path.dirname(OUT), exist_ok=True)

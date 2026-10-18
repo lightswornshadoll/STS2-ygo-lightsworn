@@ -2159,3 +2159,16 @@ pck 含 `farthest_universe.png` 与更新后的本地化；0.107.1 实机 `Versi
 实机事件（控制台 `event LIGHTSWORN_EVENT_THIRD_ACT_BOSS_CHOICE_ENCOUNTER`）立绘/文案/两个选项/结局页正常，
 结局页无 Boss 名；格拉法战斗中洗脑 4 层时打出「暗黑界的鬼神」→ 玩家 78→72（6 伤，洗脑仍 4 层），
 打出防御 → 费用 -1、洗脑 4→3、无格挡（技能仍被无效）。惩戒之龙的 1% 击晕为概率效果，未做逐次实测。
+
+---
+
+## v1.57 三层事件立绘高清重制（2026-10-18，v0.7.4）
+
+用户提供同一画面更高清素材 `D:\download\chrome_download\光道mod素材\最远方的宇宙.jpeg`（1536×1337 RGBA；
+v0.7.3 用的是 1248×1248）。`tools\make_universe_event_art.py` 的 SRC 切到新图后重跑：中心 cover 裁
+1536×720（2.133:1）→ LANCZOS 放大 3440×1613，输出仍为 `lightsworn\images\events\farthest_universe.png`，
+`CustomInitialPortraitPath` 不用改。
+
+**验证**：`Godot --headless --import` 重导 → ExportPck；pck 内 `farthest_universe.png-8c68…ctex`
+（5,097,338B，v0.7.3 为 3,294,576B）解码为 3440×1613，与本地 PNG 逐像素 diff=None；
+build 0 错误、memberref 双 PASS（methods=286）、0.107.1 实机 `Version=0.7.4.0` 零异常。
