@@ -362,6 +362,7 @@ public static class LsUtil
             token.FinalizeUpgradeInternal();
         }
         RegisterFusionGenerated(combat, player, token);
+        MarkFusionGeneratedThisTurn(combat, player);
         await CardPileCmd.AddGeneratedCardToCombat(token, PileType.Hand, player);
         TearLog($"生成 {token.Id.Entry} upgraded={trigger.IsUpgraded} → 已入手牌");
 
@@ -511,7 +512,10 @@ public static class LsUtil
         if (card == null) return;
         card.AddKeyword(CardKeyword.Exhaust);
         if (card is ShaddollToken)
+        {
             LockFusionGeneratedThisTurn(combat, player, card);
+            MarkFusionGeneratedThisTurn(combat, player);
+        }
         await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Hand, player);
         FusionLog($"随机生成 {card.Id.Entry}（{concept.Id.Entry}）→ 已入手牌");
     }
@@ -544,6 +548,8 @@ public static class LsUtil
         public readonly Dictionary<Player, HashSet<ModelId>> ShaddollFusedThisTurn = new();
         // 本场战斗只能生成1次：文迪戈（神影依）+ 卡雷多哈特（本批反馈）
         public readonly Dictionary<Player, HashSet<ModelId>> BattleLocked = new();
+        // 该玩家最近一个玩家回合实际生成过融合卡（虚梦/灾天判定用；不是消耗堆内容）
+        public readonly Dictionary<Player, int> LastFusionGeneratedTurn = new();
     }
 
     private static readonly ConditionalWeakTable<ICombatState, FusionLockState> _fusionLocks = new();
@@ -604,6 +610,24 @@ public static class LsUtil
             PlayerSet(st.BattleLocked, player).Add(token.Id);
         FusionLog($"lock-add {token.Id.Entry}（玩家 {player.NetId}，本回合 {st.TurnKey}" +
             $"{(token is ElShaddollWendigo or KaleidoHeart ? "，本场战斗锁" : "")}）");
+    }
+
+    // 记录“该玩家在最近一个玩家回合实际生成过融合卡”。供提耶拉二阶段虚梦/灾天判定：
+    // 只认玩家回合内真正产出的融合卡，不看消耗堆里可能是以前回合留下的融合卡。
+    // 3N 融合封印只是登记概念生成锁、没有产出卡，因此不要在这里调用。
+    public static void MarkFusionGeneratedThisTurn(ICombatState combat, Player player)
+    {
+        if (combat.CurrentSide != CombatSide.Player) return;
+        Locks(combat).LastFusionGeneratedTurn[player] = player.PlayerCombatState.TurnNumber;
+    }
+
+    // 该玩家最近一个玩家回合是否实际生成过融合卡。
+    // Boss 回合查询时 TurnNumber 仍是玩家刚结束的那一回合；下一次玩家回合开始 +1，自动过期。
+    public static bool HasGeneratedFusionThisTurn(ICombatState combat, Player player)
+    {
+        FusionLockState st = Locks(combat);
+        return st.LastFusionGeneratedTurn.TryGetValue(player, out int turn)
+            && turn == player.PlayerCombatState.TurnNumber;
     }
 
     private static bool IsFusionLocked(ICombatState combat, Player player, CardModel concept)
@@ -669,6 +693,7 @@ public static class LsUtil
         if (replayCount > 0)
             token.BaseReplayCount += replayCount;
         RegisterFusionGenerated(combat, player, token);
+        MarkFusionGeneratedThisTurn(combat, player);
         await CardPileCmd.AddGeneratedCardToCombat(token, PileType.Hand, player);
         FusionLog($"生成 {token.Id.Entry} upgraded={upgraded} replay={replayCount} → 已入手牌");
         return token;

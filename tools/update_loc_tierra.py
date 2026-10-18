@@ -77,7 +77,7 @@ monster_entries = {
     f'{PREFIX}.intents.DISCARD_ONE_SHORT': '随机弃牌',
     f'{PREFIX}.intents.DISCARD_ONE_TIP': '下回合抽牌后随机弃置1张手牌。',
     f'{PREFIX}.intents.GENERATE_FUEL_SHORT': '生成燃料',
-    f'{PREFIX}.intents.GENERATE_FUEL_TIP': '生成2张随机狱火机诅咒到弃牌堆；有融合卡时再生成6张。',
+    f'{PREFIX}.intents.GENERATE_FUEL_TIP': '生成2张随机狱火机诅咒到弃牌堆；本回合生成过融合卡时再生成6张。',
     f'{PREFIX}.intents.APOCALYPSE_SHORT': '灭世',
     f'{PREFIX}.intents.APOCALYPSE_TIP': '手牌与弃牌堆洗回抽牌堆；下回合只抽1张并失去1点能量；Boss回复100生命并获得2仪式。',
     f'{PREFIX}.intents.NULLIFY_FUSION': '下张融合无效',
@@ -100,7 +100,7 @@ encounter_entries = {
 
 cards = {
     'InfernoidDecatron': ('狱火机 十进管',
-        '不可打出。被弃置时：随机复制2-10中一张狱火机诅咒的触发效果（无需召唤代价）。'),
+        '不可打出。被弃置时：无效果。'),
     'InfernoidBeelzebub': ('狱火机·别西卜',
         '不可打出。被弃置时：消耗弃牌堆1张其他狱火机，将1张随机手牌洗回抽牌堆。'),
     'InfernoidLucifugus': ('狱火机·路西弗格',
@@ -116,9 +116,9 @@ cards = {
     'InfernoidAdrammelech': ('狱火机·亚得米勒',
         '不可打出。被弃置时：消耗弃牌堆2张其他狱火机，受到8点伤害两次。'),
     'InfernoidLilith': ('狱火机·莉莉丝',
-        '不可打出。被弃置时：消耗弃牌堆3张其他狱火机，消耗手牌和弃牌堆中所有技能牌。'),
+        '不可打出。被弃置时：消耗弃牌堆3张其他狱火机，弃置手牌中所有技能牌。'),
     'InfernoidOnuncu': ('狱火机·拿玛',
-        '不可打出。被弃置时：消耗弃牌堆3张其他狱火机，弃置所有手牌。'),
+        '不可打出。被弃置时：消耗弃牌堆3张其他狱火机，弃置手牌中所有攻击牌。'),
 }
 
 card_entries = {}
@@ -135,7 +135,7 @@ powers = {
         '点亮第{T3}个节点：融合封印——选择至多3张本回合尚未生成的融合卡，本回合视为已生成；没有可选融合卡时，将1张随机狱火机诅咒洗入抽牌堆。' + chr(10) +
         '点亮第{T5}个节点：弃光3，并将3张随机狱火机诅咒置入弃牌堆。' + chr(10) +
         '点亮第{T8}个节点：从除外区选至多3张非狱火机与3张狱火机放回弃牌堆。' + chr(10) +
-        '点亮第{T10}个节点：丢弃全部手牌，每弃1张将1张随机狱火机诅咒置入弃牌堆。Boss 下个回合攻击结算完毕时，节点重置为{Base}。' + chr(10) +
+        '点亮第{T10}个节点：丢弃全部手牌（不生成诅咒）。Boss 下个回合的拿玛动作完整结算后，清空种类记录并将节点重置为{Base}；消耗堆中的狱火机诅咒不会返回弃牌堆。' + chr(10) +
         '每弃置30张牌，将1张随机狱火机诅咒洗入抽牌堆。' + chr(10) +
         '当前节点：{Amount}/{Max}。'),
     'STAR_CREATION_POWER': (

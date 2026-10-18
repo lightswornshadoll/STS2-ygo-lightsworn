@@ -17,10 +17,11 @@ using STS2RitsuLib.Patching.Models;
 namespace Lightsworn;
 
 // ================= 一阶段核心：逆生命树节点数 = 动作等级 =================
-// 数值只升不降：初始 1；每张新的不同名、非十进管的狱火机诅咒进入玩家消耗堆时点亮 1 个节点（上限 10）。
-// 同名复制品不加；8 级回收只把牌从除外区挪回弃牌堆，不改变节点数；10 级拿玛攻击后回 1。
+// 数值只升不降：初始 N；每张新的不同名、非十进管的狱火机诅咒进入玩家消耗堆时点亮 1 个节点（上限 10N）。
+// 同名复制品不加；8 级回收只把牌从除外区挪回弃牌堆，不改变节点数。
 // 3/5/8 在节点数“正好达到”时立即触发一次（7→9 会跳过 8）；10 到达时立刻弃光玩家手牌并生成诅咒，
-// 并把下一次出招标记为拿玛（PendingNaamah）；拿玛动作结算完之后才重置为 1。
+// 并把下一次出招标记为拿玛（PendingNaamah）；拿玛动作结算完之后清空种类记录并把节点重置为 N
+// （不把消耗堆中的诅咒放回弃牌堆；拿玛动作也不再塞诅咒）。
 public class InfernoidMaterialPower : ModPowerTemplate
 {
     // 种类按玩家隔离：同一名狱火机在不同玩家手里各算一次；节点条全局共享。
@@ -177,7 +178,7 @@ public class InfernoidMaterialPower : ModPowerTemplate
         }
     }
 
-    // 节点数到达 10 时立刻结算：弃光每名玩家当前手牌，每弃 1 张将 1 张随机诅咒置入弃牌堆。
+    // 节点数到达 10 时立刻结算：弃光每名玩家当前手牌（不生成诅咒）。
     // 弃置期间屏蔽诅咒触发；Boss 的下一次出招固定为拿玛，所以这里只触发“弃手牌”，不重置节点。
     private async Task TriggerFusionCompletionAsync(PlayerChoiceContext ctx)
     {
@@ -197,10 +198,6 @@ public class InfernoidMaterialPower : ModPowerTemplate
             {
                 InfernoidCurseCard.SuppressionDepth--;
             }
-
-            Rng rng = player.RunState.Rng.CombatCardSelection;
-            for (int i = 0; i < hand.Count; i++)
-                await InfernoidTierraCards.AddRandomCurseToDiscard(ctx, player, rng);
         }
     }
 
@@ -287,19 +284,11 @@ public class InfernoidMaterialPower : ModPowerTemplate
         }
     }
 
-    // 拿玛动作结算完之后：除外区所有狱火机诅咒回弃牌堆；节点回 1；阈值重置。
+    // 拿玛动作完整结算之后：清空种类与阈值记录，节点重置为玩家人数 N。
+    // 不把消耗堆中的狱火机诅咒放回弃牌堆；它们继续留在消耗堆。
     // 10 节点的弃手牌已在到达 10 的瞬间结算（TriggerFusionCompletionAsync），这里不再重复。
-    public async Task CompleteFusionAsync(PlayerChoiceContext ctx)
+    public Task CompleteFusionAsync()
     {
-        if (Owner.CombatState == null) return;
-        foreach (Player player in Owner.CombatState.Players)
-        {
-            List<CardModel> exhausted = PileType.Exhaust.GetPile(player).Cards
-                .Where(c => c is InfernoidCurseCard).ToList();
-            foreach (CardModel card in exhausted)
-                await CardPileCmd.Add(card, PileType.Discard);
-        }
-
         _namesByPlayer.Clear();
         _threshold3 = false;
         _threshold5 = false;
@@ -308,6 +297,7 @@ public class InfernoidMaterialPower : ModPowerTemplate
         _fusionCompleteTriggered = false;
         SetAmount(PlayerCount);
         Flash();
+        return Task.CompletedTask;
     }
 }
 

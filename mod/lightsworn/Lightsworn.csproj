@@ -3,7 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>true</ImplicitUsings>
     <LangVersion>13</LangVersion>
-    <Version>0.7.5</Version><Nullable>enable</Nullable>
+    <Version>0.7.6</Version><Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
     <PathMap>$(AppOutputBase)=.\</PathMap>

@@ -279,11 +279,12 @@ public class InfernoidTierra : ModMonsterTemplate
 
         await ResolveTributeAndCurse(ctx, level);
 
-        // 10 级动作（拿玛）：动作、Tribute、塞诅咒全部结算完之后，节点才重置为 1。
+        // 10 级动作（拿玛）：动作与 Tribute 结算完之后，清空种类记录并把节点重置为 N；
+        // 拿玛不再塞诅咒，也不把消耗堆中的诅咒放回弃牌堆。
         // 「到达 10 立刻弃手牌」已由 InfernoidMaterialPower 在点亮第 10 个节点时结算。
         // 十进管复制 10 级动作只复制“动作”，不触发重置。
         if (level == 10 && !isCopy && MaterialPower is InfernoidMaterialPower material)
-            await material.CompleteFusionAsync(ctx);
+            await material.CompleteFusionAsync();
     }
 
     private async Task<AttackCommand> AttackAll(int damage, string hitFx)
@@ -490,7 +491,7 @@ public class InfernoidTierra : ModMonsterTemplate
 
                 await PowerCmd.Apply<TierraHalfDamagePower>(ctx, player.Creature, 2m, Creature, null);
 
-                if (HasFusionCard(player))
+                if (GeneratedFusionThisTurn(player))
                     await InfernoidTierraCards.AddRandomCursesToDiscard(ctx, player, Rng, 6);
             }
         }
@@ -507,7 +508,7 @@ public class InfernoidTierra : ModMonsterTemplate
                 if (!player.Creature.IsAlive) continue;
                 await PowerCmd.Apply<TierraDiscardOnePower>(ctx, player.Creature, 1m, Creature, null);
                 await InfernoidTierraCards.AddRandomCursesToDiscard(ctx, player, Rng, 2);
-                if (HasFusionCard(player))
+                if (GeneratedFusionThisTurn(player))
                     await InfernoidTierraCards.AddRandomCursesToDiscard(ctx, player, Rng, 6);
             }
         }
@@ -548,13 +549,8 @@ public class InfernoidTierra : ModMonsterTemplate
         _phaseTwoIndex = (_phaseTwoIndex + 1) % 4;
     }
 
-    private static bool HasFusionCard(Player player)
-    {
-        return PileType.Hand.GetPile(player).Cards
-            .Concat(PileType.Discard.GetPile(player).Cards)
-            .Concat(PileType.Exhaust.GetPile(player).Cards)
-            .Any(c => c is TearFusionToken or ShaddollToken);
-    }
+    private static bool GeneratedFusionThisTurn(Player player)
+        => player.Creature.CombatState is { } combat && LsUtil.HasGeneratedFusionThisTurn(combat, player);
 
     // ================= 静态立绘 + 二阶段换图 =================
     protected override NCreatureVisuals? TryCreateCreatureVisuals()

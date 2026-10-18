@@ -115,6 +115,9 @@ public abstract class InfernoidCurseCard : LsCard
         // 代价不够（理论上不会）就不触发效果。
         if (paid.Count < cost) return;
 
+        // 十进管没有「被弃置时」效果：不执行效果，也不计入引爆种类。
+        if (Level <= 1) return;
+
         await ExecuteEffect(choiceContext);
         InfernoidTierra.NotifyCurseDetonated(player, Level, MaterialKey);
     }
@@ -123,12 +126,6 @@ public abstract class InfernoidCurseCard : LsCard
     {
         Player player = Owner;
         int level = Level;
-        if (level == 1)
-        {
-            // 十进管：随机复制 2-10 中一张诅咒的触发效果。
-            level = player.RunState.Rng.CombatCardSelection.NextInt(2, 11);
-        }
-
         switch (level)
         {
             case 2:
@@ -188,23 +185,20 @@ public abstract class InfernoidCurseCard : LsCard
                 break;
             case 9:
             {
-                // 莉莉丝：消耗手牌和弃牌堆中所有技能牌。
+                // 莉莉丝：弃置手牌中所有技能牌。
                 List<CardModel> skills = PileType.Hand.GetPile(player).Cards
-                    .Concat(PileType.Discard.GetPile(player).Cards)
                     .Where(c => c.Type == CardType.Skill).ToList();
-                foreach (CardModel card in skills)
-                {
-                    if (card.Pile?.Type is not (PileType.Hand or PileType.Discard)) continue;
-                    await LsCompat.ExhaustCompat(ctx, card);
-                }
+                if (skills.Count > 0)
+                    await CardCmd.Discard(ctx, skills);
                 break;
             }
             case 10:
             {
-                // 拿玛：弃置所有手牌。连锁弃置会继续触发其他诅咒。
-                List<CardModel> hand = PileType.Hand.GetPile(player).Cards.ToList();
-                if (hand.Count > 0)
-                    await CardCmd.Discard(ctx, hand);
+                // 拿玛：弃置手牌中所有攻击牌。
+                List<CardModel> attacks = PileType.Hand.GetPile(player).Cards
+                    .Where(c => c.Type == CardType.Attack).ToList();
+                if (attacks.Count > 0)
+                    await CardCmd.Discard(ctx, attacks);
                 break;
             }
         }
