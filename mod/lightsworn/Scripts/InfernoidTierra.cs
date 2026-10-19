@@ -25,14 +25,16 @@ using STS2RitsuLib.Patching.Models;
 namespace Lightsworn;
 
 // ================= 狱火机·提耶拉 / 创星神·提耶拉（三层双阶段超规格 Boss） =================
-// 设计基线：design\提耶拉boss设计.md v0.8。
-// 一阶段：融合素材数（1-10）= 本回合动作等级；诅咒被弃置时引爆；3/5/8/10 阈值。
+// 设计基线：design\提耶拉boss设计.md v0.13。
+// 一阶段：融合素材数（0-10）= 本回合动作等级（0=十进管，1=撒旦，2-10=其余狱火机）；
+// 诅咒被弃置时引爆；3/5/8/10 阈值。
 // 二阶段：创星 0-10；四招循环；真正引爆诅咒种类 +1；到 10 用「创星·灭世」重罚。
 // 全部随机数使用 monster.Rng（联机确定性）。
 [RegisterMonster]
 public class InfernoidTierra : ModMonsterTemplate
 {
     public const string DecatronMoveId = "INFERNOID_DECATRON";
+    public const string SatanMoveId = "INFERNOID_SATAN";
     public const string BeelzebubMoveId = "INFERNOID_BEELZEBUB";
     public const string LucifugusMoveId = "INFERNOID_LUCIFUGUS";
     public const string AstarothMoveId = "INFERNOID_ASTAROTH";
@@ -108,7 +110,8 @@ public class InfernoidTierra : ModMonsterTemplate
         {
             InfernoidMaterialPower? material =
                 await PowerCmd.Apply<InfernoidMaterialPower>(ctx, Creature, 1, Creature, null);
-            material?.SetAmount(Math.Max(1, Creature.CombatState?.Players.Count ?? 1));
+            // 内部 Amount = 节点数 + 1（0 节点也能显示能力）；初始节点 = 0。
+            material?.SetAmount(1);
         }
         Log.Info($"[LsTierra] AfterAddedToRoom powers={string.Join(",", Creature.Powers.Select(p => p.Id.Entry))}");
     }
@@ -121,9 +124,9 @@ public class InfernoidTierra : ModMonsterTemplate
         _startCursesAdded = true;
         if (Creature.CombatState == null) return;
         PlayerChoiceContext ctx = new ThrowingPlayerChoiceContext();
-        // 多人：节点条按玩家人数初始化（3人=3节点）。CombatState 在这里已可用。
+        // 初始节点 = 0（内部 Amount = 节点数 + 1）。CombatState 在这里已可用。
         if (MaterialPower is InfernoidMaterialPower material && Creature.CombatState != null)
-            material.SetAmount(Math.Max(1, Creature.CombatState.Players.Count));
+            material.SetAmount(1);
         foreach (Player player in Creature.CombatState.Players)
         {
             if (!player.Creature.IsAlive) continue;
@@ -138,10 +141,12 @@ public class InfernoidTierra : ModMonsterTemplate
         PhaseOneSelectState phaseOneSelect = new(this);
         PhaseTwoSelectState phaseTwoSelect = new(this);
 
-        InfernoidDecatronIntent decatronIntent = new(() => _decatronMove?.CopyLevel ?? 2);
+        InfernoidDecatronIntent decatronIntent = new(() => _decatronMove?.CopyLevel ?? 1);
         _decatronMove = new InfernoidDecatronMoveState(this, DecatronMoveId, PerformDecatronMove,
             decatronIntent, new InfernoidTributeIntent());
 
+        MoveState satan = new(SatanMoveId, targets => PerformLevel(1, targets),
+            new InfernoidCardOpsIntent("SATAN"), new InfernoidTributeIntent());
         MoveState beelzebub = new(BeelzebubMoveId, targets => PerformLevel(2, targets),
             new DefendIntent(), new InfernoidTributeIntent());
         MoveState lucifugus = new(LucifugusMoveId, targets => PerformLevel(3, targets),
@@ -175,7 +180,7 @@ public class InfernoidTierra : ModMonsterTemplate
         MoveState starCreation = new(StarCreationMoveId, StarCreationMove,
             new InfernoidCardOpsIntent("APOCALYPSE"));
 
-        foreach (MoveState state in new[] { _decatronMove, beelzebub, lucifugus, astaroth, asmodeus,
+        foreach (MoveState state in new[] { _decatronMove, satan, beelzebub, lucifugus, astaroth, asmodeus,
                      belphegor, baal, adrammelech, lilith, naamah })
             state.FollowUpState = phaseOneSelect;
 
@@ -187,7 +192,7 @@ public class InfernoidTierra : ModMonsterTemplate
         starCreation.FollowUpState = phaseTwoSelect;
 
         return new MonsterMoveStateMachine(
-            [_decatronMove, beelzebub, lucifugus, astaroth, asmodeus, belphegor, baal,
+            [_decatronMove, satan, beelzebub, lucifugus, astaroth, asmodeus, belphegor, baal,
              adrammelech, lilith, naamah, _starTransformMove, evil, flood, virtualDream, disaster,
              starCreation, phaseOneSelect, phaseTwoSelect],
             phaseOneSelect);
@@ -195,16 +200,25 @@ public class InfernoidTierra : ModMonsterTemplate
 
     // ================= 一阶段动作 =================
     private Task PerformDecatronMove(IReadOnlyList<Creature> targets)
-        => PerformLevel(_decatronMove?.CopyLevel ?? 2, targets, isCopy: true);
+        => PerformLevel(_decatronMove?.CopyLevel ?? 1, targets, isCopy: true);
 
     private async Task PerformLevel(int level, IReadOnlyList<Creature> targets, bool isCopy = false)
     {
         PlayerChoiceContext ctx = new BlockingPlayerChoiceContext();
         switch (level)
         {
-            case 1:
-                // 不会发生：十进管在状态机里直接复制 2-10。
+            case 0:
+                // 不会发生：0 级就是十进管动作本身；十进管复制 1-10。
                 break;
+            case 1:
+            {
+                // 撒旦：原卡为 0 ATK / 0 DEF。
+                // ① 以场上 1 张盖卡为对象洗回卡组 → Boss 回合玩家空手，改为下回合随机洗回 1 张手牌。
+                // ② 对手回合解放 1 只怪兽，除外对手墓地 1 张卡 → 由 Tribute + ApplyTributeEffect(1) 结算。
+                await CreatureCmd.TriggerAnim(Creature, "Cast", 0.5f);
+                await ApplyToAllPlayers<TierraSatanShufflePower>(ctx, 1);
+                break;
+            }
             case 2:
                 await CreatureCmd.GainBlock(Creature, 20m, ValueProp.Move, null);
                 break;
@@ -279,8 +293,8 @@ public class InfernoidTierra : ModMonsterTemplate
 
         await ResolveTributeAndCurse(ctx, level);
 
-        // 10 级动作（拿玛）：动作与 Tribute 结算完之后，清空种类记录并把节点重置为 N；
-        // 拿玛不再塞诅咒，也不把消耗堆中的诅咒放回弃牌堆。
+        // 10 级动作（拿玛）：动作与 Tribute 结算完之后，清空种类记录并把节点重置为 0；
+        // 拿玛仍照常塞诅咒，也不把消耗堆中的诅咒放回弃牌堆。
         // 「到达 10 立刻弃手牌」已由 InfernoidMaterialPower 在点亮第 10 个节点时结算。
         // 十进管复制 10 级动作只复制“动作”，不触发重置。
         if (level == 10 && !isCopy && MaterialPower is InfernoidMaterialPower material)
@@ -347,6 +361,15 @@ public class InfernoidTierra : ModMonsterTemplate
     {
         switch (level)
         {
+            case 1:
+            {
+                // 撒旦：以对手墓地（玩家弃牌堆）1 张卡为对象，将其除外。
+                List<CardModel> discard = PileType.Discard.GetPile(player).Cards.ToList();
+                CardModel? pick = player.RunState.Rng.CombatCardSelection.NextItem(discard);
+                if (pick != null)
+                    await LsCompat.ExhaustCompat(ctx, pick);
+                break;
+            }
             case 2:
                 await PowerCmd.Apply<TierraShuffleOnePower>(ctx, player.Creature, 1m, Creature, null);
                 break;
@@ -735,9 +758,10 @@ public sealed class PhaseOneSelectState : MonsterState
     {
         InfernoidMaterialPower? material = _monster.MaterialPower;
         if (material?.PendingNaamah == true) return InfernoidTierra.NaamahMoveId;
-        int level = material?.ActionLevel ?? 1;
+        int level = material?.ActionLevel ?? 0;
         return level switch
         {
+            1 => InfernoidTierra.SatanMoveId,
             2 => InfernoidTierra.BeelzebubMoveId,
             3 => InfernoidTierra.LucifugusMoveId,
             4 => InfernoidTierra.AstarothMoveId,
@@ -783,13 +807,13 @@ public sealed class PhaseTwoSelectState : MonsterState
         => monsterStates.Add(Id, this);
 }
 
-// 十进管：进入状态时（玩家回合开始 RollMove）随机复制 2-10 中的一个动作；
+// 十进管：进入状态时（玩家回合开始 RollMove）随机复制 1-10 中的一个动作；
 // 意图读取 CopyLevel 动态显示复制了谁。
 public sealed class InfernoidDecatronMoveState : MoveState
 {
     private readonly InfernoidTierra _monster;
 
-    public int CopyLevel { get; private set; } = 2;
+    public int CopyLevel { get; private set; } = 1;
 
     public InfernoidDecatronMoveState(InfernoidTierra monster, string id,
         Func<IReadOnlyList<Creature>, Task> onPerform, params AbstractIntent[] intents)
@@ -800,7 +824,7 @@ public sealed class InfernoidDecatronMoveState : MoveState
 
     public override void OnEnterState()
     {
-        CopyLevel = _monster.Rng.NextInt(2, 11);
+        CopyLevel = _monster.Rng.NextInt(1, 11);
         base.OnEnterState();
     }
 }
@@ -857,14 +881,32 @@ public sealed class InfernoidDecatronIntent : StatusIntent
     {
         LocString tip = new("monsters", "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.DECATRON_TIP");
         tip.Add("Demon", DemonName(Level));
-        int damage = InfernoidTierra.LevelDamage(Level);
-        tip.Add("Damage", Level == 8 ? $"{damage}×2" : damage.ToString());
+        tip.Add("Effect", CopyEffectText(Level));
         return tip;
+    }
+
+    private static string CopyEffectText(int level)
+    {
+        int damage = InfernoidTierra.LevelDamage(level);
+        return level switch
+        {
+            1 => "0伤害；下回合随机将1张手牌洗回抽牌堆；献祭后随机除外弃牌堆1张牌",
+            2 => "获得20格挡；献祭后下回合随机将1张手牌洗回抽牌堆",
+            3 => $"{damage}伤害；献祭后2虚弱+2易伤",
+            4 => $"{damage}伤害；献祭后-2力量、-2敏捷",
+            5 => $"{damage}伤害；未防住时下回合随机弃1张手牌",
+            6 => $"{damage}伤害；下回合下1张融合卡无效",
+            7 => $"{damage}伤害；献祭后随机消耗抽牌堆1张牌",
+            8 => $"{damage}×2伤害（第二击仅对未防住者）",
+            9 => $"{damage}伤害；消耗弃牌堆所有技能牌；下回合下1张攻击卡无效",
+            10 => $"{damage}伤害；消耗弃牌堆所有攻击牌；下回合下1张技能卡无效（复制时不触发节点重置）",
+            _ => "？",
+        };
     }
 
     private static string DemonName(int level) => level switch
     {
-        2 => "别西卜", 3 => "路西弗格", 4 => "阿斯塔罗特", 5 => "阿斯蒙蒂斯",
+        1 => "撒旦", 2 => "别西卜", 3 => "路西弗格", 4 => "阿斯塔罗特", 5 => "阿斯蒙蒂斯",
         6 => "贝尔芬格", 7 => "巴力", 8 => "亚得米勒", 9 => "莉莉丝", 10 => "拿玛", _ => "？",
     };
 }

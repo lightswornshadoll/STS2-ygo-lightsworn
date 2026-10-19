@@ -89,7 +89,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
         MoveState returnMove = new(ReturnMoveId, ReturnMove,
             new DarkWorldReturnIntent(CountAbsorbableCards));
         MoveState dealings = new(DealingsMoveId, DealingsMove,
-            new DebuffIntent(strong: true), new CardDebuffIntent());
+            new DebuffIntent(strong: true), new DarkWorldDealingsIntent());
         MoveState brainwash = new(BrainwashMoveId, BrainwashMove,
             new DarkWorldBrainwashIntent(() => BrainwashCount));
 
@@ -148,7 +148,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
             .Execute(null);
     }
 
-    // 龙神回归：吸收玩家抽牌堆 + 弃牌堆 + 消耗堆中所有暗黑界诅咒卡，每张回复 50 生命。
+    // 龙神回归：吸收玩家抽牌堆 + 弃牌堆 + 消耗堆中所有暗黑界牌（「暗黑界的洗脑」除外），每张回复 50 生命。
     // 被吸收的卡移出战斗（不进消耗堆）；手牌是玩家的安全区，不吸收。
     // v0.6.1 已知问题4：吸收范围追加消耗堆，回血 30/张 → 50/张。
     private async Task ReturnMove(IReadOnlyList<Creature> targets)
@@ -157,9 +157,9 @@ public class DarkWorldGrapha : ModMonsterTemplate
         List<CardModel> absorbed = new();
         foreach (Player player in CombatState.Players)
         {
-            absorbed.AddRange(PileType.Draw.GetPile(player).Cards.Where(IsDarkWorldAttack));
-            absorbed.AddRange(PileType.Discard.GetPile(player).Cards.Where(IsDarkWorldAttack));
-            absorbed.AddRange(PileType.Exhaust.GetPile(player).Cards.Where(IsDarkWorldAttack));
+            absorbed.AddRange(PileType.Draw.GetPile(player).Cards.Where(IsAbsorbableDarkWorldCard));
+            absorbed.AddRange(PileType.Discard.GetPile(player).Cards.Where(IsAbsorbableDarkWorldCard));
+            absorbed.AddRange(PileType.Exhaust.GetPile(player).Cards.Where(IsAbsorbableDarkWorldCard));
         }
 
         if (absorbed.Count > 0)
@@ -186,7 +186,7 @@ public class DarkWorldGrapha : ModMonsterTemplate
                 await DarkWorldBossCards.AddRandomAttackToHand(ctx, player, Rng);
 
             List<CardModel> curses = PileType.Hand.GetPile(player).Cards
-                .Where(IsDarkWorldAttack).ToList();
+                .Where(IsAbsorbableDarkWorldCard).ToList();
             foreach (CardModel curse in curses)
             {
                 // 军神被弃置时会把 2 张手牌洗回抽牌堆；这些牌已经不在手牌，跳过。
@@ -211,7 +211,9 @@ public class DarkWorldGrapha : ModMonsterTemplate
         }
     }
 
-    private static bool IsDarkWorldAttack(CardModel card) => card is DarkWorldAttackCard;
+    // 「暗黑界的洗脑」是状态牌，不属于回归吸收范围；其余暗黑界牌（四神将）都吸收。
+    private static bool IsAbsorbableDarkWorldCard(CardModel card)
+        => card is IDarkWorldCard && card is not DarkWorldBrainwashing;
 
     private int CountAbsorbableCards()
     {
@@ -219,9 +221,9 @@ public class DarkWorldGrapha : ModMonsterTemplate
         int count = 0;
         foreach (Player player in CombatState.Players)
         {
-            count += PileType.Draw.GetPile(player).Cards.Count(IsDarkWorldAttack);
-            count += PileType.Discard.GetPile(player).Cards.Count(IsDarkWorldAttack);
-            count += PileType.Exhaust.GetPile(player).Cards.Count(IsDarkWorldAttack);
+            count += PileType.Draw.GetPile(player).Cards.Count(IsAbsorbableDarkWorldCard);
+            count += PileType.Discard.GetPile(player).Cards.Count(IsAbsorbableDarkWorldCard);
+            count += PileType.Exhaust.GetPile(player).Cards.Count(IsAbsorbableDarkWorldCard);
         }
         return count;
     }
@@ -331,9 +333,13 @@ public sealed class DarkWorldReturnIntent : StatusIntent
 
     public override IntentType IntentType => IntentType.Heal;
 
+    // 用 HEAL 前缀，让悬浮标题显示「回复」而不是「状态牌」。
+    // 注意：GetAnimation 必须保持 "heal"（IntentAnimData 的合法键）；不要改成 "cast"，
+    // "cast" 只是怪物本体动画，不在意图动画表里，会导致意图图标整行消失（实测）。
+    protected override string IntentPrefix => "HEAL";
     protected override string SpritePath => "atlases/intent_atlas.sprites/intent_heal.tres";
 
-    public override bool HasIntentTip => false;
+    public override bool HasIntentTip => true;
 
     public override LocString GetIntentLabel(IEnumerable<Creature> targets, Creature owner)
     {
@@ -342,6 +348,37 @@ public sealed class DarkWorldReturnIntent : StatusIntent
         label.Add("Amount", _cardCount() * DarkWorldGrapha.ReturnHealPerCard);
         return label;
     }
+
+    protected override LocString GetIntentDescription(IEnumerable<Creature> targets, Creature owner)
+    {
+        LocString tip = new("monsters",
+            "LIGHTSWORN_MONSTER_DARK_WORLD_GRAPHA.intents.RETURN_TIP");
+        int count = _cardCount();
+        tip.Add("Heal", DarkWorldGrapha.ReturnHealPerCard);
+        tip.Add("Count", count);
+        tip.Add("Total", count * DarkWorldGrapha.ReturnHealPerCard);
+        return tip;
+    }
+}
+
+// 取引意向：原版 CardDebuffIntent 只有通用图标，没有「生成/弃置暗黑界牌」的文字；
+// 这里换成带完整悬浮说明的自定义意向。
+public sealed class DarkWorldDealingsIntent : StatusIntent
+{
+    public DarkWorldDealingsIntent() : base(1) { }
+
+    public override IntentType IntentType => IntentType.CardDebuff;
+
+    protected override string IntentPrefix => "CARD_DEBUFF";
+    protected override string SpritePath => "atlases/intent_atlas.sprites/intent_card_debuff.tres";
+
+    public override bool HasIntentTip => true;
+
+    public override LocString GetIntentLabel(IEnumerable<Creature> targets, Creature owner)
+        => new("monsters", "LIGHTSWORN_MONSTER_DARK_WORLD_GRAPHA.intents.DEALINGS_SHORT");
+
+    protected override LocString GetIntentDescription(IEnumerable<Creature> targets, Creature owner)
+        => new("monsters", "LIGHTSWORN_MONSTER_DARK_WORLD_GRAPHA.intents.DEALINGS_TIP");
 }
 
 // 洗脑意向：数量随当前回合增长（ceil(n/2)）。
@@ -365,9 +402,8 @@ public sealed class DarkWorldBrainwashIntent : StatusIntent
 
     protected override LocString GetIntentDescription(IEnumerable<Creature> targets, Creature owner)
     {
-        LocString description = new("intents", "STATUS.description");
-        ICombatState? combatState = owner.CombatState;
-        description.Add("IsMultiplayer", combatState != null && combatState.RunState.Players.Count > 1);
+        LocString description = new("monsters",
+            "LIGHTSWORN_MONSTER_DARK_WORLD_GRAPHA.intents.BRAINWASH_TIP");
         description.Add("CardCount", _count());
         return description;
     }

@@ -38,6 +38,7 @@ monster_entries = {
     f'{PREFIX}.name': '狱火机·提耶拉',
     f'{PREFIX}.phase2Name': '创星神·提耶拉',
     f'{PREFIX}.moves.INFERNOID_DECATRON.title': '十进管',
+    f'{PREFIX}.moves.INFERNOID_SATAN.title': '撒旦',
     f'{PREFIX}.moves.INFERNOID_BEELZEBUB.title': '别西卜',
     f'{PREFIX}.moves.INFERNOID_LUCIFUGUS.title': '路西弗格',
     f'{PREFIX}.moves.INFERNOID_ASTAROTH.title': '阿斯塔罗特',
@@ -57,9 +58,12 @@ monster_entries = {
     f'{PREFIX}.intents.TRIBUTE_SHORT': '献祭',
     f'{PREFIX}.intents.TRIBUTE_TIP': '从弃牌堆消耗1张非狱火机；然后Boss将1张随机狱火机诅咒洗入你的抽牌堆。',
     f'{PREFIX}.intents.DECATRON_SHORT': '复制：{Demon}',
-    f'{PREFIX}.intents.DECATRON_TIP': '十进管：随机复制2-10中一只狱火机的动作。本次复制：{Demon}（{Damage}伤害 / 对应效果）。',
+    f'{PREFIX}.intents.DECATRON_TIP': '十进管：随机复制1-10中一只狱火机的动作。本次复制：{Demon}。{Effect}。',
     f'{PREFIX}.intents.DECATRON_COPY_ATTACK': '十进管复制：{Demon}（{Damage}伤害）',
     f'{PREFIX}.intents.DECATRON_COPY_DEFEND': '十进管复制：{Demon}（获得20格挡）',
+    f'{PREFIX}.intents.SATAN_SHORT': '洗回卡组',
+    f'{PREFIX}.intents.SATAN_TIP': '下回合抽牌后，随机将1张手牌洗回抽牌堆。献祭成功后：随机消耗你弃牌堆1张牌。',
+    f'{PREFIX}.intents.SATAN': '洗回1张手牌 / 除外墓地1张牌',
     f'{PREFIX}.intents.NULLIFY_FUSION_SHORT': '融合无效',
     f'{PREFIX}.intents.NULLIFY_FUSION_TIP': '你的下1张融合卡无效（费用照付，不执行效果）。',
     f'{PREFIX}.intents.EXHAUST_SKILLS_SHORT': '清技能',
@@ -99,8 +103,8 @@ encounter_entries = {
 }
 
 cards = {
-    'InfernoidDecatron': ('狱火机 十进管',
-        '不可打出。被弃置时：无效果。'),
+    'InfernoidSatan': ('狱火机·撒旦',
+        '不可打出。被弃置时：消耗弃牌堆1张其他狱火机，随机消耗弃牌堆1张其他牌。'),
     'InfernoidBeelzebub': ('狱火机·别西卜',
         '不可打出。被弃置时：消耗弃牌堆1张其他狱火机，将1张随机手牌洗回抽牌堆。'),
     'InfernoidLucifugus': ('狱火机·路西弗格',
@@ -131,22 +135,25 @@ for cls, (title, desc) in cards.items():
 powers = {
     'INFERNOID_MATERIAL_POWER': (
         '逆生命树',
-        'Boss 的动作取决于回合开始时点亮的节点数。每当新的非十进管狱火机诅咒进入消耗堆时，点亮1个节点（每名玩家每种只算一次）。' + chr(10) +
+        'Boss 的动作取决于回合开始时点亮的节点数。每当新的狱火机诅咒进入消耗堆时，点亮1个节点。' + chr(10) +
         '点亮第{T3}个节点：融合封印——选择至多3张本回合尚未生成的融合卡，本回合视为已生成；没有可选融合卡时，将1张随机狱火机诅咒洗入抽牌堆。' + chr(10) +
         '点亮第{T5}个节点：弃光3，并将3张随机狱火机诅咒置入弃牌堆。' + chr(10) +
         '点亮第{T8}个节点：从除外区选至多3张非狱火机与3张狱火机放回弃牌堆。' + chr(10) +
-        '点亮第{T10}个节点：丢弃全部手牌（不生成诅咒）。Boss 下个回合的拿玛动作完整结算后，清空种类记录并将节点重置为{Base}；消耗堆中的狱火机诅咒不会返回弃牌堆。' + chr(10) +
+        '点亮第{T10}个节点：丢弃全部手牌。Boss 下个回合的动作结束后，清空种类记录并将节点重置为{Base}。' + chr(10) +
         '每弃置30张牌，将1张随机狱火机诅咒洗入抽牌堆。' + chr(10) +
-        '当前节点：{Amount}/{Max}。'),
+        '当前节点：{Nodes}/{Max}。'),
     'STAR_CREATION_POWER': (
         '创星',
-        '创星 {Gauge}/{Max}：每个 Boss 回合结束+2×玩家数；阶段2内每名玩家每引爆一种新的狱火机诅咒+1。'
+        '创星 {Gauge}/{Max}：每个 Boss 回合结束+{Gain}；每引爆一种新的狱火机诅咒+{TypeGain}。'
         '达到{Max}时，提耶拉的下一招变为「创星·灭世」。已引爆种类：{Types}（{TypeCount}/{Max}）。'),
     'INFERNOID_TIERRA_PHASE_GATE_POWER': (
-        '不灭之核',
+        '炼狱的狂宴',
         '一阶段生命打空时不会死亡，而是进入第二阶段「创星神·提耶拉」。'),
     'TIERRA_SHUFFLE_ONE_POWER': (
         '别西卜之惑',
+        '下回合抽牌后，随机将1张手牌洗回抽牌堆。'),
+    'TIERRA_SATAN_SHUFFLE_POWER': (
+        '撒旦之惑',
         '下回合抽牌后，随机将1张手牌洗回抽牌堆。'),
     'TIERRA_DISCARD_ONE_POWER': (
         '阿斯蒙蒂斯之惑',
@@ -185,11 +192,33 @@ selection = {
     'LIGHTSWORN_TIERRA_SEAL_FUSION': '融合封印：选择至多3张本回合尚未生成的融合卡（本回合视为已生成）',
 }
 
+def remove_keys(lang, filename, keys):
+    path = os.path.join(LOC, lang, filename)
+    if not os.path.isfile(path):
+        return
+    data = load(path)
+    removed = 0
+    for key in keys:
+        if key in data:
+            del data[key]
+            removed += 1
+    if removed:
+        save(path, data)
+        print(lang, filename, 'removed', removed)
+
+
+# 十进管诅咒已从卡池移除（十进管保留为 Boss 的 0 级动作）。
+removed_card_keys = [
+    'LIGHTSWORN_CARD_INFERNOID_DECATRON.title',
+    'LIGHTSWORN_CARD_INFERNOID_DECATRON.description',
+]
+
 for lang in ('zhs', 'eng'):
     update(lang, 'monsters.json', monster_entries)
     update(lang, 'encounters.json', encounter_entries)
     update(lang, 'cards.json', card_entries)
     update(lang, 'powers.json', power_entries)
     update(lang, 'card_selection.json', selection)
+    remove_keys(lang, 'cards.json', removed_card_keys)
 
 print('done')

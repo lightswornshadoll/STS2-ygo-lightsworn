@@ -10,18 +10,22 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Lightsworn;
 
 // ================= 暗黑界的龙神王 Boss 战斗内专属牌 =================
-// 四神将（v0.6.1 已知问题3：攻击卡→诅咒卡，1费·保留，TargetType.None）：
+// 四神将（v0.7.8：诅咒→状态牌，1费·保留，TargetType.None）：
 //   打出时对自己的主人（玩家）造成伤害——牌面写"造成X点伤害"，实际结算目标固定为自己。
-//   Curse 稀有度 + showInCardLibrary:false → LightswornCardPool.FilterThroughEpochs 会把它们从一切
+//   Status 稀有度 + showInCardLibrary:false → LightswornCardPool.FilterThroughEpochs 会把它们从一切
 //   "卡池来源"剔除（战斗奖励/商店/变形/事件选牌）。
 // 只由 Boss 的「暗黑界的军势」/被动「暗黑界的诱惑」在战斗内生成，战斗结束随战斗状态回收。
-// 打出后进弃牌堆（不消耗），因此可以被「龙神回归」吸收给 Boss 回血。
-public abstract class DarkWorldAttackCard : LsCard
+// 打出后移出战斗（不进弃牌堆、不进消耗堆）；从手牌被弃置时仍进弃牌堆，可被「龙神回归」吸收。
+public interface IDarkWorldCard
+{
+}
+
+public abstract class DarkWorldAttackCard : LsCard, IDarkWorldCard
 {
     private readonly int _damage;
 
     protected DarkWorldAttackCard(int damage)
-        : base(1, CardType.Curse, CardRarity.Curse, TargetType.None, showInCardLibrary: false)
+        : base(1, CardType.Status, CardRarity.Status, TargetType.None, showInCardLibrary: false)
     {
         _damage = damage;
     }
@@ -36,9 +40,15 @@ public abstract class DarkWorldAttackCard : LsCard
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        // 诅咒牌：伤害指向自己（吃到自己的力量/格挡/易伤等玩家侧修正）
+        // 状态牌：伤害指向自己（吃到自己的力量/格挡/易伤等玩家侧修正）
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCardCompat(this, cardPlay)
             .Targeting(Owner.Creature).Execute(choiceContext);
+
+        // 打出后移出战斗（不进弃牌堆/消耗堆）。0.107 与 0.111 的结算堆 API 不同
+        // （0.107=GetResultPileTypeForCardPlay，0.111=GetResultLocationForCardPlay），
+        // 所以从两个版本共有的 OnPlay 入口移除；移除后 OnPlayWrapper 看到 Pile=null 会跳过后续结算堆移动。
+        if (Pile?.Type == PileType.Play)
+            await CardPileCmd.RemoveFromCombat(this);
     }
 
     protected override void OnUpgrade() { }
@@ -59,7 +69,7 @@ public abstract class DarkWorldAttackCard : LsCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class DarkWorldKelt : DarkWorldAttackCard
 {
-    public DarkWorldKelt() : base(6) { }
+    public DarkWorldKelt() : base(12) { }
 
     protected override async Task OnDiscardedFromHand(PlayerChoiceContext choiceContext)
     {
@@ -74,7 +84,7 @@ public class DarkWorldKelt : DarkWorldAttackCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class DarkWorldLatinum : DarkWorldAttackCard
 {
-    public DarkWorldLatinum() : base(4) { }
+    public DarkWorldLatinum() : base(8) { }
 
     protected override async Task OnDiscardedFromHand(PlayerChoiceContext choiceContext)
     {
@@ -89,7 +99,7 @@ public class DarkWorldLatinum : DarkWorldAttackCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class DarkWorldSillva : DarkWorldAttackCard
 {
-    public DarkWorldSillva() : base(5) { }
+    public DarkWorldSillva() : base(11) { }
 
     protected override async Task OnDiscardedFromHand(PlayerChoiceContext choiceContext)
     {
@@ -108,7 +118,7 @@ public class DarkWorldSillva : DarkWorldAttackCard
 [RegisterCard(typeof(LightswornCardPool))]
 public class DarkWorldGoldd : DarkWorldAttackCard
 {
-    public DarkWorldGoldd() : base(5) { }
+    public DarkWorldGoldd() : base(11) { }
 
     protected override async Task OnDiscardedFromHand(PlayerChoiceContext choiceContext)
     {
@@ -121,7 +131,7 @@ public class DarkWorldGoldd : DarkWorldAttackCard
 // 手动打出同样生效；自动打出也算打出（走 CardCmd.AutoPlay 的完整卡牌流程）。
 // 洗脑 debuff 用 PowerCmd.Apply 施加（PowerType.Debuff + 可见）→ 人工制品会正常抵消。
 [RegisterCard(typeof(LightswornCardPool))]
-public class DarkWorldBrainwashing : LsCard
+public class DarkWorldBrainwashing : LsCard, IDarkWorldCard
 {
     private bool _autoPlaying;
 

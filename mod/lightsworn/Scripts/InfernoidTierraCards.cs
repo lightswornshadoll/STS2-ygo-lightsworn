@@ -15,19 +15,19 @@ namespace Lightsworn;
 
 // ================= 狱火机·提耶拉的一阶段诅咒（10 只狱火机） =================
 // 设计：design\提耶拉boss设计.md §4.3 / §8 规则 7-8。
-// 统一规格：Curse + Curse 稀有度 + 不可打出 + showInCardLibrary:false + 不可生成。
+// 统一规格：Status + Status 稀有度 + 不可打出 + showInCardLibrary:false + 不可生成。
 // 被「弃置」时（手牌弃置 / 弃光 Draw→Discard）检查弃牌堆里其他狱火机数量：
-//   数量 ≥ 召唤代价（Lv2-4=1、Lv5-8=2、Lv9-10=3、十进管=0）→ 随机消耗对应数量的其他狱火机，
+//   数量 ≥ 召唤代价（撒旦 Lv1=1、Lv2-4=1、Lv5-8=2、Lv9-10=3）→ 随机消耗对应数量的其他狱火机，
 //   触发本卡的召唤时/场上效果。**诅咒本身不消耗，留在弃牌堆**。
 // 回合结束的手牌清理走 CardPileCmd.Add + AfterFlush，不经过这两个钩子，因此不触发。
 public abstract class InfernoidCurseCard : LsCard
 {
     protected InfernoidCurseCard()
-        : base(-1, CardType.Curse, CardRarity.Curse, TargetType.None, showInCardLibrary: false)
+        : base(-1, CardType.Status, CardRarity.Status, TargetType.None, showInCardLibrary: false)
     {
     }
 
-    /// <summary>原卡等级（1-10）。决定引爆代价；十进管为 1。</summary>
+    /// <summary>原卡等级（1-10）。决定引爆代价；撒旦为 1。</summary>
     public abstract int Level { get; }
 
     /// <summary>素材去重键：同名复制品不重复增加融合素材数。</summary>
@@ -44,10 +44,9 @@ public abstract class InfernoidCurseCard : LsCard
 
     protected override void OnUpgrade() { }
 
-    /// <summary>引爆代价：Lv2-4=1，Lv5-8=2，Lv9-10=3，Lv1=0。</summary>
-    public int SummonCost => Level switch
+    /// <summary>引爆代价：Lv2-4=1，Lv5-8=2，Lv9-10=3。</summary>
+    public virtual int SummonCost => Level switch
     {
-        <= 1 => 0,
         <= 4 => 1,
         <= 8 => 2,
         _ => 3,
@@ -115,9 +114,6 @@ public abstract class InfernoidCurseCard : LsCard
         // 代价不够（理论上不会）就不触发效果。
         if (paid.Count < cost) return;
 
-        // 十进管没有「被弃置时」效果：不执行效果，也不计入引爆种类。
-        if (Level <= 1) return;
-
         await ExecuteEffect(choiceContext);
         InfernoidTierra.NotifyCurseDetonated(player, Level, MaterialKey);
     }
@@ -128,6 +124,16 @@ public abstract class InfernoidCurseCard : LsCard
         int level = Level;
         switch (level)
         {
+            case 1:
+            {
+                // 撒旦：以对手墓地（玩家弃牌堆）1 张卡为对象，将其除外；自身留在弃牌堆。
+                List<CardModel> discard = PileType.Discard.GetPile(player).Cards
+                    .Where(c => !ReferenceEquals(c, this)).ToList();
+                CardModel? pick = player.RunState.Rng.CombatCardSelection.NextItem(discard);
+                if (pick != null)
+                    await LsCompat.ExhaustCompat(ctx, pick);
+                break;
+            }
             case 2:
             {
                 // 别西卜：将 1 张随机手牌洗回抽牌堆。
@@ -209,9 +215,12 @@ public abstract class InfernoidCurseCard : LsCard
 // 数值/效果见设计 §4.3 表；卡图来自 ygopro pics（tools\make_tierra_boss_assets.py）。
 
 [RegisterCard(typeof(LightswornCardPool))]
-public class InfernoidDecatron : InfernoidCurseCard
+public class InfernoidSatan : InfernoidCurseCard
 {
     public override int Level => 1;
+
+    // 原卡「狱火机·撒旦」的召唤条件：除外手卡/墓地 1 只狱火机。
+    public override int SummonCost => 1;
 }
 
 [RegisterCard(typeof(LightswornCardPool))]
@@ -273,7 +282,7 @@ internal static class InfernoidTierraCards
 {
     private static readonly Type[] CurseTypes =
     [
-        typeof(InfernoidDecatron), typeof(InfernoidBeelzebub), typeof(InfernoidLucifugus),
+        typeof(InfernoidSatan), typeof(InfernoidBeelzebub), typeof(InfernoidLucifugus),
         typeof(InfernoidAstaroth), typeof(InfernoidAsmodeus), typeof(InfernoidBelphegor),
         typeof(InfernoidBaal), typeof(InfernoidAdrammelech), typeof(InfernoidLilith),
         typeof(InfernoidOnuncu),
@@ -308,7 +317,7 @@ internal static class InfernoidTierraCards
         Type chosen = rng.NextItem(candidates) ?? CurseTypes[0];
         CardModel canonical = chosen switch
         {
-            Type t when t == typeof(InfernoidDecatron) => ModelDb.Card<InfernoidDecatron>(),
+            Type t when t == typeof(InfernoidSatan) => ModelDb.Card<InfernoidSatan>(),
             Type t when t == typeof(InfernoidBeelzebub) => ModelDb.Card<InfernoidBeelzebub>(),
             Type t when t == typeof(InfernoidLucifugus) => ModelDb.Card<InfernoidLucifugus>(),
             Type t when t == typeof(InfernoidAstaroth) => ModelDb.Card<InfernoidAstaroth>(),

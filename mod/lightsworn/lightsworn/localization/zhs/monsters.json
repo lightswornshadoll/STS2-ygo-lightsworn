@@ -41,7 +41,7 @@
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.TRIBUTE_SHORT": "献祭",
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.TRIBUTE_TIP": "从弃牌堆消耗1张非狱火机；然后Boss将1张随机狱火机诅咒洗入你的抽牌堆。",
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.DECATRON_SHORT": "复制：{Demon}",
-  "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.DECATRON_TIP": "十进管：随机复制2-10中一只狱火机的动作。本次复制：{Demon}（{Damage}伤害 / 对应效果）。",
+  "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.DECATRON_TIP": "十进管：随机复制1-10中一只狱火机的动作。本次复制：{Demon}。{Effect}。",
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.NULLIFY_FUSION_SHORT": "融合无效",
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.NULLIFY_FUSION_TIP": "你的下1张融合卡无效（费用照付，不执行效果）。",
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.EXHAUST_SKILLS_SHORT": "清技能",
@@ -61,5 +61,13 @@
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.GENERATE_FUEL_SHORT": "生成燃料",
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.GENERATE_FUEL_TIP": "生成2张随机狱火机诅咒到弃牌堆；本回合生成过融合卡时再生成6张。",
   "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.APOCALYPSE_SHORT": "灭世",
-  "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.APOCALYPSE_TIP": "手牌与弃牌堆洗回抽牌堆；下回合只抽1张并失去1点能量；Boss回复100生命并获得2仪式。"
+  "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.APOCALYPSE_TIP": "手牌与弃牌堆洗回抽牌堆；下回合只抽1张并失去1点能量；Boss回复100生命并获得2仪式。",
+  "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.moves.INFERNOID_SATAN.title": "撒旦",
+  "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.SATAN_SHORT": "洗回卡组",
+  "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.SATAN_TIP": "下回合抽牌后，随机将1张手牌洗回抽牌堆。献祭成功后：随机消耗你弃牌堆1张牌。",
+  "LIGHTSWORN_MONSTER_INFERNOID_TIERRA.intents.SATAN": "洗回1张手牌 / 除外墓地1张牌",
+  "LIGHTSWORN_MONSTER_DARK_WORLD_GRAPHA.intents.RETURN_TIP": "吸收玩家抽牌堆、弃牌堆、消耗堆中的所有暗黑界牌（不含「暗黑界的洗脑」），每张回复{Heal}点生命；本次共{Count}张，预计回复{Total}点。被吸收的牌移出战斗。",
+  "LIGHTSWORN_MONSTER_DARK_WORLD_GRAPHA.intents.DEALINGS_SHORT": "取引",
+  "LIGHTSWORN_MONSTER_DARK_WORLD_GRAPHA.intents.DEALINGS_TIP": "施加5层虚弱和5层易伤；生成2张随机暗黑界牌到手牌，然后弃置手牌中所有暗黑界牌（「暗黑界的洗脑」除外）。",
+  "LIGHTSWORN_MONSTER_DARK_WORLD_GRAPHA.intents.BRAINWASH_TIP": "将{CardCount}张「暗黑界的洗脑」洗入你的抽牌堆。"
 }

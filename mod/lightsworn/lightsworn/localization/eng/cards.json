@@ -1,16 +1,14 @@
 {
   "LIGHTSWORN_CARD_DARK_WORLD_KELT.title": "暗黑界的鬼神",
-  "LIGHTSWORN_CARD_DARK_WORLD_KELT.description": "造成{Damage:diff()}点伤害。\n[gold]从手牌被弃置时[/gold]：对自己造成12点伤害。",
+  "LIGHTSWORN_CARD_DARK_WORLD_KELT.description": "对自己造成{Damage:diff()}点伤害。打出后移出战斗。\n[gold]从手牌被弃置时[/gold]：对自己造成12点伤害。",
   "LIGHTSWORN_CARD_DARK_WORLD_LATINUM.title": "暗黑界的斗神",
-  "LIGHTSWORN_CARD_DARK_WORLD_LATINUM.description": "造成{Damage:diff()}点伤害。\n[gold]从手牌被弃置时[/gold]：龙神王获得3点力量。",
+  "LIGHTSWORN_CARD_DARK_WORLD_LATINUM.description": "对自己造成{Damage:diff()}点伤害。打出后移出战斗。\n[gold]从手牌被弃置时[/gold]：龙神王获得3点力量。",
   "LIGHTSWORN_CARD_DARK_WORLD_SILLVA.title": "暗黑界的军神",
-  "LIGHTSWORN_CARD_DARK_WORLD_SILLVA.description": "造成{Damage:diff()}点伤害。\n[gold]从手牌被弃置时[/gold]：随机将2张手牌洗入抽牌堆。",
+  "LIGHTSWORN_CARD_DARK_WORLD_SILLVA.description": "对自己造成{Damage:diff()}点伤害。打出后移出战斗。\n[gold]从手牌被弃置时[/gold]：随机将2张手牌洗入抽牌堆。",
   "LIGHTSWORN_CARD_DARK_WORLD_GOLDD.title": "暗黑界的武神",
-  "LIGHTSWORN_CARD_DARK_WORLD_GOLDD.description": "造成{Damage:diff()}点伤害。\n[gold]从手牌被弃置时[/gold]：对自己施加1层虚弱和1层易伤。",
+  "LIGHTSWORN_CARD_DARK_WORLD_GOLDD.description": "对自己造成{Damage:diff()}点伤害。打出后移出战斗。\n[gold]从手牌被弃置时[/gold]：对自己施加1层虚弱和1层易伤。",
   "LIGHTSWORN_CARD_DARK_WORLD_BRAINWASHING.title": "暗黑界的洗脑",
   "LIGHTSWORN_CARD_DARK_WORLD_BRAINWASHING.description": "抽到时自动打出：获得1层[gold]洗脑[/gold]。\n[gold]洗脑[/gold]：打出的下一张攻击、技能或能力牌无效（可叠加、跨回合保留）。",
-  "LIGHTSWORN_CARD_INFERNOID_DECATRON.title": "狱火机 十进管",
-  "LIGHTSWORN_CARD_INFERNOID_DECATRON.description": "不可打出。被弃置时：无效果。",
   "LIGHTSWORN_CARD_INFERNOID_BEELZEBUB.title": "狱火机·别西卜",
   "LIGHTSWORN_CARD_INFERNOID_BEELZEBUB.description": "不可打出。被弃置时：消耗弃牌堆1张其他狱火机，将1张随机手牌洗回抽牌堆。",
   "LIGHTSWORN_CARD_INFERNOID_LUCIFUGUS.title": "狱火机·路西弗格",
@@ -28,5 +26,7 @@
   "LIGHTSWORN_CARD_INFERNOID_LILITH.title": "狱火机·莉莉丝",
   "LIGHTSWORN_CARD_INFERNOID_LILITH.description": "不可打出。被弃置时：消耗弃牌堆3张其他狱火机，弃置手牌中所有技能牌。",
   "LIGHTSWORN_CARD_INFERNOID_ONUNCU.title": "狱火机·拿玛",
-  "LIGHTSWORN_CARD_INFERNOID_ONUNCU.description": "不可打出。被弃置时：消耗弃牌堆3张其他狱火机，弃置手牌中所有攻击牌。"
+  "LIGHTSWORN_CARD_INFERNOID_ONUNCU.description": "不可打出。被弃置时：消耗弃牌堆3张其他狱火机，弃置手牌中所有攻击牌。",
+  "LIGHTSWORN_CARD_INFERNOID_SATAN.title": "狱火机·撒旦",
+  "LIGHTSWORN_CARD_INFERNOID_SATAN.description": "不可打出。被弃置时：消耗弃牌堆1张其他狱火机，随机消耗弃牌堆1张其他牌。"
 }

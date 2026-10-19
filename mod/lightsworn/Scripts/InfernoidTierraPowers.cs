@@ -17,11 +17,12 @@ using STS2RitsuLib.Patching.Models;
 namespace Lightsworn;
 
 // ================= 一阶段核心：逆生命树节点数 = 动作等级 =================
-// 数值只升不降：初始 N；每张新的不同名、非十进管的狱火机诅咒进入玩家消耗堆时点亮 1 个节点（上限 10N）。
+// 内部 Amount = 节点数 + 1（0 节点时能力仍可见）；数值只升不降：初始 0；
+// 每张新的不同名狱火机诅咒进入玩家消耗堆时点亮 1 个节点（上限 10N）。
 // 同名复制品不加；8 级回收只把牌从除外区挪回弃牌堆，不改变节点数。
-// 3/5/8 在节点数“正好达到”时立即触发一次（7→9 会跳过 8）；10 到达时立刻弃光玩家手牌并生成诅咒，
-// 并把下一次出招标记为拿玛（PendingNaamah）；拿玛动作结算完之后清空种类记录并把节点重置为 N
-// （不把消耗堆中的诅咒放回弃牌堆；拿玛动作也不再塞诅咒）。
+// 3/5/8 在节点数“达到或超过”时立即触发一次（一次跨过多个阈值会依次结算）；10 到达时立刻弃光玩家手牌，
+// 并把下一次出招标记为拿玛（PendingNaamah）；拿玛动作结算完之后清空种类记录并把节点重置为 0
+// （不把消耗堆中的诅咒放回弃牌堆；拿玛动作仍照常塞诅咒）。
 public class InfernoidMaterialPower : ModPowerTemplate
 {
     // 种类按玩家隔离：同一名狱火机在不同玩家手里各算一次；节点条全局共享。
@@ -39,7 +40,9 @@ public class InfernoidMaterialPower : ModPowerTemplate
     private const int DiscardCurseThreshold = 30;
     private readonly Dictionary<Player, int> _discardCounts = new();
 
-    public int Material => Amount;
+    public int Material => Math.Max(0, Amount - 1);
+
+    public override int DisplayAmount => Material;
 
     public bool PendingNaamah => _pendingNaamah;
 
@@ -47,8 +50,8 @@ public class InfernoidMaterialPower : ModPowerTemplate
 
     public int MaxNodes => 10 * PlayerCount;
 
-    /// <summary>动作等级=节点数按玩家数折算回 1-10（3人初始3节点=1级，9节点=3级）。</summary>
-    public int ActionLevel => Math.Clamp((Material + PlayerCount - 1) / PlayerCount, 1, 10);
+    /// <summary>动作等级=节点数按玩家数折算回 0-10（0 节点=0 级十进管；3人 1-3 节点=1 级撒旦）。</summary>
+    public int ActionLevel => Math.Clamp((Material + PlayerCount - 1) / PlayerCount, 0, 10);
 
     public override LocString Description
     {
@@ -60,8 +63,9 @@ public class InfernoidMaterialPower : ModPowerTemplate
             text.Add("T5", 5 * players);
             text.Add("T8", 8 * players);
             text.Add("T10", 10 * players);
-            text.Add("Base", players);
+            text.Add("Base", 0);
             text.Add("Max", 10 * players);
+            text.Add("Nodes", Material);
             return text;
         }
     }
@@ -88,7 +92,6 @@ public class InfernoidMaterialPower : ModPowerTemplate
 
         if (_pendingNaamah) return;
         if (card is not InfernoidCurseCard curse) return;
-        if (curse.Level <= 1) return;
         if (card.Pile?.Type != PileType.Exhaust || oldPileType == PileType.Exhaust) return;
         if (card.Owner?.Creature?.Side != CombatSide.Player) return;
         if (!Owner.IsAlive) return;
@@ -101,14 +104,14 @@ public class InfernoidMaterialPower : ModPowerTemplate
             _namesByPlayer[player] = names;
         }
         if (!names.Add(curse.MaterialKey)) return;
-        if (Amount >= MaxNodes)
+        if (Material >= MaxNodes)
         {
             _pendingNaamah = true;
             Flash();
             return;
         }
 
-        SetAmount(Math.Min(MaxNodes, Amount + 1));
+        SetAmount(Math.Min(MaxNodes + 1, Amount + 1));
         Flash();
         if (!_batching)
             await CheckThresholdsAsync();
@@ -150,22 +153,23 @@ public class InfernoidMaterialPower : ModPowerTemplate
         {
             PlayerChoiceContext ctx = new BlockingPlayerChoiceContext();
             int players = PlayerCount;
-            if (Amount == 3 * players && !_threshold3)
+            // 跨过阈值也触发：一次结算从 2 跳到 7 时，3N 与 5N 都要结算，不能只认“恰好等于”。
+            if (Material >= 3 * players && !_threshold3)
             {
                 _threshold3 = true;
                 await TriggerFusionSeal(ctx);
             }
-            if (Amount == 5 * players && !_threshold5)
+            if (Material >= 5 * players && !_threshold5)
             {
                 _threshold5 = true;
                 await TriggerGraveFill(ctx);
             }
-            if (Amount == 8 * players && !_threshold8)
+            if (Material >= 8 * players && !_threshold8)
             {
                 _threshold8 = true;
                 await TriggerRecovery(ctx);
             }
-            if (Amount >= 10 * players && !_fusionCompleteTriggered)
+            if (Material >= 10 * players && !_fusionCompleteTriggered)
             {
                 _fusionCompleteTriggered = true;
                 _pendingNaamah = true;
@@ -284,7 +288,7 @@ public class InfernoidMaterialPower : ModPowerTemplate
         }
     }
 
-    // 拿玛动作完整结算之后：清空种类与阈值记录，节点重置为玩家人数 N。
+    // 拿玛动作完整结算之后：清空种类与阈值记录，节点重置为 0（内部 Amount = 1）。
     // 不把消耗堆中的狱火机诅咒放回弃牌堆；它们继续留在消耗堆。
     // 10 节点的弃手牌已在到达 10 的瞬间结算（TriggerFusionCompletionAsync），这里不再重复。
     public Task CompleteFusionAsync()
@@ -295,7 +299,7 @@ public class InfernoidMaterialPower : ModPowerTemplate
         _threshold8 = false;
         _pendingNaamah = false;
         _fusionCompleteTriggered = false;
-        SetAmount(PlayerCount);
+        SetAmount(1);
         Flash();
         return Task.CompletedTask;
     }
@@ -309,7 +313,7 @@ public class StarCreationPower : ModPowerTemplate
 {
     private static readonly Dictionary<string, string> TypeNames = new()
     {
-        ["InfernoidDecatron"] = "十进管",
+        ["InfernoidSatan"] = "撒旦",
         ["InfernoidBeelzebub"] = "别西卜",
         ["InfernoidLucifugus"] = "路西弗格",
         ["InfernoidAstaroth"] = "阿斯塔罗特",
@@ -360,6 +364,8 @@ public class StarCreationPower : ModPowerTemplate
                     }));
             text.Add("Gauge", Gauge);
             text.Add("Max", MaxGauge);
+            text.Add("Gain", 2 * PlayerCount);
+            text.Add("TypeGain", 1);
             text.Add("Types", names);
             text.Add("TypeCount", TriggeredTypeCount);
             return text;
@@ -493,6 +499,15 @@ public class TierraShuffleOnePower : TierraDelayedPower
         }
         await PowerCmd.Remove(this);
     }
+}
+
+// 撒旦：下回合抽牌后，随机将 1 张手牌洗回抽牌堆。
+// 原卡①「以场上1张盖卡为对象，那张卡回到卡组」——Boss 回合玩家空手，延迟到玩家下回合。
+public class TierraSatanShufflePower : TierraShuffleOnePower
+{
+    public override PowerAssetProfile AssetProfile => new(
+        IconPath: "res://lightsworn/images/powers/tierrasatanshuffle.png",
+        BigIconPath: "res://lightsworn/images/powers/tierrasatanshuffle_big.png");
 }
 
 // 阿斯蒙蒂斯 / 灾天：下回合抽牌后，随机弃置 1 张手牌。

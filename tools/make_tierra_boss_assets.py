@@ -100,6 +100,7 @@ except Exception as e:
 # ---------- ④ 诅咒卡图（ygopro 250×190） ----------
 CARDS = [
     ('InfernoidDecatron',     '58446973', '狱火机十进管'),
+    ('InfernoidSatan',        '60551528', '狱火机·撒旦'),
     ('InfernoidBeelzebub',    '26034577', '狱火机·别西卜'),
     ('InfernoidLucifugus',    '52038272', '狱火机·路西弗格'),
     ('InfernoidAstaroth',     '89423971', '狱火机·阿斯塔罗特'),
@@ -157,6 +158,7 @@ try:
     round_icon(card('InfernoidOnuncu'), 'starcreationlock')
     round_icon(card('InfernoidBeelzebub'), 'tierrabeelzebub')
     round_icon(card('InfernoidBeelzebub'), 'tierrashuffleone')
+    round_icon(card('InfernoidSatan'), 'tierrasatanshuffle')
     round_icon(card('InfernoidAsmodeus'), 'tierraasmodeus')
     round_icon(card('InfernoidAsmodeus'), 'tierradiscardone')
     round_icon(card('InfernoidBelphegor'), 'tierrabelphegor')
