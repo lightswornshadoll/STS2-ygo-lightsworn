@@ -772,3 +772,4 @@
 - 阈值：`InfernoidMaterialPower.CheckThresholdsAsync` 的 3N/5N/8N 改为 `>=`；一次跨过多个阈值按 3N→5N→8N 顺序依次结算。
 - 类型：`InfernoidCurseCard` 基类改为 `CardType.Status / CardRarity.Status`；卡池仍靠 `showInCardLibrary:false` 过滤。
 - 构建：常规 build 0 错误；0.107 `LsCompatTrial` 0 错误；memberref 双端 PASS；pck 重导后部署到本机 mods（v0.7.8）。
+- 发布：git `382ed6b` 已推送；创意工坊 v0.7.8 上传成功（ManifestID `1026311466593511818`）。

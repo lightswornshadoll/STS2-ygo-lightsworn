@@ -550,4 +550,5 @@
   - `DarkWorldBrainwashIntent`：悬浮只写洗入数量；卡牌/状态效果由卡面与状态说明承载，避免策略文本重复解释。
 - **本地化**：`tools\update_loc_darkworld.py` 更新四神将卡文（打出后移出战斗）、洗脑卡/能力文案；新增 4 个意图键；顺带修正诱惑文案「+1 力量」→「+2 力量」。**同时修复该脚本会整份覆盖 `monsters.json` / `encounters.json` 的问题，改为 merge。**
 - **验证**：常规 build 0 错误；0.107 `LsCompatTrial` 0 错误；memberref 0.107.1 + 0.111 双 PASS；pck 重导并部署（v0.7.8）。
+- **发布**：git `382ed6b` 已推送；创意工坊 v0.7.8 上传成功（ManifestID `1026311466593511818`）。
 
